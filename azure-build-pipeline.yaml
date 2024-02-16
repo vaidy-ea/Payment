@@ -1,0 +1,54 @@
+trigger:
+  branches:
+    include:
+      - feature/UC2_UC4_UC5_UC22
+ 
+pool:
+  vmImage: ubuntu-latest
+ 
+variables:
+  MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
+  MAVEN_OPTS: '-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)'
+  CACHE_KEY: maven | $(Agent.OS) | **/pom.xml
+  CACHE_FALLBACK_KEY: maven | $(Agent.OS)
+ 
+ 
+steps:
+ 
+- task: Cache@2
+  inputs:
+    key: $(CACHE_KEY)
+    restoreKeys: $(CACHE_FALLBACK_KEY)
+    path: $(MAVEN_CACHE_FOLDER)
+    cacheHitVar: CACHE_RESTORED
+  displayName: Cache Mevn local repo
+ 
+- task: Maven@3
+  displayName: 'Build Artifact'
+  inputs:
+    mavenPomFile: 'pom.xml'
+    mavenOptions: '-Xmx3072m $(MAVEN_OPTS)'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.11'
+    jdkArchitectureOption: 'x64'
+    publishJUnitResults: true
+    testResultsFiles: '**/surefire-reports/TEST-*.xml'
+    goals: 'package'
+ 
+- task: CopyFiles@2
+  inputs:
+    contents: '**/*.jar'
+    targetFolder: '$(build.artifactStagingDirectory)'
+ 
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish JAR as Artifact'
+  inputs:
+    PathtoPublish: '$(build.artifactStagingDirectory)'
+    ArtifactName: 'cp-payment-processing-jar'
+ 
+- task: Docker@2
+  inputs:
+    containerRegistry: 'pd-cp-acr'
+    repository: 'pd-cp-paymentprocessing-svc'
+    command: 'buildAndPush'
+    Dockerfile: '**/Dockerfile'

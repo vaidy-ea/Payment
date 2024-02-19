@@ -2,9 +2,8 @@ package com.mgm.pd.cp.resortpayment.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
-import com.mgm.pd.cp.resortpayment.constant.ApplicationConstants;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
-import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentVoidRequest;
+import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
 import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalRequest;
 import com.mgm.pd.cp.resortpayment.dto.router.RouterRequest;
 import com.mgm.pd.cp.resortpayment.repository.PaymentRepository;
@@ -24,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -64,7 +64,7 @@ public class CPPaymentProcessingControllerTest {
     }
 
     @Test
-    void when_provided_valid_incremental_payment_payload_should_process_and_return_success() throws Exception {
+    void when_provided_valid_incremental_payment_payload_should_process_and_return_approval_code() throws Exception {
         //given
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentIncrementalRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
@@ -76,8 +76,7 @@ public class CPPaymentProcessingControllerTest {
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
-        Assertions.assertEquals(ApplicationConstants.SUCCESS_MESSAGE, JsonPath.read(responseJson, "$.message"));
-        Assertions.assertEquals(ApplicationConstants.SUCCESS_CODE, JsonPath.read(responseJson, "$.code"));
+        Assertions.assertEquals("OK196Z", JsonPath.read(responseJson, "$.approvalCode"));
     }
 
     @Test
@@ -126,9 +125,8 @@ public class CPPaymentProcessingControllerTest {
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
-        Assertions.assertEquals(ApplicationConstants.VALIDATION_EXCEPTION_MESSAGE, JsonPath.read(responseJson, "$.message"));
-        Assertions.assertEquals(ApplicationConstants.BAD_REQUEST, JsonPath.read(responseJson, "$.code"));
-        List<String> errorList = JsonPath.read(responseJson, "$.data.errors");
+        Assertions.assertEquals("Invalid Request Parameters", JsonPath.read(responseJson, "$.title"));
+        List<String> errorList = JsonPath.read(responseJson, "$.messages");
         Assertions.assertEquals(3, errorList.size());
     }
 
@@ -141,15 +139,15 @@ public class CPPaymentProcessingControllerTest {
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(INCREMENTAL_AUTH_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(mockRequest));
-        MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
+        MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
-        Assertions.assertEquals(ApplicationConstants.FAILURE_MESSAGE, JsonPath.read(responseJson, "$.message"));
-        Assertions.assertEquals(ApplicationConstants.FAILURE_CODE, JsonPath.read(responseJson, "$.code"));
+        Assertions.assertEquals("Initial Payment is missing", JsonPath.read(responseJson, "$.title"));
+        Assertions.assertEquals(Integer.valueOf(HttpStatus.UNPROCESSABLE_ENTITY.value()), JsonPath.read(responseJson, "$.status"));
     }
 
     @Test
-    void when_provided_valid_capture_payment_payload_should_process_and_return_success() throws Exception {
+    void when_provided_valid_capture_payment_payload_should_process_and_return_approval_code() throws Exception {
         //given
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentCaptureRequest mockRequest = TestHelperUtil.getCapturePaymentRequest();
@@ -161,8 +159,7 @@ public class CPPaymentProcessingControllerTest {
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
-        Assertions.assertEquals(ApplicationConstants.SUCCESS_MESSAGE, JsonPath.read(responseJson, "$.message"));
-        Assertions.assertEquals(ApplicationConstants.SUCCESS_CODE, JsonPath.read(responseJson, "$.code"));
+        Assertions.assertEquals("OK684Z", JsonPath.read(responseJson, "$.approvalCode"));
     }
 
     @Test
@@ -193,7 +190,7 @@ public class CPPaymentProcessingControllerTest {
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
-        JSONAssert.assertEquals(responseJson, TestHelperUtil.getOperaResponse(), false);
+        JSONAssert.assertEquals(responseJson, TestHelperUtil.getOperaResponseForCaptureOperation(), false);
     }
 
     @Test
@@ -210,9 +207,9 @@ public class CPPaymentProcessingControllerTest {
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
-        Assertions.assertEquals(ApplicationConstants.VALIDATION_EXCEPTION_MESSAGE, JsonPath.read(responseJson, "$.message"));
-        Assertions.assertEquals(ApplicationConstants.BAD_REQUEST, JsonPath.read(responseJson, "$.code"));
-        List<String> errorList = JsonPath.read(responseJson, "$.data.errors");
+        Assertions.assertEquals("Invalid Request Parameters", JsonPath.read(responseJson, "$.title"));
+        Assertions.assertEquals(Integer.valueOf(HttpStatus.BAD_REQUEST.value()), JsonPath.read(responseJson, "$.status"));
+        List<String> errorList = JsonPath.read(responseJson, "$.messages");
         Assertions.assertEquals(2, errorList.size());
     }
 
@@ -225,18 +222,18 @@ public class CPPaymentProcessingControllerTest {
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(CAPTURE_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(mockRequest));
-        MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
+        MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
-        Assertions.assertEquals(ApplicationConstants.FAILURE_MESSAGE, JsonPath.read(responseJson, "$.message"));
-        Assertions.assertEquals(ApplicationConstants.FAILURE_CODE, JsonPath.read(responseJson, "$.code"));
+        Assertions.assertEquals("Initial Payment is missing", JsonPath.read(responseJson, "$.title"));
+        Assertions.assertEquals(Integer.valueOf(HttpStatus.UNPROCESSABLE_ENTITY.value()), JsonPath.read(responseJson, "$.status"));
     }
 
     @Test
-    void when_provided_valid_void_payment_payload_should_process_and_return_success() throws Exception {
+    void when_provided_valid_card_void_payment_payload_should_process_and_return_approval_code() throws Exception {
         //given
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
-        CPPaymentVoidRequest mockRequest = TestHelperUtil.getVoidPaymentRequest();
+        CPPaymentCardVoidRequest mockRequest = TestHelperUtil.getVoidPaymentRequest();
         Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getVoidRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(VOID_PATH)
@@ -245,15 +242,14 @@ public class CPPaymentProcessingControllerTest {
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
-        Assertions.assertEquals(ApplicationConstants.SUCCESS_MESSAGE, JsonPath.read(responseJson, "$.message"));
-        Assertions.assertEquals(ApplicationConstants.SUCCESS_CODE, JsonPath.read(responseJson, "$.code"));
+        Assertions.assertEquals("OK196Z", JsonPath.read(responseJson, "$.approvalCode"));
     }
 
     @Test
-    void when_provided_valid_void_payment_payload_should_process_and_return_response_to_opera() throws Exception {
+    void when_provided_valid_card_void_payment_payload_should_process_and_return_response_to_opera() throws Exception {
         //given
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
-        CPPaymentVoidRequest mockRequest = TestHelperUtil.getVoidPaymentRequest();
+        CPPaymentCardVoidRequest mockRequest = TestHelperUtil.getVoidPaymentRequest();
         Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getVoidRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(VOID_PATH)
@@ -266,10 +262,10 @@ public class CPPaymentProcessingControllerTest {
     }
 
     @Test
-    void valid_void_intelligent_router_response_should_persist_in_payment_db() throws Exception {
+    void valid_card_void_intelligent_router_response_should_persist_in_payment_db() throws Exception {
         //given
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
-        CPPaymentVoidRequest mockRequest = TestHelperUtil.getVoidPaymentRequest();
+        CPPaymentCardVoidRequest mockRequest = TestHelperUtil.getVoidPaymentRequest();
         Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getVoidRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(VOID_PATH)
@@ -281,10 +277,10 @@ public class CPPaymentProcessingControllerTest {
     }
 
     @Test
-    void when_provided_invalid_void_payment_payload_should_throw_validation_error_and_return_bad_request() throws Exception {
+    void when_provided_invalid_card_void_payment_payload_should_throw_validation_error_and_return_bad_request() throws Exception {
         //given
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
-        CPPaymentVoidRequest mockRequest = TestHelperUtil.getVoidPaymentRequest();
+        CPPaymentCardVoidRequest mockRequest = TestHelperUtil.getVoidPaymentRequest();
         mockRequest.setAmount(null);
         mockRequest.setGuestName(null);
         //when
@@ -294,25 +290,24 @@ public class CPPaymentProcessingControllerTest {
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
-        Assertions.assertEquals(ApplicationConstants.VALIDATION_EXCEPTION_MESSAGE, JsonPath.read(responseJson, "$.message"));
-        Assertions.assertEquals(ApplicationConstants.BAD_REQUEST, JsonPath.read(responseJson, "$.code"));
-        List<String> errorList = JsonPath.read(responseJson, "$.data.errors");
+        Assertions.assertEquals("Invalid Request Parameters", JsonPath.read(responseJson, "$.title"));
+        Assertions.assertEquals(Integer.valueOf(HttpStatus.BAD_REQUEST.value()), JsonPath.read(responseJson, "$.status"));
+        List<String> errorList = JsonPath.read(responseJson, "$.messages");
         Assertions.assertEquals(2, errorList.size());
     }
 
     @Test
-    void when_provided_valid_void_payment_payload_but_initial_payment_is_missing_then_should_not_process_and_return_unsuccessful() throws Exception {
+    void when_provided_valid_card_void_payment_payload_but_initial_payment_is_missing_then_should_not_process_and_return_unsuccessful() throws Exception {
         //given
-        CPPaymentVoidRequest mockRequest = TestHelperUtil.getVoidPaymentRequest();
+        CPPaymentCardVoidRequest mockRequest = TestHelperUtil.getVoidPaymentRequest();
         Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getVoidRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(VOID_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(mockRequest));
-        MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
+        MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().is4xxClientError()).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
-        Assertions.assertEquals(ApplicationConstants.FAILURE_MESSAGE, JsonPath.read(responseJson, "$.message"));
-        Assertions.assertEquals(ApplicationConstants.FAILURE_CODE, JsonPath.read(responseJson, "$.code"));
+        Assertions.assertEquals("Initial Payment is missing", JsonPath.read(responseJson, "$.title"));
     }
 }

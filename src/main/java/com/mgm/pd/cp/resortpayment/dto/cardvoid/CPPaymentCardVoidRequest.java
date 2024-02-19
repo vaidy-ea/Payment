@@ -16,7 +16,7 @@ import java.io.Serializable;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CPPaymentVoidRequest implements Serializable {
+public class CPPaymentCardVoidRequest implements Serializable {
     @NotNull(message = "Amount can't be empty or NULL")
     @Min(value = 0L, message = "Amount can't be negative")
     @Max(value = 99999999999999999L, message = "Amount can't be greater than 99999999999999999")

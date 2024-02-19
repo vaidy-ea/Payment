@@ -64,6 +64,7 @@ public class CaptureRouterResponse {
     @NotBlank(message = "Corelation ID can't be empty or NULL")
     private String corelationId;
     private String dateTime;
-    private String totalAuthAmount;
+    private Double totalAuthAmount;
     private String approvalCode;
+    private String comments;
 }

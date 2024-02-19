@@ -4,9 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
-import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentVoidRequest;
+import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
 import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalRequest;
-import com.mgm.pd.cp.resortpayment.dto.incrementalauth.IncrementalRouterResponse;
+import com.mgm.pd.cp.resortpayment.dto.incrementalauth.IncrementalAuthorizationRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.router.RouterResponseJson;
 import com.mgm.pd.cp.resortpayment.model.Payment;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,7 +28,7 @@ public class TestHelperUtil {
 	}
 
 	public static RouterResponseJson getIncrementalRouterResponseJson() {
-		String mockResponse = "{\"dateTime\":\"2021-04-15T09:18:23.000-07:00\",\"totalAuthAmount\":162.34,\"cardType\":\"VS\",\"returnCode\":\"A\",\"sequenceNumber\":\"1234\",\"transDate\":\"2021-04-15T00:00:00.000-07:00\",\"vendorTranId\":\"0000192029\",\"approvalCode\":\"OK196Z\"}";
+		String mockResponse = "{\"dateTime\":\"2021-04-15T09:18:23.000-07:00\",\"totalAuthAmount\":898.07,\"cardType\":\"VS\",\"returnCode\":\"A\",\"sequenceNumber\":\"1234\",\"transDate\":\"2021041509:18:23\",\"vendorTranId\":\"0000192029\",\"approvalCode\":\"OK196Z\"}";
         return RouterResponseJson.builder().responseJson(mockResponse).build();
 	}
 
@@ -42,26 +42,30 @@ public class TestHelperUtil {
 		return RouterResponseJson.builder().responseJson(mockResponse).build();
     }
 
-	public static CPPaymentVoidRequest getVoidPaymentRequest() throws IOException {
+	public static CPPaymentCardVoidRequest getVoidPaymentRequest() throws IOException {
 		return new ObjectMapper().registerModule(new JavaTimeModule()).readValue(new ClassPathResource("UC22/voidPaymentRequest.json").getFile(),
-				CPPaymentVoidRequest.class);
+				CPPaymentCardVoidRequest.class);
 	}
 
 	public static RouterResponseJson getVoidRouterResponseJson() {
-		String mockResponse = "{\"dateTime\":\"2021-04-15T09:18:23.000-07:00\",\"totalAuthAmount\":898.07,\"cardType\":\"VS\",\"returnCode\":\"A\",\"vendorTranId\":\"0000192029\",\"approvalCode\":\"OK432Z\"}";
+		String mockResponse = "{\"dateTime\":\"2021-04-15T09:18:23.000-07:00\",\"totalAuthAmount\":898.07,\"cardType\":\"VS\",\"returnCode\":\"A\",\"vendorTranId\":\"0000192029\",\"approvalCode\":\"OK196Z\"}";
 		return RouterResponseJson.builder().responseJson(mockResponse).build();
 	}
 
-	public static IncrementalRouterResponse getIncrementalRouterResponse() throws JsonProcessingException {
-		return new ObjectMapper().registerModule(new JavaTimeModule()).readValue(getIncrementalRouterResponseJson().getResponseJson(), IncrementalRouterResponse.class);
+	public static IncrementalAuthorizationRouterResponse getIncrementalRouterResponse() throws JsonProcessingException {
+		return new ObjectMapper().registerModule(new JavaTimeModule()).readValue(getIncrementalRouterResponseJson().getResponseJson(), IncrementalAuthorizationRouterResponse.class);
 	}
 
 	public static String getOperaResponse() {
-		return "{\"message\":\"Success\",\"code\":\"200\",\"data\":{\"authAmountRequested\":162.34,\"binRate\":\"USD\",\"binCurrencyCode\":\"USD\",\"cardExpirationDate\":\"0325\",\"cardNumber\":8048994003381119,\"cardNumberLast4Digits\":325,\"cardType\":\"VS\",\"returnCode\":\"A\",\"sequenceNumber\":\"1234\",\"transDate\":\"2021-04-15T00:00:00.000-07:00\",\"vendorTranID\":\"0000192029\",\"merchantID\":\"merchantID\",\"approvalCode\":\"OK196Z\"}}";
+		return "{\"approvalCode\":\"OK196Z\",\"responseCode\":\"A\",\"gatewayInfo\":{},\"transactionDateTime\":\"2021041509:18:23\",\"transactionAmount\":{\"balanceAmount\":34.23,\"requestedAmount\":2000.0,\"cumulativeAmount\":898.07,\"currencyIndicator\":\"USD\",\"detailedAmount\":{}},\"card\":{\"cardType\":\"VS\",\"sequenceNumber\":\"1234\",\"isTokenized\":false},\"printDetails\":[{}]}";
 	}
 
 	public static Optional<Payment> getInitialPayment() throws IOException {
 		Payment value = new ObjectMapper().registerModule(new JavaTimeModule()).readValue(new ClassPathResource("Payments/initialPayment.json").getFile(), Payment.class);
 		return Optional.of(value);
     }
+
+	public static String getOperaResponseForCaptureOperation() {
+		return "{\"approvalCode\":\"OK684Z\",\"responseCode\":\"A\",\"gatewayInfo\":{},\"transactionDateTime\":\"2021041509:18:23\",\"transactionAmount\":{\"authorizedAmount\":898.07,\"cumulativeAmount\":898.07,\"detailedAmount\":{}},\"card\":{\"cardType\":\"VS\",\"sequenceNumber\":\"1234\",\"isTokenized\":false},\"printDetails\":[{}]}";
+	}
 }

@@ -9,13 +9,11 @@ import java.util.Optional;
 
 @Service
 public class FindPaymentServiceImpl implements FindPaymentService {
-
     @Autowired
     PaymentRepository paymentRepository;
-
     @Override
     public Optional<Payment> getPaymentDetails(String resortId, String reservationNumber) {
-        return paymentRepository.findFirstByPropertyCodeAndResvNameIDOrderByIdDesc(resortId, reservationNumber);
-        //return paymentRepository.findFirstByPropertyCodeAndResvNameIDAndAuthTypeNotNullOrderByIdDesc(resortId, reservationNumber);
+        //return paymentRepository.findFirstByPropertyCodeAndResvNameIDOrderByIdDesc(resortId, reservationNumber);
+        return paymentRepository.findFirstByPropertyCodeAndResvNameIDAndAuthTypeNotNullAndApprovalCodeNotNullOrderByIdDesc(resortId, reservationNumber);
     }
 }

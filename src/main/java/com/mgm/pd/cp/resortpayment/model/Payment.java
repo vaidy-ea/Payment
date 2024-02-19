@@ -70,4 +70,5 @@ public class Payment {
 	private String transReference;
 	@Enumerated(EnumType.STRING)
 	private TransactionType cpTransactionType;
+	private String comments;
 }

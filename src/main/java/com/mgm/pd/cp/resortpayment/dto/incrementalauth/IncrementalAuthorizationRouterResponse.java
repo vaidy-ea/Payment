@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class IncrementalRouterResponse {
+public class IncrementalAuthorizationRouterResponse {
     private String dateTime;
     private Double totalAuthAmount;
     private String binRate;
@@ -48,4 +48,5 @@ public class IncrementalRouterResponse {
     private String printInfo7;
     private String printInfo8;
     private String printInfo9;
+    private String comments;
 }

@@ -2,7 +2,7 @@ package com.mgm.pd.cp.resortpayment.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
-import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentVoidRequest;
+import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
 import com.mgm.pd.cp.resortpayment.dto.common.GenericResponse;
 import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalRequest;
 import com.mgm.pd.cp.resortpayment.service.CpPaymentProcessingService;
@@ -39,20 +39,20 @@ public class CPPaymentProcessingController {
     }
 
     @PostMapping("/void")
-    public ResponseEntity<GenericResponse> completeVoid(@Valid @RequestBody CPPaymentVoidRequest cpPaymentVoidRequest) throws JsonProcessingException {
-        logger.log(Level.DEBUG, "CPPaymentVoidRequest Request in DEBUG is : " + cpPaymentVoidRequest.getWorkstation());
-        return processPayload(cpPaymentVoidRequest);
+    public ResponseEntity<GenericResponse> cardVoid(@Valid @RequestBody CPPaymentCardVoidRequest cpPaymentCardVoidRequest) throws JsonProcessingException {
+        logger.log(Level.DEBUG, "cpPaymentCardVoidRequest in DEBUG is : " + cpPaymentCardVoidRequest.getPropertyCode());
+        return processPayload(cpPaymentCardVoidRequest);
     }
 
     private ResponseEntity<GenericResponse> processPayload(CPPaymentIncrementalRequest incrementalRequest) throws JsonProcessingException {
-        return cpPaymentProcessingService.processIncrementalRequest(incrementalRequest);
+        return cpPaymentProcessingService.processIncrementalAuthorizationRequest(incrementalRequest);
     }
 
     private ResponseEntity<GenericResponse> processPayload(CPPaymentCaptureRequest cpPaymentCaptureRequest) throws JsonProcessingException {
         return cpPaymentProcessingService.processCaptureRequest(cpPaymentCaptureRequest);
     }
 
-    private ResponseEntity<GenericResponse> processPayload(CPPaymentVoidRequest cpPaymentVoidRequest) throws JsonProcessingException {
-        return cpPaymentProcessingService.processVoidRequest(cpPaymentVoidRequest);
+    private ResponseEntity<GenericResponse> processPayload(CPPaymentCardVoidRequest cpPaymentCardVoidRequest) throws JsonProcessingException {
+        return cpPaymentProcessingService.processCardVoidRequest(cpPaymentCardVoidRequest);
     }
 }

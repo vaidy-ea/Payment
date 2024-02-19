@@ -13,7 +13,7 @@ import javax.validation.constraints.*;
 @Data
 @Builder
 @AllArgsConstructor
-public class VoidRouterRequestJson {
+public class CardVoidRouterRequestJson {
     @NotNull(message = "Amount can't be empty or NULL")
     @Min(value = 0L, message = "Amount can't be negative")
     @Max(value = 99999999999999999L)

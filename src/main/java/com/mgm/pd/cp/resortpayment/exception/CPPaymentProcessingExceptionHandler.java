@@ -68,7 +68,7 @@ public class CPPaymentProcessingExceptionHandler {
                 .detail(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE).messages(Collections.singletonList(errorDetails)).build(), HttpStatus.BAD_REQUEST);
     }
 
-    //Used to catch exception from Intelligent Router
+    //Used to catch exception/errors from Intelligent Router
     @ExceptionHandler(FeignException.class)
     public ResponseEntity<ErrorResponse> handleIntelligentRouterExceptions(FeignException ex) throws JsonProcessingException {
         IntelligentRouterException irEx = new ObjectMapper().readValue(ex.contentUTF8(), IntelligentRouterException.class);

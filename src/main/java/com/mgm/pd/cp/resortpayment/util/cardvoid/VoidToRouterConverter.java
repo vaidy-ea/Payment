@@ -2,8 +2,8 @@ package com.mgm.pd.cp.resortpayment.util.cardvoid;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentVoidRequest;
-import com.mgm.pd.cp.resortpayment.dto.cardvoid.VoidRouterRequestJson;
+import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
+import com.mgm.pd.cp.resortpayment.dto.cardvoid.CardVoidRouterRequestJson;
 import com.mgm.pd.cp.resortpayment.dto.router.RouterRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
@@ -14,12 +14,11 @@ import static com.mgm.pd.cp.resortpayment.constant.ApplicationConstants.VOID_OPE
 
 @Component
 @AllArgsConstructor
-public class VoidToRouterConverter implements Converter<CPPaymentVoidRequest, RouterRequest> {
+public class VoidToRouterConverter implements Converter<CPPaymentCardVoidRequest, RouterRequest> {
     ObjectMapper mapper;
-
     @Override
-    public RouterRequest convert(CPPaymentVoidRequest source) {
-        VoidRouterRequestJson requestJson = VoidRouterRequestJson.builder()
+    public RouterRequest convert(CPPaymentCardVoidRequest source) {
+        CardVoidRouterRequestJson requestJson = CardVoidRouterRequestJson.builder()
                 .amount(source.getAmount())
                 .taxAmount(source.getTaxAmount())
                 .totalAuthAmount(source.getTotalAuthAmount())

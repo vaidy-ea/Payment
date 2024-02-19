@@ -21,7 +21,7 @@ class SavePaymentServiceTest {
     @Test
     void test_incremental_payment_with_payload() throws IOException {
         paymentRepository.deleteAll();
-        paymentService.saveIncrementalAuthPayment(TestHelperUtil.getIncrementalAuthRequest(), TestHelperUtil.getIncrementalRouterResponse());
+        paymentService.saveIncrementalAuthorizationPayment(TestHelperUtil.getIncrementalAuthRequest(), TestHelperUtil.getIncrementalRouterResponse());
         Assertions.assertEquals(1, paymentRepository.findAll().size());
     }
 

@@ -39,7 +39,7 @@
   "balance": "null",
   "trackIndicator": "null",
   "originDate": "null",
-  "merchantID": "null",
+  "merchantId": "null",
   "settleAmount": "null",
   "transReference": "null",
   "cpTransactionType": "INIT_AUTH"

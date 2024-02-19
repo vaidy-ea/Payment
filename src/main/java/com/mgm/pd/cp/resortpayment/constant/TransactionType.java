@@ -9,7 +9,7 @@ public enum TransactionType {
     REFUND_TO_CARD("Ad-hoc Refund"),
     CAPTURE_PARTIAL_VOID("Capture Partial Void"),
     CAPTURE_ADDITIONAL_AUTH("Capture Additional Account"),
-    VOID("Void");
+    CARD_VOID("Card Void");
 
     private final String value;
 

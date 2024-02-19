@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -45,12 +46,7 @@ public class IntelligentRouterConnectivityTest {
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
-        Assertions.assertEquals(ApplicationConstants.INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE, JsonPath.read(responseJson, "$.message"));
-        Assertions.assertEquals(ApplicationConstants.SERVICE_UNAVAILABLE, JsonPath.read(responseJson, "$.code"));
+        Assertions.assertEquals(ApplicationConstants.INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE, JsonPath.read(responseJson, "$.title"));
+        Assertions.assertEquals(Integer.valueOf(HttpStatus.SERVICE_UNAVAILABLE.value()), JsonPath.read(responseJson, "$.status"));
     }
-
-/*    private void setInitialAuthRequest() throws IOException {
-        CPPaymentRequest mockInitialRequest = TestHelperUtil.getInitialAuthRequest();
-        consumer.saveInitialAuthResponse(mockInitialRequest);
-    }*/
 }

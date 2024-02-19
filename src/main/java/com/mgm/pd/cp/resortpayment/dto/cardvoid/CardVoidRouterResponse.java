@@ -19,7 +19,7 @@ import javax.validation.constraints.Size;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class VoidRouterResponse {
+public class CardVoidRouterResponse {
     @ValidDate(format = "MMyy", message = "invalid CardExpirationDate, expected format is MMyy")
     @NotBlank(message = "CardExpirationDate can't be empty or NULL")
     @Size(min = 4, max = 4, message = "please enter CardExpirationDate in MMyy format")
@@ -64,6 +64,7 @@ public class VoidRouterResponse {
     @NotBlank(message = "Corelation ID can't be empty or NULL")
     private String corelationId;
     private String dateTime;
-    private String totalAuthAmount;
+    private Double totalAuthAmount;
     private String approvalCode;
+    private String comments;
 }

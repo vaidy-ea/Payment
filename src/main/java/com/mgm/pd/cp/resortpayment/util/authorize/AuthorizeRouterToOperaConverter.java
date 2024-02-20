@@ -22,8 +22,6 @@ public class AuthorizeRouterToOperaConverter {
                 .binCurrencyCode(payment.getBinCurrencyCode())
                 .dccAmount(payment.getDccAmount())
                 .cardExpirationDate(payment.getCardExpirationDate())
-           //     .cardNumber(Long.valueOf(payment.getCardNumber()))
-             //   .cardNumberLast4Digits(Integer.valueOf(payment.getCardExpirationDate()))
                 .build();
     }
 }

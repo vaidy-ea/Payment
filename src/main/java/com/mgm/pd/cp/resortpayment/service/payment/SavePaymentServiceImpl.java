@@ -52,7 +52,8 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .uniqueID(incrementalRequest.getUniqueID())
                 .clientID(incrementalRequest.getClientID())
                 .corelationId(incrementalRequest.getCorelationId())
-                .cpTransactionType(TransactionType.INCREMENTAL_AUTH);
+                .cpTransactionType(TransactionType.INCREMENTAL_AUTH)
+                .comments(incrementalRequest.getComments());
         if (Objects.nonNull(irResponse)) {
             newPayment
                     .authTotalAmount(irResponse.getTotalAuthAmount())
@@ -95,7 +96,8 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .sequenceNumber(captureRequest.getSequenceNumber())
                 .transDate(captureRequest.getTransDate())
                 .settleAmount(captureRequest.getTotalAuthAmount())
-                .cpTransactionType(setCaptureTransactionType(initialAuthAmount, captureRequest.getTotalAuthAmount()));
+                .cpTransactionType(setCaptureTransactionType(initialAuthAmount, captureRequest.getTotalAuthAmount()))
+                .comments(captureRequest.getComments());
         if (Objects.nonNull(crResponse)) {
             newPayment.authTotalAmount(crResponse.getTotalAuthAmount())
                     .returnCode(String.valueOf(crResponse.getReturnCode()))
@@ -131,7 +133,8 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .clientID(voidRequest.getClientID())
                 .corelationId(voidRequest.getCorelationId())
                 .cardNumber(voidRequest.getCardNumber())
-                .cpTransactionType(TransactionType.CARD_VOID);
+                .cpTransactionType(TransactionType.CARD_VOID)
+                .comments(voidRequest.getComments());
         if (Objects.nonNull(vrResponse)) {
             newPayment.settleAmount(vrResponse.getSettleAmount())
                     .cardType(String.valueOf(vrResponse.getCardType()))
@@ -149,11 +152,13 @@ public class SavePaymentServiceImpl implements SavePaymentService {
 
     private TransactionType setCaptureTransactionType(Double initialAuthAmount, Double totalAuthAmount) {
         TransactionType captureTransactionType = null;
-        if(totalAuthAmount > initialAuthAmount) {
-            captureTransactionType =  TransactionType.CAPTURE_ADDITIONAL_AUTH;
-        }
-        if (totalAuthAmount < initialAuthAmount) {
-            captureTransactionType = TransactionType.CAPTURE_PARTIAL_VOID;
+        if (Objects.nonNull(initialAuthAmount) && Objects.nonNull(totalAuthAmount)) {
+            if(totalAuthAmount > initialAuthAmount) {
+                captureTransactionType =  TransactionType.CAPTURE_ADDITIONAL_AUTH;
+            }
+            if (totalAuthAmount < initialAuthAmount) {
+                captureTransactionType = TransactionType.CAPTURE_PARTIAL_VOID;
+            }
         }
         return captureTransactionType;
     }

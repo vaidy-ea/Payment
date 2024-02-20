@@ -11,4 +11,5 @@ public class ApplicationConstants {
     public static final String CAPTURE_OPERATION = "capture";
     public static final String VOID_OPERATION = "void";
     public static final String SHIFT4_GATEWAY_ID = "shift4";
+    public static final String INITIAL_PAYMENT_IS_MISSING = "Initial Payment is missing";
 }

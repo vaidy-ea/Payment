@@ -1,6 +1,7 @@
 package com.mgm.pd.cp.resortpayment.service.payment;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.mgm.pd.cp.resortpayment.constant.ApplicationConstants;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CaptureRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
@@ -56,6 +57,8 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
             operaResponse = converter.convert(payment);
             return response(operaResponse, HttpStatus.CREATED);
         }
+        incrementalRequest.setComments(ApplicationConstants.INITIAL_PAYMENT_IS_MISSING);
+        savePaymentService.saveIncrementalAuthorizationPayment(incrementalRequest, null);
         return initialPaymentIsMissing();
     }
 
@@ -84,6 +87,8 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
             operaCaptureResponse = converter.convert(payment);
             return response(operaCaptureResponse, HttpStatus.CREATED);
         }
+        captureRequest.setComments(ApplicationConstants.INITIAL_PAYMENT_IS_MISSING);
+        savePaymentService.saveCaptureAuthPayment(captureRequest, null, null);
         return initialPaymentIsMissing();
     }
 
@@ -111,12 +116,14 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
             operaCardVoidResponse = converter.convert(payment);
             return response(operaCardVoidResponse, HttpStatus.CREATED);
         }
+        cvRequest.setComments(ApplicationConstants.INITIAL_PAYMENT_IS_MISSING);
+        savePaymentService.saveCardVoidAuthPayment(cvRequest, null);
         return initialPaymentIsMissing();
     }
 
     private ResponseEntity<GenericResponse> initialPaymentIsMissing() {
-        return response(new ErrorResponse(null, 422, "Initial Payment is missing",
-                "Initial Payment is missing", null, null, null), HttpStatus.UNPROCESSABLE_ENTITY);
+        return response(new ErrorResponse(null, 422, ApplicationConstants.INITIAL_PAYMENT_IS_MISSING,
+                ApplicationConstants.INITIAL_PAYMENT_IS_MISSING, null, null, null), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     private <D> ResponseEntity<GenericResponse> response(D data, HttpStatus status) {

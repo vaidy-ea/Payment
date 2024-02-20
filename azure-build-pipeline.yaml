@@ -42,10 +42,10 @@ steps:
     targetFolder: '$(build.artifactStagingDirectory)'
  
 - task: PublishBuildArtifacts@1
-  displayName: 'Publish JAR as Artifact'
+  displayName: 'Publish Artifacts'
   inputs:
     PathtoPublish: '$(build.artifactStagingDirectory)'
-    ArtifactName: 'cp-payment-processing-jar'
+    ArtifactName: 'cp-payment-processing'
  
 - task: Docker@2
   inputs:

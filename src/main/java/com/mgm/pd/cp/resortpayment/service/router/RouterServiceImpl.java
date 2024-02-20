@@ -44,6 +44,7 @@ public class RouterServiceImpl implements RouterService {
         logger.log(Level.DEBUG, "Successfully Sent Message To Router for IncrementalAuthorizationRequest: " + routerRequest.getGatewayId());
         return mapper.readValue(responseJson.getResponseJson(), IncrementalAuthorizationRouterResponse.class);
     }
+
     @Override
     @Retry(name = "authorizeMessage")
     public AuthorizationRouterResponse sendAuthorizeRequestToRouter(CPPaymentAuthorizationRequest authorizationRequest, Long incrementalAuthInvoiceId) throws JsonProcessingException {

@@ -1,6 +1,8 @@
 package com.mgm.pd.cp.resortpayment.service.payment;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.mgm.pd.cp.resortpayment.dto.authorize.AuthorizationRouterResponse;
+import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CaptureRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
@@ -16,11 +18,14 @@ import com.mgm.pd.cp.resortpayment.util.common.Converter;
 import com.mgm.pd.cp.resortpayment.util.common.PaymentProcessingServiceHelper;
 import feign.FeignException;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.Optional;
+
 
 @Service
 @AllArgsConstructor
@@ -58,6 +63,29 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
         }
         return initialPaymentIsMissing();
     }
+
+
+
+    @Override
+    @SneakyThrows
+    public ResponseEntity<GenericResponse> authorizePayments(CPPaymentAuthorizationRequest cpPaymentAuthorizationRequest)  {
+        OperaResponse operaResponse;
+        AuthorizationRouterResponse authRouterResponse = null;
+        Payment payment;
+
+        try{
+            authRouterResponse = routerService.sendAuthorizeRequestToRouter(cpPaymentAuthorizationRequest, 12345L );
+        } catch(FeignException feignEx) {
+            authRouterResponse = serviceHelper.addCommentsForAuthorizationAuthResponse(feignEx);
+            throw feignEx;
+        }
+        finally {
+            payment = savePaymentService.saveAuthPayment(cpPaymentAuthorizationRequest, authRouterResponse);
+        }
+        operaResponse = converter.convert(payment);
+        return response(operaResponse, HttpStatus.CREATED);
+    }
+
 
     /**
      *

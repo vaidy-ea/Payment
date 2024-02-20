@@ -1,5 +1,7 @@
 package com.mgm.pd.cp.resortpayment.service.payment;
 
+import com.mgm.pd.cp.resortpayment.dto.authorize.AuthorizationRouterResponse;
+import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CaptureRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
@@ -12,6 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 public interface SavePaymentService {
     @Transactional
     Payment saveIncrementalAuthorizationPayment(CPPaymentIncrementalRequest incrementalRequest, IncrementalAuthorizationRouterResponse irResponse);
+    @Transactional
+    public Payment saveAuthPayment(CPPaymentAuthorizationRequest authRequest, AuthorizationRouterResponse irResponse);
+
     @Transactional
     Payment saveCaptureAuthPayment(CPPaymentCaptureRequest captureRequest, CaptureRouterResponse crResponse, Double authAmountRequested);
     @Transactional

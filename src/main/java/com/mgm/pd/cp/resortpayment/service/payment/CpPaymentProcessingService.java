@@ -2,6 +2,7 @@ package com.mgm.pd.cp.resortpayment.service.payment;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
 import com.mgm.pd.cp.resortpayment.dto.common.GenericResponse;
@@ -10,6 +11,9 @@ import org.springframework.http.ResponseEntity;
 
 public interface CpPaymentProcessingService {
     ResponseEntity<GenericResponse> processIncrementalAuthorizationRequest(CPPaymentIncrementalRequest incrementalRequest) throws JsonProcessingException;
+
+    public ResponseEntity<GenericResponse> authorizePayments(CPPaymentAuthorizationRequest cpPaymentIncrementalRequest);
+
     ResponseEntity<GenericResponse> processCaptureRequest(CPPaymentCaptureRequest captureRequest) throws JsonProcessingException;
     ResponseEntity<GenericResponse> processCardVoidRequest(CPPaymentCardVoidRequest voidRequest) throws JsonProcessingException;
 }

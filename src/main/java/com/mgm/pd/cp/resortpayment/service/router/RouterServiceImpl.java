@@ -2,6 +2,8 @@ package com.mgm.pd.cp.resortpayment.service.router;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mgm.pd.cp.resortpayment.dto.authorize.AuthorizationRouterResponse;
+import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CaptureRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
@@ -10,11 +12,13 @@ import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalReque
 import com.mgm.pd.cp.resortpayment.dto.incrementalauth.IncrementalAuthorizationRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.router.RouterRequest;
 import com.mgm.pd.cp.resortpayment.dto.router.RouterResponseJson;
+import com.mgm.pd.cp.resortpayment.util.authorize.AuthorizeToRouterConverter;
 import com.mgm.pd.cp.resortpayment.util.capture.CaptureToRouterConverter;
 import com.mgm.pd.cp.resortpayment.util.cardvoid.VoidToRouterConverter;
 import com.mgm.pd.cp.resortpayment.util.incremental.IncrementalToRouterConverter;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,6 +32,7 @@ public class RouterServiceImpl implements RouterService {
     ObjectMapper mapper;
     RouterClient routerClient;
     IncrementalToRouterConverter incrementalToRouterConverter;
+    AuthorizeToRouterConverter authorizeToRouterConverter;
     CaptureToRouterConverter captureToRouterConverter;
     VoidToRouterConverter voidToRouterConverter;
     @Override
@@ -39,6 +44,15 @@ public class RouterServiceImpl implements RouterService {
         RouterResponseJson responseJson = routerClient.sendRequest(routerRequest);
         logger.log(Level.DEBUG, "Successfully Sent Message To Router for IncrementalAuthorizationRequest: " + routerRequest.getGatewayId());
         return mapper.readValue(responseJson.getResponseJson(), IncrementalAuthorizationRouterResponse.class);
+    }
+
+    @SneakyThrows
+    @Retry(name = "authorizeMessage")
+    public AuthorizationRouterResponse sendAuthorizeRequestToRouter(CPPaymentAuthorizationRequest authorizationRequest, Long incrementalAuthInvoiceId) throws JsonProcessingException {
+        authorizationRequest.setIncrementalAuthInvoiceId(incrementalAuthInvoiceId);
+        RouterRequest routerRequest = authorizeToRouterConverter.convert(authorizationRequest);
+        RouterResponseJson responseJson = routerClient.sendRequest(routerRequest);
+        return mapper.readValue(responseJson.getResponseJson(), AuthorizationRouterResponse.class);
     }
 
     @Override

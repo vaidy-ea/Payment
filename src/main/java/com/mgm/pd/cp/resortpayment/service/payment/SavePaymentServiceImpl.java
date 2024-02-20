@@ -1,7 +1,10 @@
 package com.mgm.pd.cp.resortpayment.service.payment;
 
 import com.mgm.pd.cp.resortpayment.constant.ApplicationConstants;
+import com.mgm.pd.cp.resortpayment.constant.AuthType;
 import com.mgm.pd.cp.resortpayment.constant.TransactionType;
+import com.mgm.pd.cp.resortpayment.dto.authorize.AuthorizationRouterResponse;
+import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CaptureRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
@@ -67,6 +70,46 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         Payment payment = newPayment.build();
         logger.log(Level.INFO, "Transaction Type is: " + payment.getCpTransactionType());
         return this.paymentRepository.save(payment);
+    }
+
+    @Override
+    public Payment saveAuthPayment(CPPaymentAuthorizationRequest payment, AuthorizationRouterResponse intelligentRouterResponse) {
+        Payment newPayment = Payment.builder()
+                //    .workstation(payment.getWorkstation())
+                //     .chainCode(payment.getChainCode())
+                .propertyCode(payment.getPropertyCode())
+                .sequenceNumber(payment.getSequenceNumber())
+                //     .originalAuthSequence(payment.getOriginalAuthSequence())
+                .resvNameID(payment.getResvNameID())
+                .authType(payment.getAuthType())
+                .usageType(payment.getUsageType())
+                .guestName(payment.getGuestName())
+                .transDate(payment.getTransDate())
+                //   .checkInDate(payment.getCheckInDate())
+                //     .checkOutDate(payment.getCheckOutDate())
+                .originDate(payment.getOriginDate())
+                //      .authorizationAmount(payment.getAuthorizationAmount())
+                //      .totalAuthAmount(payment.getTotalAuthAmount())
+                .binCurrencyCode(payment.getBinCurrencyCode())
+                .currencyIndicator(payment.getCurrencyIndicator())
+                .cardNumber(payment.getCardNumber())
+                .cardExpirationDate(payment.getCardExpirationDate())
+                .balance(payment.getBalance())
+                .trackIndicator(payment.getTrackIndicator())
+                //       .clerkNumericId(1234L)
+                .incrementalAuthInvoiceId(payment.getIncrementalAuthInvoiceId())
+                .cpTransactionType(TransactionType.INIT_AUTH)
+                .build();
+
+        newPayment.setBinCurrencyCode(intelligentRouterResponse.getBinCurrencyCode());
+        newPayment.setCardExpirationDate(intelligentRouterResponse.getCardExpirationDate());
+        newPayment.setReturnCode(intelligentRouterResponse.getReturnCode());
+        newPayment.setCardNumber(String.valueOf(intelligentRouterResponse.getCardNumber()));
+        newPayment.setResvNameID(intelligentRouterResponse.getResvNameID());
+        newPayment.setSequenceNumber(intelligentRouterResponse.getSequenceNumber());
+        newPayment.setTransDate(intelligentRouterResponse.getTransDate());
+        newPayment.setApprovalCode(intelligentRouterResponse.getApprovalCode());
+        return  this.paymentRepository.save(newPayment);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.mgm.pd.cp.resortpayment.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
 import com.mgm.pd.cp.resortpayment.dto.common.GenericResponse;
@@ -38,6 +39,13 @@ public class CPPaymentProcessingController {
         return processPayload(cpPaymentIncrementalRequest);
     }
 
+    @PostMapping("/authorize")
+    public ResponseEntity<GenericResponse> authorize(@Valid @RequestBody CPPaymentAuthorizationRequest cpPaymentAuthorizationRequest) throws JsonProcessingException {
+        logger.log(Level.DEBUG, "CPPaymentIncrementalRequest Request in DEBUG is : {} ", cpPaymentAuthorizationRequest.getWorkstation());
+        return processPayload(cpPaymentAuthorizationRequest);
+
+    }
+
     /**
      *
      * @param cpPaymentCaptureRequest
@@ -65,6 +73,12 @@ public class CPPaymentProcessingController {
     private ResponseEntity<GenericResponse> processPayload(CPPaymentIncrementalRequest incrementalRequest) throws JsonProcessingException {
         return cpPaymentProcessingService.processIncrementalAuthorizationRequest(incrementalRequest);
     }
+
+    private ResponseEntity<GenericResponse> processPayload(CPPaymentAuthorizationRequest cpPaymentAuthorizationRequest) throws JsonProcessingException {
+        return cpPaymentProcessingService.authorizePayments(cpPaymentAuthorizationRequest);
+    }
+
+
 
     private ResponseEntity<GenericResponse> processPayload(CPPaymentCaptureRequest cpPaymentCaptureRequest) throws JsonProcessingException {
         return cpPaymentProcessingService.processCaptureRequest(cpPaymentCaptureRequest);

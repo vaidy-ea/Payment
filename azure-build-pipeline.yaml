@@ -1,7 +1,8 @@
 trigger:
   branches:
     include:
-      - feature/UC2_UC4_UC5_UC22
+      - origin/develop
+      - feature/pps_v1.0
  
 pool:
   vmImage: ubuntu-latest

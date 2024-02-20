@@ -15,8 +15,7 @@ public interface SavePaymentService {
     @Transactional
     Payment saveIncrementalAuthorizationPayment(CPPaymentIncrementalRequest incrementalRequest, IncrementalAuthorizationRouterResponse irResponse);
     @Transactional
-    public Payment saveAuthPayment(CPPaymentAuthorizationRequest authRequest, AuthorizationRouterResponse irResponse);
-
+    Payment saveAuthorizationPayment(CPPaymentAuthorizationRequest authRequest, AuthorizationRouterResponse irResponse);
     @Transactional
     Payment saveCaptureAuthPayment(CPPaymentCaptureRequest captureRequest, CaptureRouterResponse crResponse, Double authAmountRequested);
     @Transactional

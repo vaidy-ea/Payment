@@ -39,6 +39,12 @@ public class CPPaymentProcessingController {
         return processPayload(cpPaymentIncrementalRequest);
     }
 
+    /**
+     *
+     * @param cpPaymentAuthorizationRequest
+     * @return response for Opera
+     * @throws JsonProcessingException
+     */
     @PostMapping("/authorize")
     public ResponseEntity<GenericResponse> authorize(@Valid @RequestBody CPPaymentAuthorizationRequest cpPaymentAuthorizationRequest) throws JsonProcessingException {
         logger.log(Level.DEBUG, "CPPaymentIncrementalRequest Request in DEBUG is : {} ", cpPaymentAuthorizationRequest.getWorkstation());
@@ -75,10 +81,8 @@ public class CPPaymentProcessingController {
     }
 
     private ResponseEntity<GenericResponse> processPayload(CPPaymentAuthorizationRequest cpPaymentAuthorizationRequest) throws JsonProcessingException {
-        return cpPaymentProcessingService.authorizePayments(cpPaymentAuthorizationRequest);
+        return cpPaymentProcessingService.processAuthorizeRequest(cpPaymentAuthorizationRequest);
     }
-
-
 
     private ResponseEntity<GenericResponse> processPayload(CPPaymentCaptureRequest cpPaymentCaptureRequest) throws JsonProcessingException {
         return cpPaymentProcessingService.processCaptureRequest(cpPaymentCaptureRequest);

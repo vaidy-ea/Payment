@@ -5,6 +5,7 @@ import lombok.Getter;
 @Getter
 public enum TransactionType {
     INIT_AUTH("Initial Auth"),
+    INIT_AUTH_CNP("Initial Auth Card Not Present"),
     INCREMENTAL_AUTH("Incremental Auth"),
     REFUND_TO_CARD("Ad-hoc Refund"),
     CAPTURE_PARTIAL_VOID("Capture Partial Void"),

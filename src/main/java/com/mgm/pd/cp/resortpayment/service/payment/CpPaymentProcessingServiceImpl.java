@@ -1,9 +1,9 @@
 package com.mgm.pd.cp.resortpayment.service.payment;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.mgm.pd.cp.resortpayment.constant.ApplicationConstants;
 import com.mgm.pd.cp.resortpayment.dto.authorize.AuthorizationRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
-import com.mgm.pd.cp.resortpayment.constant.ApplicationConstants;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CaptureRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
@@ -19,7 +19,6 @@ import com.mgm.pd.cp.resortpayment.util.common.Converter;
 import com.mgm.pd.cp.resortpayment.util.common.PaymentProcessingServiceHelper;
 import feign.FeignException;
 import lombok.AllArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -66,28 +65,23 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
         return initialPaymentIsMissing();
     }
 
-
-
     @Override
-    @SneakyThrows
-    public ResponseEntity<GenericResponse> authorizePayments(CPPaymentAuthorizationRequest cpPaymentAuthorizationRequest)  {
+    public ResponseEntity<GenericResponse> processAuthorizeRequest(CPPaymentAuthorizationRequest cpPaymentAuthorizationRequest) throws JsonProcessingException {
         OperaResponse operaResponse;
         AuthorizationRouterResponse authRouterResponse = null;
         Payment payment;
-
         try{
-            authRouterResponse = routerService.sendAuthorizeRequestToRouter(cpPaymentAuthorizationRequest, 12345L );
+            authRouterResponse = routerService.sendAuthorizeRequestToRouter(cpPaymentAuthorizationRequest, 12345L);
         } catch(FeignException feignEx) {
             authRouterResponse = serviceHelper.addCommentsForAuthorizationAuthResponse(feignEx);
             throw feignEx;
         }
         finally {
-            payment = savePaymentService.saveAuthPayment(cpPaymentAuthorizationRequest, authRouterResponse);
+            payment = savePaymentService.saveAuthorizationPayment(cpPaymentAuthorizationRequest, authRouterResponse);
         }
         operaResponse = converter.convert(payment);
         return response(operaResponse, HttpStatus.CREATED);
     }
-
 
     /**
      *
@@ -127,13 +121,13 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
      */
     @Override
     public ResponseEntity<GenericResponse> processCardVoidRequest(CPPaymentCardVoidRequest cvRequest) throws JsonProcessingException {
-        Optional<Payment> OptionalInitialPayment = findPaymentService.getPaymentDetails(cvRequest.getPropertyCode(), cvRequest.getResvNameID());
-        if (OptionalInitialPayment.isPresent()) {
+        Optional<Payment> optionalInitialPayment = findPaymentService.getPaymentDetails(cvRequest.getPropertyCode(), cvRequest.getResvNameID());
+        if (optionalInitialPayment.isPresent()) {
             OperaResponse operaCardVoidResponse;
             Payment payment;
             CardVoidRouterResponse cvrResponse = null;
             try{
-                cvrResponse = routerService.sendCardVoidRequestToRouter(cvRequest, OptionalInitialPayment.get().getIncrementalAuthInvoiceId());
+                cvrResponse = routerService.sendCardVoidRequestToRouter(cvRequest, optionalInitialPayment.get().getIncrementalAuthInvoiceId());
             } catch(FeignException feignEx) {
                 cvrResponse = serviceHelper.addCommentsForCardVoidResponse(feignEx);
                 throw feignEx;

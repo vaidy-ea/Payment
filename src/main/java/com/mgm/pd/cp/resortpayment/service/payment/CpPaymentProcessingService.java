@@ -11,9 +11,7 @@ import org.springframework.http.ResponseEntity;
 
 public interface CpPaymentProcessingService {
     ResponseEntity<GenericResponse> processIncrementalAuthorizationRequest(CPPaymentIncrementalRequest incrementalRequest) throws JsonProcessingException;
-
-    public ResponseEntity<GenericResponse> authorizePayments(CPPaymentAuthorizationRequest cpPaymentIncrementalRequest);
-
+    ResponseEntity<GenericResponse> processAuthorizeRequest(CPPaymentAuthorizationRequest cpPaymentIncrementalRequest) throws JsonProcessingException;
     ResponseEntity<GenericResponse> processCaptureRequest(CPPaymentCaptureRequest captureRequest) throws JsonProcessingException;
     ResponseEntity<GenericResponse> processCardVoidRequest(CPPaymentCardVoidRequest voidRequest) throws JsonProcessingException;
 }

@@ -18,7 +18,6 @@ import com.mgm.pd.cp.resortpayment.util.cardvoid.VoidToRouterConverter;
 import com.mgm.pd.cp.resortpayment.util.incremental.IncrementalToRouterConverter;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.AllArgsConstructor;
-import lombok.SneakyThrows;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,13 +44,14 @@ public class RouterServiceImpl implements RouterService {
         logger.log(Level.DEBUG, "Successfully Sent Message To Router for IncrementalAuthorizationRequest: " + routerRequest.getGatewayId());
         return mapper.readValue(responseJson.getResponseJson(), IncrementalAuthorizationRouterResponse.class);
     }
-
-    @SneakyThrows
+    @Override
     @Retry(name = "authorizeMessage")
     public AuthorizationRouterResponse sendAuthorizeRequestToRouter(CPPaymentAuthorizationRequest authorizationRequest, Long incrementalAuthInvoiceId) throws JsonProcessingException {
         authorizationRequest.setIncrementalAuthInvoiceId(incrementalAuthInvoiceId);
         RouterRequest routerRequest = authorizeToRouterConverter.convert(authorizationRequest);
+        logger.log(Level.DEBUG, "Attempting to send Message To Router for AuthorizeRequest: " + routerRequest.getGatewayId());
         RouterResponseJson responseJson = routerClient.sendRequest(routerRequest);
+        logger.log(Level.DEBUG, "Successfully Sent Message To Router for AuthorizeRequest: " + routerRequest.getGatewayId());
         return mapper.readValue(responseJson.getResponseJson(), AuthorizationRouterResponse.class);
     }
 

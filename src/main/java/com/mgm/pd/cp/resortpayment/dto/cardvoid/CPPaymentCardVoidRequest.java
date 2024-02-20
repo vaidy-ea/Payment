@@ -132,4 +132,5 @@ public class CPPaymentCardVoidRequest implements Serializable {
     @NotNull(message = "incrementalAuthInvoiceId ID can't be empty or NULL")
     private Long incrementalAuthInvoiceId;
     private String dateTime;
+    private String comments;
 }

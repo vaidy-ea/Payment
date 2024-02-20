@@ -143,4 +143,5 @@ public class CPPaymentIncrementalRequest implements Serializable {
     private Long incrementalAuthInvoiceId;
     private String dateTime;
     private Long clerkId;
+    private String comments;
 }

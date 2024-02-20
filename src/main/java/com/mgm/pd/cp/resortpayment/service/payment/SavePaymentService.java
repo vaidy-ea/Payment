@@ -1,4 +1,4 @@
-package com.mgm.pd.cp.resortpayment.service;
+package com.mgm.pd.cp.resortpayment.service.payment;
 
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CaptureRouterResponse;

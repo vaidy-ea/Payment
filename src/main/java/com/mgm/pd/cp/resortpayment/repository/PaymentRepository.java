@@ -7,6 +7,4 @@ import java.util.Optional;
 
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
     Optional<Payment> findFirstByPropertyCodeAndResvNameIDAndAuthTypeNotNullAndApprovalCodeNotNullOrderByIdDesc(String resortId, String reservationNumber);
-    //Optional<Payment> findFirstByPropertyCodeAndResvNameIDOrderByIdDesc(String resortId, String reservationNumber);
-    //Optional<Payment> findFirstByPropertyCodeAndResvNameIDAndAuthTypeNotNullOrderByIdDesc(String resortId, String reservationNumber);
 }

@@ -1,4 +1,4 @@
-package com.mgm.pd.cp.resortpayment.service;
+package com.mgm.pd.cp.resortpayment.service.router;
 
 import com.mgm.pd.cp.resortpayment.dto.router.RouterRequest;
 import com.mgm.pd.cp.resortpayment.dto.router.RouterResponseJson;

@@ -1,6 +1,7 @@
 package com.mgm.pd.cp.resortpayment.service;
 
 import com.mgm.pd.cp.resortpayment.repository.PaymentRepository;
+import com.mgm.pd.cp.resortpayment.service.payment.SavePaymentServiceImpl;
 import com.mgm.pd.cp.resortpayment.util.TestHelperUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

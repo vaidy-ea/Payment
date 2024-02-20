@@ -1,4 +1,4 @@
-package com.mgm.pd.cp.resortpayment.service;
+package com.mgm.pd.cp.resortpayment.service.payment;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;

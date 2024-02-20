@@ -5,7 +5,7 @@ import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
 import com.mgm.pd.cp.resortpayment.dto.common.GenericResponse;
 import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalRequest;
-import com.mgm.pd.cp.resortpayment.service.CpPaymentProcessingService;
+import com.mgm.pd.cp.resortpayment.service.payment.CpPaymentProcessingService;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,18 +26,36 @@ public class CPPaymentProcessingController {
     @Autowired
     CpPaymentProcessingService cpPaymentProcessingService;
 
+    /**
+     *
+     * @param cpPaymentIncrementalRequest
+     * @return response for Opera
+     * @throws JsonProcessingException
+     */
     @PostMapping("/incrementalauth")
     public ResponseEntity<GenericResponse> incrementalAuth(@Valid @RequestBody CPPaymentIncrementalRequest cpPaymentIncrementalRequest) throws JsonProcessingException {
         logger.log(Level.DEBUG, "CPPaymentIncrementalRequest Request in DEBUG is : " + cpPaymentIncrementalRequest.getWorkstation());
         return processPayload(cpPaymentIncrementalRequest);
     }
 
+    /**
+     *
+     * @param cpPaymentCaptureRequest
+     * @return response for Opera
+     * @throws JsonProcessingException
+     */
     @PostMapping("/capture")
     public ResponseEntity<GenericResponse> capture(@Valid @RequestBody CPPaymentCaptureRequest cpPaymentCaptureRequest) throws JsonProcessingException {
         logger.log(Level.DEBUG, "CPPaymentCaptureRequest Request in DEBUG is : " + cpPaymentCaptureRequest.getWorkstation());
         return processPayload(cpPaymentCaptureRequest);
     }
 
+    /**
+     *
+     * @param cpPaymentCardVoidRequest
+     * @return response for Opera
+     * @throws JsonProcessingException
+     */
     @PostMapping("/void")
     public ResponseEntity<GenericResponse> cardVoid(@Valid @RequestBody CPPaymentCardVoidRequest cpPaymentCardVoidRequest) throws JsonProcessingException {
         logger.log(Level.DEBUG, "cpPaymentCardVoidRequest in DEBUG is : " + cpPaymentCardVoidRequest.getPropertyCode());

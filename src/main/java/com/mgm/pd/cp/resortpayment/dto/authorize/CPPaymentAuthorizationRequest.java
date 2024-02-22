@@ -1,8 +1,8 @@
 package com.mgm.pd.cp.resortpayment.dto.authorize;
 
-import com.mgm.pd.cp.resortpayment.constant.AuthType;
-import com.mgm.pd.cp.resortpayment.constant.CardType;
-import com.mgm.pd.cp.resortpayment.validation.ValidDate;
+import com.mgm.pd.cp.payment.common.constant.AuthType;
+import com.mgm.pd.cp.payment.common.constant.CardType;
+import com.mgm.pd.cp.payment.common.validation.ValidDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -2,7 +2,6 @@ package com.mgm.pd.cp.resortpayment.util.common;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mgm.pd.cp.resortpayment.constant.ApplicationConstants;
 import com.mgm.pd.cp.resortpayment.dto.authorize.AuthorizationRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.capture.CaptureRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CardVoidRouterResponse;
@@ -11,6 +10,8 @@ import com.mgm.pd.cp.resortpayment.dto.incrementalauth.IncrementalAuthorizationR
 import feign.FeignException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+
+import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE;
 
 @Component
 @AllArgsConstructor
@@ -24,7 +25,7 @@ public class PaymentProcessingServiceHelper {
             //To get the error message from Router to save in comments column in Payment table
             irResponse = IncrementalAuthorizationRouterResponse.builder().comments(irEx.getMessage()).build();
         } else {
-            irResponse = IncrementalAuthorizationRouterResponse.builder().comments(ApplicationConstants.INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE).build();
+            irResponse = IncrementalAuthorizationRouterResponse.builder().comments(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE).build();
         }
         return irResponse;
     }
@@ -37,7 +38,7 @@ public class PaymentProcessingServiceHelper {
             //To get the error message from Router to save in comments column in Payment table
             authorizationRouterResponse = AuthorizationRouterResponse.builder().comments(irEx.getMessage()).build();
         } else {
-            authorizationRouterResponse = AuthorizationRouterResponse.builder().comments(ApplicationConstants.INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE).build();
+            authorizationRouterResponse = AuthorizationRouterResponse.builder().comments(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE).build();
         }
         return authorizationRouterResponse;
     }
@@ -50,7 +51,7 @@ public class PaymentProcessingServiceHelper {
             //To get the error message from Router to save in comments column in Payment table
             crResponse = CaptureRouterResponse.builder().comments(irEx.getMessage()).build();
         } else {
-            crResponse = CaptureRouterResponse.builder().comments(ApplicationConstants.INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE).build();
+            crResponse = CaptureRouterResponse.builder().comments(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE).build();
         }
         return crResponse;
     }
@@ -63,7 +64,7 @@ public class PaymentProcessingServiceHelper {
             //To get the error message from Router to save in comments column in Payment table
             cvrResponse = CardVoidRouterResponse.builder().comments(irEx.getMessage()).build();
         } else {
-            cvrResponse = CardVoidRouterResponse.builder().comments(ApplicationConstants.INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE).build();
+            cvrResponse = CardVoidRouterResponse.builder().comments(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE).build();
         }
         return cvrResponse;
     }

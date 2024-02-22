@@ -2,8 +2,8 @@ package com.mgm.pd.cp.resortpayment.dto.cardvoid;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mgm.pd.cp.resortpayment.constant.CardType;
-import com.mgm.pd.cp.resortpayment.validation.ValidDate;
+import com.mgm.pd.cp.payment.common.constant.CardType;
+import com.mgm.pd.cp.payment.common.validation.ValidDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

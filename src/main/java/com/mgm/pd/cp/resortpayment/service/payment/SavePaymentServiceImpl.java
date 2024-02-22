@@ -1,7 +1,6 @@
 package com.mgm.pd.cp.resortpayment.service.payment;
 
-import com.mgm.pd.cp.resortpayment.constant.ApplicationConstants;
-import com.mgm.pd.cp.resortpayment.constant.TransactionType;
+import com.mgm.pd.cp.payment.common.constant.TransactionType;
 import com.mgm.pd.cp.resortpayment.dto.authorize.AuthorizationRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
@@ -19,6 +18,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+
+import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.SUCCESS_MESSAGE;
 
 @Service
 @AllArgsConstructor
@@ -65,7 +66,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                     .transDate(irResponse.getTransDate())
                     .vendorTranID(irResponse.getVendorTranID())
                     .approvalCode(irResponse.getApprovalCode())
-                    .comments(Objects.nonNull(irResponse.getComments()) ? irResponse.getComments() : ApplicationConstants.SUCCESS_MESSAGE);
+                    .comments(Objects.nonNull(irResponse.getComments()) ? irResponse.getComments() : SUCCESS_MESSAGE);
         }
         Payment payment = newPayment.build();
         logger.log(Level.INFO, "Transaction Type is: " + payment.getCpTransactionType());
@@ -100,7 +101,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
             .sequenceNumber(intelligentRouterResponse.getSequenceNumber())
             .transDate(intelligentRouterResponse.getTransDate())
             .approvalCode(intelligentRouterResponse.getApprovalCode())
-            .comments(Objects.nonNull(intelligentRouterResponse.getComments()) ? intelligentRouterResponse.getComments() : ApplicationConstants.SUCCESS_MESSAGE);
+            .comments(Objects.nonNull(intelligentRouterResponse.getComments()) ? intelligentRouterResponse.getComments() : SUCCESS_MESSAGE);
         }
         Payment payment = newPayment.build();
         logger.log(Level.INFO, "Transaction Type is: " + payment.getCpTransactionType());
@@ -141,7 +142,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                     .vendorTranID(crResponse.getVendorTranID())
                     .approvalCode(crResponse.getApprovalCode())
                     .cardType(String.valueOf(crResponse.getCardType()))
-                    .comments(Objects.nonNull(crResponse.getComments()) ? crResponse.getComments() : ApplicationConstants.SUCCESS_MESSAGE);
+                    .comments(Objects.nonNull(crResponse.getComments()) ? crResponse.getComments() : SUCCESS_MESSAGE);
         }
         Payment payment = newPayment.build();
         logger.log(Level.INFO, "Transaction Type is: " + payment.getCpTransactionType());
@@ -180,7 +181,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                     .vendorTranID(vrResponse.getVendorTranID())
                     .authTotalAmount(vrResponse.getTotalAuthAmount())
                     .approvalCode(vrResponse.getApprovalCode())
-                    .comments(Objects.nonNull(vrResponse.getComments()) ? vrResponse.getComments() : ApplicationConstants.SUCCESS_MESSAGE);
+                    .comments(Objects.nonNull(vrResponse.getComments()) ? vrResponse.getComments() : SUCCESS_MESSAGE);
         }
         Payment payment = newPayment.build();
         logger.log(Level.INFO, "Transaction Type is: " +  payment.getCpTransactionType());

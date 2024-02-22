@@ -3,7 +3,7 @@ package com.mgm.pd.cp.resortpayment.exception;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import com.mgm.pd.cp.resortpayment.dto.error.ErrorResponse;
+import com.mgm.pd.cp.payment.common.dto.ErrorResponse;
 import com.mgm.pd.cp.resortpayment.dto.exception.IntelligentRouterException;
 import feign.FeignException;
 import feign.RetryableException;
@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.mgm.pd.cp.resortpayment.constant.ApplicationConstants.INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE;
+import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE;
 
 @RestControllerAdvice
 public class CPPaymentProcessingExceptionHandler {

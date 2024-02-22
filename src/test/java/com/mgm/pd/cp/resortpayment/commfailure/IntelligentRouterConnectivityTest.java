@@ -2,7 +2,6 @@ package com.mgm.pd.cp.resortpayment.commfailure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
-import com.mgm.pd.cp.resortpayment.constant.ApplicationConstants;
 import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalRequest;
 import com.mgm.pd.cp.resortpayment.service.payment.FindPaymentService;
 import com.mgm.pd.cp.resortpayment.service.router.RouterClient;
@@ -21,6 +20,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -46,7 +47,7 @@ public class IntelligentRouterConnectivityTest {
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
-        Assertions.assertEquals(ApplicationConstants.INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE, JsonPath.read(responseJson, "$.title"));
+        Assertions.assertEquals(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE, JsonPath.read(responseJson, "$.title"));
         Assertions.assertEquals(Integer.valueOf(HttpStatus.SERVICE_UNAVAILABLE.value()), JsonPath.read(responseJson, "$.status"));
     }
 }

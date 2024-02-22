@@ -1,7 +1,7 @@
 package com.mgm.pd.cp.resortpayment.util.common;
 
 
-import com.mgm.pd.cp.resortpayment.dto.opera.*;
+import com.mgm.pd.cp.payment.common.dto.opera.*;
 import com.mgm.pd.cp.resortpayment.model.Payment;
 import org.springframework.stereotype.Component;
 

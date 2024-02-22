@@ -9,8 +9,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
-import static com.mgm.pd.cp.resortpayment.constant.ApplicationConstants.CAPTURE_OPERATION;
-import static com.mgm.pd.cp.resortpayment.constant.ApplicationConstants.SHIFT4_GATEWAY_ID;
+import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.CAPTURE_OPERATION;
+import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.SHIFT4_GATEWAY_ID;
 
 @Component
 @AllArgsConstructor

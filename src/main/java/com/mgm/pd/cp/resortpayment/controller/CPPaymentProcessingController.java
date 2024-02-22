@@ -1,10 +1,10 @@
 package com.mgm.pd.cp.resortpayment.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.mgm.pd.cp.payment.common.dto.GenericResponse;
 import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
-import com.mgm.pd.cp.resortpayment.dto.common.GenericResponse;
 import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalRequest;
 import com.mgm.pd.cp.resortpayment.service.payment.CpPaymentProcessingService;
 import org.apache.logging.log4j.Level;

@@ -1,7 +1,7 @@
 package com.mgm.pd.cp.resortpayment.model;
 
-import com.mgm.pd.cp.resortpayment.constant.AuthType;
-import com.mgm.pd.cp.resortpayment.constant.TransactionType;
+import com.mgm.pd.cp.payment.common.constant.AuthType;
+import com.mgm.pd.cp.payment.common.constant.TransactionType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

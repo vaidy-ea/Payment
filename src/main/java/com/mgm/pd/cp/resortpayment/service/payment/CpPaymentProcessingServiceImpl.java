@@ -1,18 +1,17 @@
 package com.mgm.pd.cp.resortpayment.service.payment;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.mgm.pd.cp.resortpayment.constant.ApplicationConstants;
+import com.mgm.pd.cp.payment.common.dto.ErrorResponse;
+import com.mgm.pd.cp.payment.common.dto.GenericResponse;
+import com.mgm.pd.cp.payment.common.dto.opera.OperaResponse;
 import com.mgm.pd.cp.resortpayment.dto.authorize.AuthorizationRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CaptureRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CardVoidRouterResponse;
-import com.mgm.pd.cp.resortpayment.dto.common.GenericResponse;
-import com.mgm.pd.cp.resortpayment.dto.error.ErrorResponse;
 import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalRequest;
 import com.mgm.pd.cp.resortpayment.dto.incrementalauth.IncrementalAuthorizationRouterResponse;
-import com.mgm.pd.cp.resortpayment.dto.opera.OperaResponse;
 import com.mgm.pd.cp.resortpayment.model.Payment;
 import com.mgm.pd.cp.resortpayment.service.router.RouterService;
 import com.mgm.pd.cp.resortpayment.util.common.Converter;
@@ -24,6 +23,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+
+import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.INITIAL_PAYMENT_IS_MISSING;
 
 @Service
 @AllArgsConstructor
@@ -59,7 +60,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
             operaResponse = converter.convert(payment);
             return response(operaResponse, HttpStatus.CREATED);
         }
-        incrementalRequest.setComments(ApplicationConstants.INITIAL_PAYMENT_IS_MISSING);
+        incrementalRequest.setComments(INITIAL_PAYMENT_IS_MISSING);
         savePaymentService.saveIncrementalAuthorizationPayment(incrementalRequest, null);
         return initialPaymentIsMissing();
     }
@@ -107,7 +108,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
             operaCaptureResponse = converter.convert(payment);
             return response(operaCaptureResponse, HttpStatus.CREATED);
         }
-        captureRequest.setComments(ApplicationConstants.INITIAL_PAYMENT_IS_MISSING);
+        captureRequest.setComments(INITIAL_PAYMENT_IS_MISSING);
         savePaymentService.saveCaptureAuthPayment(captureRequest, null, null);
         return initialPaymentIsMissing();
     }
@@ -136,14 +137,14 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
             operaCardVoidResponse = converter.convert(payment);
             return response(operaCardVoidResponse, HttpStatus.CREATED);
         }
-        cvRequest.setComments(ApplicationConstants.INITIAL_PAYMENT_IS_MISSING);
+        cvRequest.setComments(INITIAL_PAYMENT_IS_MISSING);
         savePaymentService.saveCardVoidAuthPayment(cvRequest, null);
         return initialPaymentIsMissing();
     }
 
     private ResponseEntity<GenericResponse> initialPaymentIsMissing() {
-        return response(new ErrorResponse(null, 422, ApplicationConstants.INITIAL_PAYMENT_IS_MISSING,
-                ApplicationConstants.INITIAL_PAYMENT_IS_MISSING, null, null, null), HttpStatus.UNPROCESSABLE_ENTITY);
+        return response(new ErrorResponse(null, 422, INITIAL_PAYMENT_IS_MISSING,
+                INITIAL_PAYMENT_IS_MISSING, null, null, null), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     private <D> ResponseEntity<GenericResponse> response(D data, HttpStatus status) {

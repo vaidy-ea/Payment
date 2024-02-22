@@ -1,6 +1,6 @@
 package com.mgm.pd.cp.resortpayment.dto.authorize;
 
-import com.mgm.pd.cp.resortpayment.constant.AuthType;
+import com.mgm.pd.cp.payment.common.constant.AuthType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

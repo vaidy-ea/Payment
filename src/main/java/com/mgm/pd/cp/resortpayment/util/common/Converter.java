@@ -2,7 +2,7 @@ package com.mgm.pd.cp.resortpayment.util.common;
 
 
 import com.mgm.pd.cp.payment.common.dto.opera.*;
-import com.mgm.pd.cp.resortpayment.model.Payment;
+import com.mgm.pd.cp.payment.common.model.Payment;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;

@@ -5,7 +5,8 @@ import com.mgm.pd.cp.payment.common.dto.GenericResponse;
 import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
-import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalRequest;
+import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalAuthRequest;
+import com.mgm.pd.cp.resortpayment.dto.refund.CPPaymentRefundRequest;
 import com.mgm.pd.cp.resortpayment.service.payment.CpPaymentProcessingService;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.beans.IntrospectionException;
+import java.lang.reflect.InvocationTargetException;
 
 @RestController
 @RequestMapping("/services/v1/payments")
@@ -29,14 +32,14 @@ public class CPPaymentProcessingController {
 
     /**
      *
-     * @param cpPaymentIncrementalRequest
+     * @param request
      * @return response for Opera
      * @throws JsonProcessingException
      */
     @PostMapping("/incrementalauth")
-    public ResponseEntity<GenericResponse> incrementalAuth(@Valid @RequestBody CPPaymentIncrementalRequest cpPaymentIncrementalRequest) throws JsonProcessingException {
-        logger.log(Level.DEBUG, "CPPaymentIncrementalRequest Request in DEBUG is : " + cpPaymentIncrementalRequest.getWorkstation());
-        return processPayload(cpPaymentIncrementalRequest);
+    public ResponseEntity<GenericResponse> incrementalAuth(@Valid @RequestBody CPPaymentIncrementalAuthRequest request) throws JsonProcessingException, IntrospectionException, InvocationTargetException, IllegalAccessException {
+        logger.log(Level.DEBUG, "incrementalAuth Request in DEBUG is : " + request.getTransactionType());
+        return processPayload(request);
     }
 
     /**
@@ -60,7 +63,7 @@ public class CPPaymentProcessingController {
      */
     @PostMapping("/capture")
     public ResponseEntity<GenericResponse> capture(@Valid @RequestBody CPPaymentCaptureRequest cpPaymentCaptureRequest) throws JsonProcessingException {
-        logger.log(Level.DEBUG, "CPPaymentCaptureRequest Request in DEBUG is : " + cpPaymentCaptureRequest.getWorkstation());
+        logger.log(Level.DEBUG, "capture Request in DEBUG is : " + cpPaymentCaptureRequest.getTransactionType());
         return processPayload(cpPaymentCaptureRequest);
     }
 
@@ -76,8 +79,14 @@ public class CPPaymentProcessingController {
         return processPayload(cpPaymentCardVoidRequest);
     }
 
-    private ResponseEntity<GenericResponse> processPayload(CPPaymentIncrementalRequest incrementalRequest) throws JsonProcessingException {
-        return cpPaymentProcessingService.processIncrementalAuthorizationRequest(incrementalRequest);
+    @PostMapping("/refund")
+    public ResponseEntity<GenericResponse> refund(@Valid @RequestBody CPPaymentRefundRequest cpPaymentRefundRequest) throws JsonProcessingException {
+        logger.log(Level.DEBUG, "refund Request in DEBUG is : " + cpPaymentRefundRequest.getTransactionType());
+        return processPayload(cpPaymentRefundRequest);
+    }
+
+    private ResponseEntity<GenericResponse> processPayload(CPPaymentIncrementalAuthRequest request) throws JsonProcessingException, IntrospectionException, InvocationTargetException, IllegalAccessException {
+        return cpPaymentProcessingService.processIncrementalAuthorizationRequest(request);
     }
 
     private ResponseEntity<GenericResponse> processPayload(CPPaymentAuthorizationRequest cpPaymentAuthorizationRequest) throws JsonProcessingException {
@@ -90,5 +99,9 @@ public class CPPaymentProcessingController {
 
     private ResponseEntity<GenericResponse> processPayload(CPPaymentCardVoidRequest cpPaymentCardVoidRequest) throws JsonProcessingException {
         return cpPaymentProcessingService.processCardVoidRequest(cpPaymentCardVoidRequest);
+    }
+
+    private ResponseEntity<GenericResponse> processPayload(CPPaymentRefundRequest cpPaymentRefundRequest) throws JsonProcessingException {
+        return cpPaymentProcessingService.processRefundRequest(cpPaymentRefundRequest);
     }
 }

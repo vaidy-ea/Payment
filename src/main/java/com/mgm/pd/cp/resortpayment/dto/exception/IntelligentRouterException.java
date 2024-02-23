@@ -1,7 +1,7 @@
 package com.mgm.pd.cp.resortpayment.dto.exception;
 
 import lombok.Data;
-
+//TODO: Delete
 @Data
 public class IntelligentRouterException {
     private String status;

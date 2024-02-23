@@ -2,7 +2,7 @@ package com.mgm.pd.cp.resortpayment.commfailure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
-import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalRequest;
+import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalAuthRequest;
 import com.mgm.pd.cp.resortpayment.service.payment.FindPaymentService;
 import com.mgm.pd.cp.resortpayment.service.router.RouterClient;
 import com.mgm.pd.cp.resortpayment.util.TestHelperUtil;
@@ -39,7 +39,7 @@ public class IntelligentRouterConnectivityTest {
     @Test
     void fail_when_intelligent_router_is_down () throws Exception {
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
-        CPPaymentIncrementalRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
+        CPPaymentIncrementalAuthRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(INCREMENTAL_AUTH_PATH)
                 .contentType(MediaType.APPLICATION_JSON)

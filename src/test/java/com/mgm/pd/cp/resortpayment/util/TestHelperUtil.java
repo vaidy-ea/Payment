@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
-import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalRequest;
+import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalAuthRequest;
 import com.mgm.pd.cp.resortpayment.dto.incrementalauth.IncrementalAuthorizationRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.router.RouterResponseJson;
 import com.mgm.pd.cp.resortpayment.model.Payment;
@@ -22,9 +22,9 @@ public class TestHelperUtil {
 	@Value("classpath:initialAuthRequest.json")
 	Resource testFile;
 
-	public static CPPaymentIncrementalRequest getIncrementalAuthRequest() throws IOException {
+	public static CPPaymentIncrementalAuthRequest getIncrementalAuthRequest() throws IOException {
 		return new ObjectMapper().registerModule(new JavaTimeModule()).readValue(new ClassPathResource("UC2/incrementalAuthRequest.json").getFile(),
-				CPPaymentIncrementalRequest.class);
+				CPPaymentIncrementalAuthRequest.class);
 	}
 
 	public static RouterResponseJson getIncrementalRouterResponseJson() {
@@ -57,7 +57,7 @@ public class TestHelperUtil {
 	}
 
 	public static String getOperaResponse() {
-		return "{\"approvalCode\":\"OK196Z\",\"responseCode\":\"A\",\"gatewayInfo\":{},\"transactionDateTime\":\"2021041509:18:23\",\"transactionAmount\":{\"balanceAmount\":34.23,\"requestedAmount\":2000.0,\"cumulativeAmount\":898.07,\"currencyIndicator\":\"USD\",\"detailedAmount\":{}},\"card\":{\"cardType\":\"VS\",\"sequenceNumber\":\"1234\",\"isTokenized\":false},\"printDetails\":[{}]}";
+		return "{\"approvalCode\":\"OK196Z\",\"responseCode\":\"A\",\"gatewayInfo\":{},\"transactionDateTime\":\"2021041509:18:23\",\"transactionAmount\":{\"balanceAmount\":500.0,\"requestedAmount\":300.0,\"cumulativeAmount\":898.07,\"currencyIndicator\":\"USD\",\"detailedAmount\":{}},\"card\":{\"cardType\":\"VS\",\"sequenceNumber\":\"1234\",\"isTokenized\":false},\"printDetails\":[{}]}";
 	}
 
 	public static Optional<Payment> getInitialPayment() throws IOException {
@@ -66,6 +66,6 @@ public class TestHelperUtil {
     }
 
 	public static String getOperaResponseForCaptureOperation() {
-		return "{\"approvalCode\":\"OK684Z\",\"responseCode\":\"A\",\"gatewayInfo\":{},\"transactionDateTime\":\"2021041509:18:23\",\"transactionAmount\":{\"authorizedAmount\":898.07,\"cumulativeAmount\":898.07,\"detailedAmount\":{}},\"card\":{\"cardType\":\"VS\",\"sequenceNumber\":\"1234\",\"isTokenized\":false},\"printDetails\":[{}]}";
+		return "{\"approvalCode\":\"OK684Z\",\"responseCode\":\"A\",\"gatewayInfo\":{},\"transactionDateTime\":\"2019-08-24T14:15:22Z\",\"transactionAmount\":{\"authorizedAmount\":1500.0,\"cumulativeAmount\":898.07,\"detailedAmount\":{}},\"card\":{\"cardType\":\"VS\",\"sequenceNumber\":\"1234\",\"isTokenized\":false},\"printDetails\":[{}]}";
 	}
 }

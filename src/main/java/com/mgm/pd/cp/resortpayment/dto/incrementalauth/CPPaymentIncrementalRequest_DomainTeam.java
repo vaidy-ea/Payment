@@ -17,7 +17,8 @@ import java.io.Serializable;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CPPaymentIncrementalRequest implements Serializable {
+//TODO: Delete
+public class CPPaymentIncrementalRequest_DomainTeam implements Serializable {
     @NotNull(message = "AuthorizationAmount can't be empty or NULL")
     @Min(value = 0L, message = "AuthorizationAmount can't be negative")
     @Max(value = 99999999999999999L)

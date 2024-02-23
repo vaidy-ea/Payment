@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.mgm.pd.cp.payment.common.dto.ErrorResponse;
-import com.mgm.pd.cp.resortpayment.dto.exception.IntelligentRouterException;
 import feign.FeignException;
 import feign.RetryableException;
 import org.springframework.http.HttpStatus;
@@ -71,9 +70,7 @@ public class CPPaymentProcessingExceptionHandler {
     //Used to catch exception/errors from Intelligent Router
     @ExceptionHandler(FeignException.class)
     public ResponseEntity<ErrorResponse> handleIntelligentRouterExceptions(FeignException ex) throws JsonProcessingException {
-        IntelligentRouterException irEx = new ObjectMapper().readValue(ex.contentUTF8(), IntelligentRouterException.class);
-        return new ResponseEntity<>(ErrorResponse.builder().status(irEx.getCode()).title(irEx.getShortMessage())
-                .detail(irEx.getShortMessage()).messages(Collections.singletonList(irEx.getMessage())).build(),
-                Objects.requireNonNull(HttpStatus.resolve(ex.status())));
+        ErrorResponse irEx = new ObjectMapper().readValue(ex.contentUTF8(), ErrorResponse.class);
+        return new ResponseEntity<>(irEx, Objects.requireNonNull(HttpStatus.resolve(ex.status())));
     }
 }

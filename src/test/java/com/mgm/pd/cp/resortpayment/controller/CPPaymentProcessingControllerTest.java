@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
-import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalRequest;
+import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalAuthRequest;
 import com.mgm.pd.cp.resortpayment.dto.router.RouterRequest;
 import com.mgm.pd.cp.resortpayment.repository.PaymentRepository;
 import com.mgm.pd.cp.resortpayment.service.payment.CpPaymentProcessingService;
@@ -67,7 +67,7 @@ public class CPPaymentProcessingControllerTest {
     void when_provided_valid_incremental_payment_payload_should_process_and_return_approval_code() throws Exception {
         //given
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
-        CPPaymentIncrementalRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
+        CPPaymentIncrementalAuthRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
         Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getIncrementalRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(INCREMENTAL_AUTH_PATH)
@@ -83,7 +83,7 @@ public class CPPaymentProcessingControllerTest {
     void when_provided_valid_incremental_payment_payload_should_process_and_return_response_to_opera() throws Exception {
         //given
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
-        CPPaymentIncrementalRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
+        CPPaymentIncrementalAuthRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
         Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getIncrementalRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(INCREMENTAL_AUTH_PATH)
@@ -99,7 +99,7 @@ public class CPPaymentProcessingControllerTest {
     void valid_incremental_intelligent_router_response_should_persist_in_payment_db() throws Exception {
         //given
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
-        CPPaymentIncrementalRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
+        CPPaymentIncrementalAuthRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
         Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getIncrementalRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(INCREMENTAL_AUTH_PATH)
@@ -114,10 +114,9 @@ public class CPPaymentProcessingControllerTest {
     void when_provided_invalid_incremental_payment_payload_should_throw_validation_error_and_return_bad_request() throws Exception {
         //given
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
-        CPPaymentIncrementalRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
-        mockRequest.setAuthorizationAmount(null);
-        mockRequest.setGuestName(null);
-        mockRequest.setCardExpirationDate("2323");
+        CPPaymentIncrementalAuthRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
+        mockRequest.setTransactionIdentifier(null);
+        mockRequest.setTransactionDateTime(null);
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(INCREMENTAL_AUTH_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -127,13 +126,13 @@ public class CPPaymentProcessingControllerTest {
         //then
         Assertions.assertEquals("Invalid Request Parameters", JsonPath.read(responseJson, "$.title"));
         List<String> errorList = JsonPath.read(responseJson, "$.messages");
-        Assertions.assertEquals(3, errorList.size());
+        Assertions.assertEquals(2, errorList.size());
     }
 
     @Test
     void when_provided_valid_incremental_payment_payload_but_initial_payment_is_missing_then_should_not_process_and_return_unsuccessful() throws Exception {
         //given
-        CPPaymentIncrementalRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
+        CPPaymentIncrementalAuthRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
         Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getIncrementalRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(INCREMENTAL_AUTH_PATH)
@@ -198,8 +197,8 @@ public class CPPaymentProcessingControllerTest {
         //given
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentCaptureRequest mockRequest = TestHelperUtil.getCapturePaymentRequest();
-        mockRequest.setAmount(null);
-        mockRequest.setGuestName(null);
+        mockRequest.setTransactionDateTime(null);
+        mockRequest.setTransactionIdentifier(null);
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(CAPTURE_PATH)
                 .contentType(MediaType.APPLICATION_JSON)

@@ -10,8 +10,10 @@ import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CaptureRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CardVoidRouterResponse;
-import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalRequest;
+import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalAuthRequest;
 import com.mgm.pd.cp.resortpayment.dto.incrementalauth.IncrementalAuthorizationRouterResponse;
+import com.mgm.pd.cp.resortpayment.dto.refund.CPPaymentRefundRequest;
+import com.mgm.pd.cp.resortpayment.dto.refund.RefundRouterResponse;
 import com.mgm.pd.cp.resortpayment.model.Payment;
 import com.mgm.pd.cp.resortpayment.service.router.RouterService;
 import com.mgm.pd.cp.resortpayment.util.common.Converter;
@@ -22,6 +24,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.beans.IntrospectionException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Optional;
 
 import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.INITIAL_PAYMENT_IS_MISSING;
@@ -37,31 +41,32 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
 
     /**
      *
-     * @param incrementalRequest
+     * @param request
      * @return response
      * @throws JsonProcessingException
      */
     @Override
-    public ResponseEntity<GenericResponse> processIncrementalAuthorizationRequest(CPPaymentIncrementalRequest incrementalRequest) throws JsonProcessingException {
-        Optional<Payment> optionalInitialPayment = findPaymentService.getPaymentDetails(incrementalRequest.getPropertyCode(), incrementalRequest.getResvNameID());
+    public ResponseEntity<GenericResponse> processIncrementalAuthorizationRequest(CPPaymentIncrementalAuthRequest request) throws JsonProcessingException, IntrospectionException, InvocationTargetException, IllegalAccessException {
+        Optional<Payment> optionalInitialPayment = findPaymentService.getPaymentDetails(serviceHelper.getValueByName(request, "propertyIdentifier"),
+                request.getTransactionDetails().getSaleItem().getSaleReferenceIdentifier());
         if (optionalInitialPayment.isPresent()) {
             OperaResponse operaResponse;
             IncrementalAuthorizationRouterResponse irResponse = null;
             Payment payment;
             try{
-                irResponse = routerService.sendIncrementalAuthorizationRequestToRouter(incrementalRequest, optionalInitialPayment.get().getIncrementalAuthInvoiceId());
+                irResponse = routerService.sendIncrementalAuthorizationRequestToRouter(request, optionalInitialPayment.get().getIncrementalAuthInvoiceId());
             } catch(FeignException feignEx) {
                 irResponse = serviceHelper.addCommentsForIncrementalAuthResponse(feignEx);
                 throw feignEx;
             }
             finally {
-                payment = savePaymentService.saveIncrementalAuthorizationPayment(incrementalRequest, irResponse);
+                payment = savePaymentService.saveIncrementalAuthorizationPayment(request, irResponse);
             }
             operaResponse = converter.convert(payment);
             return response(operaResponse, HttpStatus.CREATED);
         }
-        incrementalRequest.setComments(INITIAL_PAYMENT_IS_MISSING);
-        savePaymentService.saveIncrementalAuthorizationPayment(incrementalRequest, null);
+        request.setComments(INITIAL_PAYMENT_IS_MISSING);
+        savePaymentService.saveIncrementalAuthorizationPayment(request, null);
         return initialPaymentIsMissing();
     }
 
@@ -85,31 +90,32 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
 
     /**
      *
-     * @param captureRequest
+     * @param request
      * @return response
      * @throws JsonProcessingException
      */
     @Override
-    public ResponseEntity<GenericResponse> processCaptureRequest(CPPaymentCaptureRequest captureRequest) throws JsonProcessingException {
-        Optional<Payment> optionalInitialPayment = findPaymentService.getPaymentDetails(captureRequest.getPropertyCode(), captureRequest.getResvNameID());
+    public ResponseEntity<GenericResponse> processCaptureRequest(CPPaymentCaptureRequest request) throws JsonProcessingException {
+        Optional<Payment> optionalInitialPayment = findPaymentService.getPaymentDetails(serviceHelper.getValueByName(request, "propertyIdentifier"),
+                request.getTransactionDetails().getSaleItem().getSaleReferenceIdentifier());
         if (optionalInitialPayment.isPresent()) {
             Payment initialPayment = optionalInitialPayment.get();
             OperaResponse operaCaptureResponse;
             Payment payment;
             CaptureRouterResponse crResponse = null;
             try{
-                crResponse = routerService.sendCaptureRequestToRouter(captureRequest, initialPayment.getIncrementalAuthInvoiceId());
+                crResponse = routerService.sendCaptureRequestToRouter(request, initialPayment.getIncrementalAuthInvoiceId());
             } catch(FeignException feignEx) {
                 crResponse = serviceHelper.addCommentsForCaptureResponse(feignEx);
                 throw feignEx;
             } finally {
-                payment = savePaymentService.saveCaptureAuthPayment(captureRequest, crResponse, initialPayment.getAuthTotalAmount());
+                payment = savePaymentService.saveCaptureAuthPayment(request, crResponse, initialPayment.getAuthTotalAmount());
             }
             operaCaptureResponse = converter.convert(payment);
             return response(operaCaptureResponse, HttpStatus.CREATED);
         }
-        captureRequest.setComments(INITIAL_PAYMENT_IS_MISSING);
-        savePaymentService.saveCaptureAuthPayment(captureRequest, null, null);
+        request.setComments(INITIAL_PAYMENT_IS_MISSING);
+        savePaymentService.saveCaptureAuthPayment(request, null, null);
         return initialPaymentIsMissing();
     }
 
@@ -139,6 +145,31 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
         }
         cvRequest.setComments(INITIAL_PAYMENT_IS_MISSING);
         savePaymentService.saveCardVoidAuthPayment(cvRequest, null);
+        return initialPaymentIsMissing();
+    }
+
+    @Override
+    public ResponseEntity<GenericResponse> processRefundRequest(CPPaymentRefundRequest request) throws JsonProcessingException {
+        Optional<Payment> optionalInitialPayment = findPaymentService.getPaymentDetails(serviceHelper.getValueByName(request, "propertyIdentifier"),
+                request.getTransactionDetails().getSaleItem().getSaleReferenceIdentifier());
+        if (optionalInitialPayment.isPresent()) {
+            OperaResponse operaResponse;
+            RefundRouterResponse rrResponse = null;
+            Payment payment;
+            try{
+                rrResponse = routerService.sendRefundRequestToRouter(request, optionalInitialPayment.get().getIncrementalAuthInvoiceId());
+            } catch(FeignException feignEx) {
+                rrResponse = serviceHelper.addCommentsForRefundResponse(feignEx);
+                throw feignEx;
+            }
+            finally {
+                payment = savePaymentService.saveRefundPayment(request, rrResponse);
+            }
+            operaResponse = converter.convert(payment);
+            return response(operaResponse, HttpStatus.CREATED);
+        }
+        request.setComments(INITIAL_PAYMENT_IS_MISSING);
+        savePaymentService.saveRefundPayment(request, null);
         return initialPaymentIsMissing();
     }
 

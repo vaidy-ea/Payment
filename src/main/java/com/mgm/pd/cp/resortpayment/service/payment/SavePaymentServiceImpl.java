@@ -1,16 +1,26 @@
 package com.mgm.pd.cp.resortpayment.service.payment;
 
+import com.mgm.pd.cp.payment.common.constant.AuthType;
 import com.mgm.pd.cp.payment.common.constant.TransactionType;
+import com.mgm.pd.cp.payment.common.dto.opera.Card;
+import com.mgm.pd.cp.payment.common.dto.opera.TransactionAmount;
+import com.mgm.pd.cp.resortpayment.dto.CurrencyConversion;
+import com.mgm.pd.cp.resortpayment.dto.Customer;
+import com.mgm.pd.cp.resortpayment.dto.Merchant;
+import com.mgm.pd.cp.resortpayment.dto.TransactionDetails;
 import com.mgm.pd.cp.resortpayment.dto.authorize.AuthorizationRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CaptureRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CardVoidRouterResponse;
-import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalRequest;
+import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalAuthRequest;
 import com.mgm.pd.cp.resortpayment.dto.incrementalauth.IncrementalAuthorizationRouterResponse;
+import com.mgm.pd.cp.resortpayment.dto.refund.CPPaymentRefundRequest;
+import com.mgm.pd.cp.resortpayment.dto.refund.RefundRouterResponse;
 import com.mgm.pd.cp.resortpayment.model.Payment;
 import com.mgm.pd.cp.resortpayment.repository.PaymentRepository;
+import com.mgm.pd.cp.resortpayment.util.common.PaymentProcessingServiceHelper;
 import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -20,6 +30,7 @@ import org.springframework.stereotype.Service;
 import java.util.Objects;
 
 import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.SUCCESS_MESSAGE;
+import static com.mgm.pd.cp.payment.common.constant.TransactionType.REFUND;
 
 @Service
 @AllArgsConstructor
@@ -27,36 +38,46 @@ public class SavePaymentServiceImpl implements SavePaymentService {
     private static final Logger logger = LogManager.getLogger(SavePaymentServiceImpl.class);
 
     private PaymentRepository paymentRepository;
+    private PaymentProcessingServiceHelper helper;
 
     @Override
-    public Payment saveIncrementalAuthorizationPayment(CPPaymentIncrementalRequest incrementalRequest, IncrementalAuthorizationRouterResponse irResponse) {
+    public Payment saveIncrementalAuthorizationPayment(CPPaymentIncrementalAuthRequest source, IncrementalAuthorizationRouterResponse irResponse) {
+        TransactionDetails transactionDetails = source.getTransactionDetails();
+        TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
+        Customer customer = transactionDetails.getCustomer();
+        CurrencyConversion currencyConversion = transactionDetails.getCurrencyConversion();
+        Card card = transactionDetails.getCard();
+        Merchant merchant = transactionDetails.getMerchant();
         Payment.PaymentBuilder newPayment = Payment.builder();
         newPayment
-                .authAmountRequested(incrementalRequest.getAuthorizationAmount())
-                .propertyCode(incrementalRequest.getPropertyCode())
-                //TODO: check if below fields are coming in IntelligentRouterResponse
-                .authType(incrementalRequest.getAuthType())
-                .usageType(incrementalRequest.getUsageType())
-                .guestName(incrementalRequest.getGuestName())
-                .binRate(incrementalRequest.getBinRate())
-                .dccAmount(incrementalRequest.getDCCAmount())
-                .binCurrencyCode(incrementalRequest.getBinCurrencyCode())
-                .cardExpirationDate(incrementalRequest.getCardExpirationDate())
-                .cardNumber(incrementalRequest.getCardNumber())
-                .resvNameID(incrementalRequest.getResvNameID())
-                .authAmountRequested(incrementalRequest.getAuthorizationAmount())
-                .currencyIndicator(incrementalRequest.getCurrencyIndicator())
-                .balance(incrementalRequest.getBalance())
-                .trackIndicator(incrementalRequest.getTrackIndicator())
-                .incrementalAuthInvoiceId(incrementalRequest.getIncrementalAuthInvoiceId())
-                .originDate(incrementalRequest.getOriginDate())
-                .issueNumber(incrementalRequest.getIssueNumber())
-                .startDate(incrementalRequest.getStartDate())
-                .uniqueID(incrementalRequest.getUniqueID())
-                .clientID(incrementalRequest.getClientID())
-                .corelationId(incrementalRequest.getCorelationId())
+                .authAmountRequested(transactionAmount.getRequestedAmount())
+                .currencyIndicator(transactionAmount.getCurrencyIndicator())
+                .guestName(customer.getFullName())
+                .dccAmount(Double.valueOf(currencyConversion.getAmount()))
+                .binRate(currencyConversion.getBinCurrencyRate())
+                .uniqueID(card.getTokenValue())
+                .binCurrencyCode(currencyConversion.getBinCurrencyCode())
+                .cardNumber(card.getMaskedCardNumber())
+                .cardExpirationDate(card.getExpiryDate())
+                .cardType(String.valueOf(card.getCardType()))
+                .startDate(card.getStartDate())
+                .issueNumber(Integer.valueOf(card.getSequenceNumber()))
+                .propertyCode(helper.getValueByName(source, "propertyIdentifier"))
+                .merchantId(merchant.getMerchantIdentifier())
+                .originDate(helper.getValueByName(source, "originDate"))
+                .resvNameID(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
+                .vendorTranID(source.getGatewayInfo().getGatewayTransactionIdentifier())
+                .balance(transactionDetails.getTransactionAmount().getBalanceAmount())
+                .sequenceNumber(source.getTransactionIdentifier())
+                .transDate(source.getTransactionDateTime())
+                .authType(AuthType.valueOf(source.getTransactionType()))
+                .clientID(source.getClientID())
+                .corelationId(source.getCorelationId())
+                .incrementalAuthInvoiceId(source.getIncrementalAuthInvoiceId())
+                //.usageType(incrementalRequest.getUsageType())
+                //.trackIndicator(incrementalRequest.getTrackIndicator())
                 .cpTransactionType(TransactionType.INCREMENTAL_AUTH)
-                .comments(incrementalRequest.getComments());
+                .comments(source.getComments());
         if (Objects.nonNull(irResponse)) {
             newPayment
                     .authTotalAmount(irResponse.getTotalAuthAmount())
@@ -111,30 +132,37 @@ public class SavePaymentServiceImpl implements SavePaymentService {
     @Override
     public Payment saveCaptureAuthPayment(CPPaymentCaptureRequest captureRequest
             , CaptureRouterResponse crResponse, Double initialAuthAmount) {
+        TransactionDetails transactionDetails = captureRequest.getTransactionDetails();
+        TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
+        Customer customer = transactionDetails.getCustomer();
+        CurrencyConversion currencyConversion = transactionDetails.getCurrencyConversion();
+        Card card = transactionDetails.getCard();
+        Merchant merchant = transactionDetails.getMerchant();
+
         Payment.PaymentBuilder newPayment = Payment.builder();
         newPayment
-                .merchantId(captureRequest.getMerchantID())
-                .issueNumber(captureRequest.getIssueNumber())
-                .startDate(captureRequest.getStartDate())
-                .uniqueID(captureRequest.getUniqueID())
+                .merchantId(merchant.getMerchantIdentifier())
+                .issueNumber(Integer.valueOf(card.getSequenceNumber()))
+                .startDate(card.getStartDate())
+                .uniqueID(card.getTokenValue())
                 .clientID(captureRequest.getClientID())
                 .corelationId(captureRequest.getCorelationId())
-                .propertyCode(captureRequest.getPropertyCode())
+                .propertyCode(helper.getValueByName(captureRequest, "propertyIdentifier"))
                 //TODO: check if below fields are coming in IntelligentRouterResponse
-                .usageType(captureRequest.getUsageType())
-                .guestName(captureRequest.getGuestName())
-                .binRate(captureRequest.getBinRate())
-                .dccAmount(captureRequest.getDccAmount())
-                .binCurrencyCode(captureRequest.getBinCurrencyCode())
-                .cardExpirationDate(captureRequest.getCardExpirationDate())
-                .cardNumber(captureRequest.getCardNumber())
-                .resvNameID(captureRequest.getResvNameID())
-                .trackIndicator(captureRequest.getTrackIndicator())
+                //.usageType(captureRequest.getUsageType())
+                .guestName(customer.getFullName())
+                .dccAmount(Double.valueOf(currencyConversion.getAmount()))
+                .binRate(currencyConversion.getBinCurrencyRate())
+                .binCurrencyCode(currencyConversion.getBinCurrencyCode())
+                .cardNumber(card.getMaskedCardNumber())
+                .cardExpirationDate(card.getExpiryDate())
+                .resvNameID(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
+                //.trackIndicator(captureRequest.getTrackIndicator())
                 .incrementalAuthInvoiceId(captureRequest.getIncrementalAuthInvoiceId())
-                .sequenceNumber(captureRequest.getSequenceNumber())
-                .transDate(captureRequest.getTransDate())
-                .settleAmount(captureRequest.getTotalAuthAmount())
-                .cpTransactionType(setCaptureTransactionType(initialAuthAmount, captureRequest.getTotalAuthAmount()))
+                .sequenceNumber(captureRequest.getTransactionIdentifier())
+                .transDate(captureRequest.getTransactionDateTime())
+                .settleAmount(transactionAmount.getCumulativeAmount())
+                .cpTransactionType(setCaptureTransactionType(initialAuthAmount, transactionAmount.getCumulativeAmount()))
                 .comments(captureRequest.getComments());
         if (Objects.nonNull(crResponse)) {
             newPayment.authTotalAmount(crResponse.getTotalAuthAmount())
@@ -188,6 +216,46 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         return this.paymentRepository.save(payment);
     }
 
+    @Override
+    public Payment saveRefundPayment(CPPaymentRefundRequest cpPaymentRefundRequest, RefundRouterResponse refundResponse) {
+        Payment.PaymentBuilder newPayment = Payment.builder();
+        TransactionDetails transactionDetails = cpPaymentRefundRequest.getTransactionDetails();
+        TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
+        CurrencyConversion currencyConversion = transactionDetails.getCurrencyConversion();
+        Card card = transactionDetails.getCard();
+        Customer customer = transactionDetails.getCustomer();
+        Merchant merchant = transactionDetails.getMerchant();
+        newPayment
+                .authAmountRequested(transactionAmount.getRequestedAmount())
+                .binRate(currencyConversion.getBinCurrencyRate())
+                .authTotalAmount(transactionAmount.getAuthorizedAmount())
+                .balance(transactionAmount.getDetailedAmount().getAmount())
+                .binCurrencyCode(currencyConversion.getBinCurrencyCode())
+                .cardNumber(card.getCardHolderName())
+                .cardExpirationDate(card.getExpiryDate())
+                .currencyIndicator(currencyConversion.getConversionFlag())
+                .guestName(customer.getFullName())
+                .resvNameID(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
+                .merchantId(merchant.getMerchantIdentifier())
+                .clientID(cpPaymentRefundRequest.getClientID())
+                .corelationId(cpPaymentRefundRequest.getCorelationId())
+                .comments(cpPaymentRefundRequest.getComments())
+                .cpTransactionType(REFUND);
+        if (Objects.nonNull(refundResponse)) {
+            newPayment.authTotalAmount(refundResponse.getTotalAuthAmount())
+                    .returnCode(String.valueOf(refundResponse.getResponseCode()))
+                    .vendorTranID(refundResponse.getVendorTranID())
+                    .sequenceNumber(refundResponse.getSequenceNumber())
+                    .transDate(refundResponse.getTransDate())
+                    .approvalCode(refundResponse.getResponseCode())
+                    .cardType(String.valueOf(refundResponse.getCardType()))
+                    .comments(Objects.nonNull(refundResponse.getComments()) ? refundResponse.getComments() : SUCCESS_MESSAGE);
+        }
+        Payment payment = newPayment.build();
+        logger.log(Level.INFO, "Transaction Type is: " + payment.getCpTransactionType());
+        return this.paymentRepository.save(payment);
+    }
+
     private TransactionType setCaptureTransactionType(Double initialAuthAmount, Double totalAuthAmount) {
         TransactionType captureTransactionType = null;
         if (Objects.nonNull(initialAuthAmount) && Objects.nonNull(totalAuthAmount)) {
@@ -200,5 +268,4 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         }
         return captureTransactionType;
     }
-
 }

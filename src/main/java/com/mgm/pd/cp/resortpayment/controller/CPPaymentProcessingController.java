@@ -50,7 +50,7 @@ public class CPPaymentProcessingController {
      */
     @PostMapping("/authorize")
     public ResponseEntity<GenericResponse> authorize(@Valid @RequestBody CPPaymentAuthorizationRequest cpPaymentAuthorizationRequest) throws JsonProcessingException {
-        logger.log(Level.DEBUG, "CPPaymentIncrementalRequest Request in DEBUG is : {} ", cpPaymentAuthorizationRequest.getWorkstation());
+        logger.log(Level.DEBUG, "authorize Request in DEBUG is : {} ", cpPaymentAuthorizationRequest.getTransactionType());
         return processPayload(cpPaymentAuthorizationRequest);
 
     }

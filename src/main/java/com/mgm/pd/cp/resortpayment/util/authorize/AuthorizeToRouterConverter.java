@@ -2,12 +2,20 @@ package com.mgm.pd.cp.resortpayment.util.authorize;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mgm.pd.cp.payment.common.constant.AuthType;
+import com.mgm.pd.cp.payment.common.dto.opera.Card;
+import com.mgm.pd.cp.payment.common.dto.opera.TransactionAmount;
+import com.mgm.pd.cp.resortpayment.constants.BooleanValue;
+import com.mgm.pd.cp.resortpayment.dto.*;
 import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
 import com.mgm.pd.cp.resortpayment.dto.incrementalauth.IncrementalRouterRequestJson;
 import com.mgm.pd.cp.resortpayment.dto.router.RouterRequest;
+import com.mgm.pd.cp.resortpayment.util.common.PaymentProcessingServiceHelper;
 import lombok.AllArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.AUTHORIZE_OPERATION;
 import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.SHIFT4_GATEWAY_ID;
@@ -16,53 +24,61 @@ import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.SHIFT4_
 @AllArgsConstructor
 public class AuthorizeToRouterConverter implements Converter<CPPaymentAuthorizationRequest, RouterRequest> {
     ObjectMapper mapper;
+    private PaymentProcessingServiceHelper helper;
 
     @Override
     public RouterRequest convert(CPPaymentAuthorizationRequest source) {
+        TransactionDetails transactionDetails = source.getTransactionDetails();
+        TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
+        Customer customer = transactionDetails.getCustomer();
+        Address billingAddress = customer.getBillingAddress();
+        CurrencyConversion currencyConversion = transactionDetails.getCurrencyConversion();
+        Card card = transactionDetails.getCard();
+        Merchant merchant = transactionDetails.getMerchant();
         IncrementalRouterRequestJson requestJson = IncrementalRouterRequestJson.builder()
-                .authorizationAmount(source.getAuthorizationAmount())
-                .totalAuthAmount(source.getTotalAuthAmount())
-                .currencyIndicator(source.getCurrencyIndicator())
-                .guestName(source.getGuestName())
-                .billingAddress1(source.getBillingAddress1())
-                .billingAddress2(source.getBillingAddress2())
-                .billingCity(source.getBillingCity())
-                .billingState(source.getBillingState())
-                .billingZIP(source.getBillingZIP())
-                .dccAmount(source.getDCCAmount())
-                .dCCFlag(source.getDCCFlag())
-                .binRate(source.getBinRate())
-                .uniqueID(source.getUniqueID())
-                .binCurrencyCode(source.getBinCurrencyCode())
-                .cardNumber(source.getCardNumber())
-                .cardExpirationDate(source.getCardExpirationDate())
-                .cardPresent(source.getCardPresent())
-                .cardType(String.valueOf(source.getCardType()))
-                .cID(source.getCid())
-                .trackData(source.getTrackData())
-                .trackLength(source.getTrackLength())
-                .trackIndicator(source.getTrackIndicator())
-                .startDate(source.getStartDate())
-                .issueNumber(source.getIssueNumber())
-                .usageType(source.getUsageType())
-                .chainCode(source.getChainCode())
-                .propertyCode(source.getPropertyCode())
-                .merchantID(source.getMerchantID())
-                .version(source.getVersion())
-                .workstation(source.getWorkstation())
-                .checkOutDate(source.getCheckOutDate())
-                .checkInDate(source.getCheckInDate())
-                .originDate(source.getOriginDate())
-                .resvNameID(source.getResvNameID())
-                .roomNum(source.getRoomNum())
-                .roomRate(source.getRoomRate())
-                .vendorTranID(source.getVendorTranID())
-                .balance(source.getBalance())
-                .sequenceNumber(source.getSequenceNumber())
-                .originalAuthSequence(source.getOriginalAuthSequence())
-                .transDate(source.getTransDate())
-                .authType(source.getAuthType())
-                .aVSStatus(source.getAVSStatus())
+                .authorizationAmount(transactionAmount.getRequestedAmount())
+                .totalAuthAmount(transactionAmount.getCumulativeAmount())
+                .currencyIndicator(transactionAmount.getCurrencyIndicator())
+                .guestName(customer.getFullName())
+                .billingAddress1(billingAddress.getStreetName())
+                .billingAddress2(billingAddress.getAddressLine())
+                .billingCity(billingAddress.getTownName())
+                .billingState(billingAddress.getCountrySubDivision())
+                .billingZIP(billingAddress.getPostCode())
+                .dccAmount(Double.valueOf(currencyConversion.getAmount()))
+                .dCCFlag(currencyConversion.getConversionIdentifier())
+                .binRate(currencyConversion.getBinCurrencyRate())
+                .uniqueID(card.getTokenValue())
+                .binCurrencyCode(currencyConversion.getBinCurrencyCode())
+                .cardNumber(card.getMaskedCardNumber())
+                .cardExpirationDate(card.getExpiryDate())
+                .cardPresent(BooleanValue.getEnumByString(transactionDetails.getIsCardPresent().toString()))
+                .cardType(String.valueOf(card.getCardType()))
+                .cID(card.getCardIssuerIdentification())
+                .trackData(card.getTrack1())
+                //.trackLength(source.getTrackLength())
+                //.trackIndicator(source.getTrackIndicator())
+                .startDate(card.getStartDate())
+                .issueNumber(Integer.valueOf(card.getSequenceNumber()))
+                //.usageType(source.getUsageType())
+                .merchantID(merchant.getMerchantIdentifier())
+                .version(merchant.getVersion())
+                .workstation(merchant.getTerminalIdentifier())
+                .propertyCode(helper.getValueByName(source, "propertyIdentifier"))
+                .chainCode(helper.getValueByName(source, "propertyChainIdentifier"))
+                .checkOutDate(helper.getValueByName(source, "checkOutDate"))
+                .checkInDate(helper.getValueByName(source, "checkInDate"))
+                .originDate(helper.getValueByName(source, "originDate"))
+                .roomNum(helper.getValueByName(source, "roomNumber"))
+                .roomRate(Objects.nonNull(helper.getValueByName(source, "roomRate")) ? Double.valueOf(helper.getValueByName(source, "roomRate")) : null)
+                .resvNameID(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
+                .vendorTranID(source.getGatewayInfo().getGatewayTransactionIdentifier())
+                .balance(transactionDetails.getTransactionAmount().getBalanceAmount())
+                .sequenceNumber(source.getTransactionIdentifier())
+                .originalAuthSequence(Long.valueOf(source.getOriginalTransactionIdentifier()))
+                .transDate(source.getTransactionDateTime())
+                .authType(AuthType.valueOf(source.getTransactionType()))
+                //.aVSStatus(source.getAVSStatus())
                 .clientID(source.getClientID())
                 .corelationId(source.getCorelationId())
                 .incrementalAuthInvoiceId(source.getIncrementalAuthInvoiceId())

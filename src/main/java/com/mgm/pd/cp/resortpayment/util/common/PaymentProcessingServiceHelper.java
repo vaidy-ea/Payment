@@ -6,10 +6,10 @@ import com.mgm.pd.cp.payment.common.dto.ErrorResponse;
 import com.mgm.pd.cp.resortpayment.dto.Hotel;
 import com.mgm.pd.cp.resortpayment.dto.Ticket;
 import com.mgm.pd.cp.resortpayment.dto.authorize.AuthorizationRouterResponse;
+import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CaptureRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CardVoidRouterResponse;
-import com.mgm.pd.cp.resortpayment.dto.exception.IntelligentRouterException;
 import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalAuthRequest;
 import com.mgm.pd.cp.resortpayment.dto.incrementalauth.IncrementalAuthorizationRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.refund.CPPaymentRefundRequest;
@@ -45,9 +45,9 @@ public class PaymentProcessingServiceHelper {
         String contentedUTF8 = feignEx.contentUTF8();
         AuthorizationRouterResponse authorizationRouterResponse;
         if (!contentedUTF8.isBlank()) {
-            IntelligentRouterException irEx = mapper.readValue(contentedUTF8, IntelligentRouterException.class);
+            ErrorResponse irEx = mapper.readValue(contentedUTF8, ErrorResponse.class);
             //To get the error message from Router to save in comments column in Payment table
-            authorizationRouterResponse = AuthorizationRouterResponse.builder().comments(irEx.getMessage()).build();
+            authorizationRouterResponse = AuthorizationRouterResponse.builder().comments(irEx.getDetail()).build();
         } else {
             authorizationRouterResponse = AuthorizationRouterResponse.builder().comments(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE).build();
         }
@@ -58,9 +58,9 @@ public class PaymentProcessingServiceHelper {
         String contentedUTF8 = feignEx.contentUTF8();
         CaptureRouterResponse crResponse;
         if (!contentedUTF8.isBlank()) {
-            IntelligentRouterException irEx = mapper.readValue(contentedUTF8, IntelligentRouterException.class);
+            ErrorResponse irEx = mapper.readValue(contentedUTF8, ErrorResponse.class);
             //To get the error message from Router to save in comments column in Payment table
-            crResponse = CaptureRouterResponse.builder().comments(irEx.getMessage()).build();
+            crResponse = CaptureRouterResponse.builder().comments(irEx.getDetail()).build();
         } else {
             crResponse = CaptureRouterResponse.builder().comments(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE).build();
         }
@@ -71,9 +71,9 @@ public class PaymentProcessingServiceHelper {
         String contentedUTF8 = feignEx.contentUTF8();
         CardVoidRouterResponse cvrResponse;
         if (!contentedUTF8.isBlank()) {
-            IntelligentRouterException irEx = mapper.readValue(contentedUTF8, IntelligentRouterException.class);
+            ErrorResponse irEx = mapper.readValue(contentedUTF8, ErrorResponse.class);
             //To get the error message from Router to save in comments column in Payment table
-            cvrResponse = CardVoidRouterResponse.builder().comments(irEx.getMessage()).build();
+            cvrResponse = CardVoidRouterResponse.builder().comments(irEx.getDetail()).build();
         } else {
             cvrResponse = CardVoidRouterResponse.builder().comments(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE).build();
         }
@@ -84,9 +84,9 @@ public class PaymentProcessingServiceHelper {
         String contentedUTF8 = feignEx.contentUTF8();
         RefundRouterResponse cvrResponse;
         if (!contentedUTF8.isBlank()) {
-            IntelligentRouterException irEx = mapper.readValue(contentedUTF8, IntelligentRouterException.class);
+            ErrorResponse irEx = mapper.readValue(contentedUTF8, ErrorResponse.class);
             //To get the error message from Router to save in comments column in Payment table
-            cvrResponse = RefundRouterResponse.builder().comments(irEx.getMessage()).build();
+            cvrResponse = RefundRouterResponse.builder().comments(irEx.getDetail()).build();
         } else {
             cvrResponse = RefundRouterResponse.builder().comments(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE).build();
         }
@@ -124,6 +124,11 @@ public class PaymentProcessingServiceHelper {
     }
 
     public String getValueByName(CPPaymentRefundRequest request, String getterName) {
+        Object data = request.getTransactionDetails().getSaleItem().getSaleDetails();
+        return getValue(getterName, data);
+    }
+
+    public String getValueByName(CPPaymentAuthorizationRequest request, String getterName) {
         Object data = request.getTransactionDetails().getSaleItem().getSaleDetails();
         return getValue(getterName, data);
     }

@@ -64,7 +64,6 @@ public class IncrementalToRouterConverter implements Converter<CPPaymentIncremen
                 .merchantID(merchant.getMerchantIdentifier())
                 .version(merchant.getVersion())
                 .workstation(merchant.getTerminalIdentifier())
-                //TODO : Uncomment
                 .propertyCode(helper.getValueByName(source, "propertyIdentifier"))
                 .chainCode(helper.getValueByName(source, "propertyChainIdentifier"))
                 .checkOutDate(helper.getValueByName(source, "checkOutDate"))

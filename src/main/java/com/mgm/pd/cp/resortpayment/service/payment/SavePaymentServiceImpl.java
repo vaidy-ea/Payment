@@ -95,34 +95,38 @@ public class SavePaymentServiceImpl implements SavePaymentService {
     }
 
     @Override
-    public Payment saveAuthorizationPayment(CPPaymentAuthorizationRequest cpPaymentAuthorizationRequest, AuthorizationRouterResponse intelligentRouterResponse) {
+    public Payment saveAuthorizationPayment(CPPaymentAuthorizationRequest source, AuthorizationRouterResponse authorizationRouterResponse) {
+        TransactionDetails transactionDetails = source.getTransactionDetails();
+        TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
+        Customer customer = transactionDetails.getCustomer();
+        CurrencyConversion currencyConversion = transactionDetails.getCurrencyConversion();
+        Card card = transactionDetails.getCard();
+        Merchant merchant = transactionDetails.getMerchant();
         Payment.PaymentBuilder newPayment = Payment.builder();
-        newPayment.propertyCode(cpPaymentAuthorizationRequest.getPropertyCode())
-                .sequenceNumber(cpPaymentAuthorizationRequest.getSequenceNumber())
-                .resvNameID(cpPaymentAuthorizationRequest.getResvNameID())
-                .authType(cpPaymentAuthorizationRequest.getAuthType())
-                .usageType(cpPaymentAuthorizationRequest.getUsageType())
-                .guestName(cpPaymentAuthorizationRequest.getGuestName())
-                .transDate(cpPaymentAuthorizationRequest.getTransDate())
-                .originDate(cpPaymentAuthorizationRequest.getOriginDate())
-                .binCurrencyCode(cpPaymentAuthorizationRequest.getBinCurrencyCode())
-                .currencyIndicator(cpPaymentAuthorizationRequest.getCurrencyIndicator())
-                .cardNumber(cpPaymentAuthorizationRequest.getCardNumber())
-                .cardExpirationDate(cpPaymentAuthorizationRequest.getCardExpirationDate())
-                .balance(cpPaymentAuthorizationRequest.getBalance())
-                .trackIndicator(cpPaymentAuthorizationRequest.getTrackIndicator())
-                .incrementalAuthInvoiceId(cpPaymentAuthorizationRequest.getIncrementalAuthInvoiceId())
+        newPayment.propertyCode(helper.getValueByName(source, "propertyIdentifier"))
+                .authType(AuthType.valueOf(source.getTransactionType()))
+                //.usageType(incrementalRequest.getUsageType())
+                .guestName(customer.getFullName())
+                .transDate(source.getTransactionDateTime())
+                .originDate(helper.getValueByName(source, "originDate"))
+                .binCurrencyCode(currencyConversion.getBinCurrencyCode())
+                .currencyIndicator(transactionAmount.getCurrencyIndicator())
+                .cardNumber(card.getMaskedCardNumber())
+                .cardExpirationDate(card.getExpiryDate())
+                .balance(transactionDetails.getTransactionAmount().getBalanceAmount())
+                //.trackIndicator(incrementalRequest.getTrackIndicator())
+                .incrementalAuthInvoiceId(source.getIncrementalAuthInvoiceId())
                 .cpTransactionType(TransactionType.INIT_AUTH_CNP);
-        if (Objects.nonNull(intelligentRouterResponse)) {
-            newPayment.binCurrencyCode(intelligentRouterResponse.getBinCurrencyCode())
-            .cardExpirationDate(intelligentRouterResponse.getCardExpirationDate())
-                    .returnCode(intelligentRouterResponse.getReturnCode())
-                    . cardNumber(String.valueOf(intelligentRouterResponse.getCardNumber()))
-                    .resvNameID(intelligentRouterResponse.getResvNameID())
-            .sequenceNumber(intelligentRouterResponse.getSequenceNumber())
-            .transDate(intelligentRouterResponse.getTransDate())
-            .approvalCode(intelligentRouterResponse.getApprovalCode())
-            .comments(Objects.nonNull(intelligentRouterResponse.getComments()) ? intelligentRouterResponse.getComments() : SUCCESS_MESSAGE);
+        if (Objects.nonNull(authorizationRouterResponse)) {
+            newPayment.binCurrencyCode(authorizationRouterResponse.getBinCurrencyCode())
+            .cardExpirationDate(authorizationRouterResponse.getCardExpirationDate())
+            .returnCode(authorizationRouterResponse.getReturnCode())
+            .cardNumber(String.valueOf(authorizationRouterResponse.getCardNumber()))
+            .resvNameID(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
+            .sequenceNumber(authorizationRouterResponse.getSequenceNumber())
+            .transDate(authorizationRouterResponse.getTransDate())
+            .approvalCode(authorizationRouterResponse.getApprovalCode())
+            .comments(Objects.nonNull(authorizationRouterResponse.getComments()) ? authorizationRouterResponse.getComments() : SUCCESS_MESSAGE);
         }
         Payment payment = newPayment.build();
         logger.log(Level.INFO, "Transaction Type is: " + payment.getCpTransactionType());

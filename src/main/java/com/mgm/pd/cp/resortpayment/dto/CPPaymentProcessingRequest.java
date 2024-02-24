@@ -7,7 +7,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Data
@@ -22,7 +24,6 @@ public class CPPaymentProcessingRequest {
     @Size(max = 40, message = "originalTransactionIdentifier exceed the permissible length")
     private String originalTransactionIdentifier;
 
-    //TODO: check below datetime format
     @PossibleDateTime(pattern = "yyyy-MM-dd", fallbackPatterns = "yyyy-MM-dd'T'HH:mm:ss'Z'", message = "invalid transactionDateTime, expected format is yyyy-MM-ddThh:mm:ssZ")
     @NotBlank(message = "transactionDateTime can't be empty or NULL")
     private String transactionDateTime;
@@ -33,7 +34,7 @@ public class CPPaymentProcessingRequest {
     @Size(max = 40, message = "transactionType exceed the permissible length")
     private String transactionType;
 
-    //TODO: how to validate if this object is not null or Empty
+    @Valid @NotNull(message = "transactionDetails can't be empty or null")
     private TransactionDetails transactionDetails;
 
     private GatewayInfo gatewayInfo;
@@ -42,6 +43,8 @@ public class CPPaymentProcessingRequest {
     private String clientID;
     private String corelationId;
     private Long incrementalAuthInvoiceId;
+
+    @PossibleDateTime(pattern = "yyyy-MM-dd", fallbackPatterns = "yyyy-MM-dd'T'HH:mm:ss'Z'", message = "invalid dateTine, expected format is yyyy-MM-ddThh:mm:ssZ")
     private String dateTime;
     private Long clerkId;
     private String comments;

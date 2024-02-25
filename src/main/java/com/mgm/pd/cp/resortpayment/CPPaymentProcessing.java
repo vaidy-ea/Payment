@@ -7,7 +7,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
 @EnableFeignClients
-@EntityScan("com.mgm.pd.cp.payment.common")
+@EntityScan("com.mgm.pd.cp.payment.common.model")
 public class CPPaymentProcessing {
 
     public static void main(String[] args) {

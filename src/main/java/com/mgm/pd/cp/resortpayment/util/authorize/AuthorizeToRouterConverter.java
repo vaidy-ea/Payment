@@ -15,8 +15,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
-import java.util.Objects;
-
 import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.AUTHORIZE_OPERATION;
 import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.SHIFT4_GATEWAY_ID;
 
@@ -35,6 +33,7 @@ public class AuthorizeToRouterConverter implements Converter<CPPaymentAuthorizat
         CurrencyConversion currencyConversion = transactionDetails.getCurrencyConversion();
         Card card = transactionDetails.getCard();
         Merchant merchant = transactionDetails.getMerchant();
+        String roomRate = helper.getValueFromSaleDetails(source, "roomRate");
         IncrementalRouterRequestJson requestJson = IncrementalRouterRequestJson.builder()
                 .authorizationAmount(transactionAmount.getRequestedAmount())
                 .totalAuthAmount(transactionAmount.getCumulativeAmount())
@@ -64,13 +63,13 @@ public class AuthorizeToRouterConverter implements Converter<CPPaymentAuthorizat
                 .merchantID(merchant.getMerchantIdentifier())
                 .version(merchant.getVersion())
                 .workstation(merchant.getTerminalIdentifier())
-                .propertyCode(helper.getValueByName(source, "propertyIdentifier"))
-                .chainCode(helper.getValueByName(source, "propertyChainIdentifier"))
-                .checkOutDate(helper.getValueByName(source, "checkOutDate"))
-                .checkInDate(helper.getValueByName(source, "checkInDate"))
-                .originDate(helper.getValueByName(source, "originDate"))
-                .roomNum(helper.getValueByName(source, "roomNumber"))
-                .roomRate(Objects.nonNull(helper.getValueByName(source, "roomRate")) ? Double.valueOf(helper.getValueByName(source, "roomRate")) : null)
+                .propertyCode(helper.getValueFromSaleDetails(source, "propertyIdentifier"))
+                .chainCode(helper.getValueFromSaleDetails(source, "propertyChainIdentifier"))
+                .checkOutDate(helper.getValueFromSaleDetails(source, "checkOutDate"))
+                .checkInDate(helper.getValueFromSaleDetails(source, "checkInDate"))
+                .originDate(helper.getValueFromSaleDetails(source, "originDate"))
+                .roomNum(helper.getValueFromSaleDetails(source, "roomNumber"))
+                .roomRate(!roomRate.equals("null") ? Double.valueOf(roomRate) : null)
                 .resvNameID(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
                 .vendorTranID(source.getGatewayInfo().getGatewayTransactionIdentifier())
                 .balance(transactionDetails.getTransactionAmount().getBalanceAmount())

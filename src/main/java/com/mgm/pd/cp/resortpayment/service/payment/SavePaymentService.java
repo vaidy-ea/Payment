@@ -13,12 +13,9 @@ import com.mgm.pd.cp.resortpayment.dto.refund.CPPaymentRefundRequest;
 import com.mgm.pd.cp.resortpayment.dto.refund.RefundRouterResponse;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.beans.IntrospectionException;
-import java.lang.reflect.InvocationTargetException;
-
 public interface SavePaymentService {
     @Transactional
-    Payment saveIncrementalAuthorizationPayment(CPPaymentIncrementalAuthRequest incrementalRequest, IncrementalAuthorizationRouterResponse irResponse) throws IntrospectionException, InvocationTargetException, IllegalAccessException;
+    Payment saveIncrementalAuthorizationPayment(CPPaymentIncrementalAuthRequest incrementalRequest, IncrementalAuthorizationRouterResponse irResponse);
     @Transactional
     Payment saveAuthorizationPayment(CPPaymentAuthorizationRequest authRequest, AuthorizationRouterResponse irResponse);
     @Transactional

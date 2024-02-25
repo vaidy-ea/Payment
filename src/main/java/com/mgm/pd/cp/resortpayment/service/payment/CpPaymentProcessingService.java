@@ -10,11 +10,8 @@ import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalAuthR
 import com.mgm.pd.cp.resortpayment.dto.refund.CPPaymentRefundRequest;
 import org.springframework.http.ResponseEntity;
 
-import java.beans.IntrospectionException;
-import java.lang.reflect.InvocationTargetException;
-
 public interface CpPaymentProcessingService {
-    ResponseEntity<GenericResponse> processIncrementalAuthorizationRequest(CPPaymentIncrementalAuthRequest request) throws JsonProcessingException, IntrospectionException, InvocationTargetException, IllegalAccessException;
+    ResponseEntity<GenericResponse> processIncrementalAuthorizationRequest(CPPaymentIncrementalAuthRequest request) throws JsonProcessingException;
     ResponseEntity<GenericResponse> processAuthorizeRequest(CPPaymentAuthorizationRequest cpPaymentIncrementalRequest) throws JsonProcessingException;
     ResponseEntity<GenericResponse> processCaptureRequest(CPPaymentCaptureRequest captureRequest) throws JsonProcessingException;
     ResponseEntity<GenericResponse> processCardVoidRequest(CPPaymentCardVoidRequest voidRequest) throws JsonProcessingException;

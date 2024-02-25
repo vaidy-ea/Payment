@@ -16,7 +16,6 @@ import com.mgm.pd.cp.resortpayment.util.common.PaymentProcessingServiceHelper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.Objects;
 import java.util.Optional;
 
 import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.REFUND_OPERATION;
@@ -35,6 +34,7 @@ public class RefundToRouterConverter {
         Card card = transactionDetails.getCard();
         Merchant merchant = transactionDetails.getMerchant();
         Customer customer = transactionDetails.getCustomer();
+        String roomRate = helper.getValueFromSaleDetails(cpPaymentRefundRequest, "roomRate");
         Optional<RefundRouterRequestJson> requestJson= Optional.ofNullable(RefundRouterRequestJson.builder()
                 .amount(transactionAmount.getDetailedAmount().getAmount())
                 .totalAuthAmount(transactionAmount.getCumulativeAmount())
@@ -43,27 +43,26 @@ public class RefundToRouterConverter {
                 .cardType(card.getCardType())
                 .cardPresent(BooleanValue.getEnumByString(transactionDetails.getIsCardPresent().toString()))
                 .currencyIndicator(transactionAmount.getCurrencyIndicator())
-                .arrivalDate(helper.getValueByName(cpPaymentRefundRequest, "checkInDate"))
+                .arrivalDate(helper.getValueFromSaleDetails(cpPaymentRefundRequest, "checkInDate"))
                 .cardExpirationDate(card.getExpiryDate())
                 .dccAmount(Double.valueOf(currencyConversion.getAmount()))
                 .dccControlNumber(Double.valueOf(currencyConversion.getConversionIdentifier()))
-                .chainCode(helper.getValueByName(cpPaymentRefundRequest, "propertyChainIdentifier"))
+                .chainCode(helper.getValueFromSaleDetails(cpPaymentRefundRequest, "propertyChainIdentifier"))
                 .guestName(customer.getFullName())
                 //.installments(transactionDetails.getSaleItem().getSaleDetails().getEstimatedDuration())
                 .merchantID(merchant.getMerchantIdentifier())
-                .propertyCode(helper.getValueByName(cpPaymentRefundRequest, "propertyIdentifier"))
+                .propertyCode(helper.getValueFromSaleDetails(cpPaymentRefundRequest, "propertyIdentifier"))
                 .version(merchant.getVersion())
                 .dCCFlag(currencyConversion.getConversionFlag())
                 .corelationId(card.getCardIssuerName())
-                .roomNum(helper.getValueByName(cpPaymentRefundRequest, "roomNumber"))
-                .roomRate(Objects.nonNull(helper.getValueByName(cpPaymentRefundRequest, "roomRate")) ?
-                        Double.valueOf(helper.getValueByName(cpPaymentRefundRequest, "roomRate")) : null)
+                .roomNum(helper.getValueFromSaleDetails(cpPaymentRefundRequest, "roomNumber"))
+                .roomRate(!roomRate.equals("null") ? Double.valueOf(roomRate) : null)
                 .startDate(card.getStartDate())
                 .cardNumber(card.getMaskedCardNumber())
                 .trackIndicator(card.getTrack1())
                 .usageType(card.getTokenValue())
                 .workstation(merchant.getTerminalIdentifier())
-                .departureDate(helper.getValueByName(cpPaymentRefundRequest, "checkOutDate"))
+                .departureDate(helper.getValueFromSaleDetails(cpPaymentRefundRequest, "checkOutDate"))
                 .resvNameID(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
                 .vendorTranID(cpPaymentRefundRequest.getGatewayInfo().getGatewayTransactionIdentifier())
                 .sequenceNumber(cpPaymentRefundRequest.getTransactionIdentifier())

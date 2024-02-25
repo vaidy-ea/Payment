@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.beans.IntrospectionException;
-import java.lang.reflect.InvocationTargetException;
 
 @RestController
 @RequestMapping("/services/v1/payments")
@@ -37,7 +35,7 @@ public class CPPaymentProcessingController {
      * @throws JsonProcessingException
      */
     @PostMapping("/incrementalauth")
-    public ResponseEntity<GenericResponse> incrementalAuth(@Valid @RequestBody CPPaymentIncrementalAuthRequest request) throws JsonProcessingException, IntrospectionException, InvocationTargetException, IllegalAccessException {
+    public ResponseEntity<GenericResponse> incrementalAuth(@Valid @RequestBody CPPaymentIncrementalAuthRequest request) throws JsonProcessingException {
         logger.log(Level.DEBUG, "incrementalAuth Request in DEBUG is : " + request.getTransactionType());
         return processPayload(request);
     }
@@ -85,7 +83,7 @@ public class CPPaymentProcessingController {
         return processPayload(cpPaymentRefundRequest);
     }
 
-    private ResponseEntity<GenericResponse> processPayload(CPPaymentIncrementalAuthRequest request) throws JsonProcessingException, IntrospectionException, InvocationTargetException, IllegalAccessException {
+    private ResponseEntity<GenericResponse> processPayload(CPPaymentIncrementalAuthRequest request) throws JsonProcessingException {
         return cpPaymentProcessingService.processIncrementalAuthorizationRequest(request);
     }
 

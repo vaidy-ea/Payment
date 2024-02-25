@@ -73,7 +73,7 @@ public class CPPaymentProcessingControllerTest {
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(INCREMENTAL_AUTH_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(mockRequest));
-        MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
+        MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
         Assertions.assertEquals("OK196Z", JsonPath.read(responseJson, "$.approvalCode"));
@@ -155,7 +155,7 @@ public class CPPaymentProcessingControllerTest {
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(CAPTURE_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(mockRequest));
-        MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
+        MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
         Assertions.assertEquals("OK684Z", JsonPath.read(responseJson, "$.approvalCode"));
@@ -238,7 +238,7 @@ public class CPPaymentProcessingControllerTest {
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(VOID_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(mockRequest));
-        MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn();
+        MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
         Assertions.assertEquals("OK196Z", JsonPath.read(responseJson, "$.approvalCode"));

@@ -18,8 +18,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
-import java.util.Objects;
-
 import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.CAPTURE_OPERATION;
 import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.SHIFT4_GATEWAY_ID;
 
@@ -38,6 +36,7 @@ public class CaptureToRouterConverter implements Converter<CPPaymentCaptureReque
         String conversionIdentifier = currencyConversion.getConversionIdentifier();
         Card card = transactionDetails.getCard();
         Merchant merchant = transactionDetails.getMerchant();
+        String roomRate = helper.getValueFromSaleDetails(source, "roomRate");
         CaptureRouterRequestJson requestJson = CaptureRouterRequestJson.builder()
                 .amount(detailedAmount.getAmount())
                 .taxAmount(detailedAmount.getVat())
@@ -59,18 +58,18 @@ public class CaptureToRouterConverter implements Converter<CPPaymentCaptureReque
                 .startDate(card.getStartDate())
                 .issueNumber(Integer.valueOf(card.getSequenceNumber()))
                 //.usageType(source.getUsageType())
-                .propertyCode(helper.getValueByName(source, "propertyIdentifier"))
-                .chainCode(helper.getValueByName(source, "propertyChainIdentifier"))
+                .propertyCode(helper.getValueFromSaleDetails(source, "propertyIdentifier"))
+                .chainCode(helper.getValueFromSaleDetails(source, "propertyChainIdentifier"))
                 //.originDate(helper.getValueByName(source, "originDate"))
                 .merchantID(merchant.getMerchantIdentifier())
                 .version(merchant.getVersion())
                 .workstation(merchant.getTerminalIdentifier())
                 //.messageResend(source.getMessageResend())
-                .departureDate(helper.getValueByName(source, "checkOutDate"))
+                .departureDate(helper.getValueFromSaleDetails(source, "checkOutDate"))
                 .resvNameID(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
-                .roomNum(helper.getValueByName(source, "roomNumber"))
-                .roomRate(Objects.nonNull(helper.getValueByName(source, "roomRate")) ? Double.valueOf(helper.getValueByName(source, "roomRate")) : null)
-                .arrivalDate(helper.getValueByName(source, "checkInDate"))
+                .roomNum(helper.getValueFromSaleDetails(source, "roomNumber"))
+                .roomRate(!roomRate.equals("null") ? Double.valueOf(roomRate) : null)
+                .arrivalDate(helper.getValueFromSaleDetails(source, "checkInDate"))
                 .vendorTranID(source.getGatewayInfo().getGatewayTransactionIdentifier())
                 .sequenceNumber(source.getTransactionIdentifier())
                 .originalAuthSequence(Long.valueOf(source.getOriginalTransactionIdentifier()))

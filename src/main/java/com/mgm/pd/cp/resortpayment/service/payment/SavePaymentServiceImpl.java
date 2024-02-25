@@ -5,10 +5,7 @@ import com.mgm.pd.cp.payment.common.constant.TransactionType;
 import com.mgm.pd.cp.payment.common.dto.opera.Card;
 import com.mgm.pd.cp.payment.common.dto.opera.TransactionAmount;
 import com.mgm.pd.cp.payment.common.model.Payment;
-import com.mgm.pd.cp.resortpayment.dto.CurrencyConversion;
-import com.mgm.pd.cp.resortpayment.dto.Customer;
-import com.mgm.pd.cp.resortpayment.dto.Merchant;
-import com.mgm.pd.cp.resortpayment.dto.TransactionDetails;
+import com.mgm.pd.cp.resortpayment.dto.*;
 import com.mgm.pd.cp.resortpayment.dto.authorize.AuthorizationRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
@@ -49,6 +46,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         Card card = transactionDetails.getCard();
         Merchant merchant = transactionDetails.getMerchant();
         Payment.PaymentBuilder newPayment = Payment.builder();
+        SaleItem saleItem = transactionDetails.getSaleItem();
         newPayment
                 .authAmountRequested(transactionAmount.getRequestedAmount())
                 .currencyIndicator(transactionAmount.getCurrencyIndicator())
@@ -62,10 +60,10 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .cardType(String.valueOf(card.getCardType()))
                 .startDate(card.getStartDate())
                 .issueNumber(Integer.valueOf(card.getSequenceNumber()))
-                .propertyCode(helper.getValueByName(source, "propertyIdentifier"))
+                .propertyCode(helper.getValueFromSaleDetails(source, "propertyIdentifier"))
                 .merchantId(merchant.getMerchantIdentifier())
-                .originDate(helper.getValueByName(source, "originDate"))
-                .resvNameID(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
+                .originDate(helper.getValueFromSaleDetails(source, "originDate"))
+                .resvNameID(Objects.nonNull(saleItem) ? saleItem.getSaleReferenceIdentifier() : null)
                 .vendorTranID(source.getGatewayInfo().getGatewayTransactionIdentifier())
                 .balance(transactionDetails.getTransactionAmount().getBalanceAmount())
                 .sequenceNumber(source.getTransactionIdentifier())
@@ -101,14 +99,13 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         Customer customer = transactionDetails.getCustomer();
         CurrencyConversion currencyConversion = transactionDetails.getCurrencyConversion();
         Card card = transactionDetails.getCard();
-        Merchant merchant = transactionDetails.getMerchant();
         Payment.PaymentBuilder newPayment = Payment.builder();
-        newPayment.propertyCode(helper.getValueByName(source, "propertyIdentifier"))
+        newPayment.propertyCode(helper.getValueFromSaleDetails(source, "propertyIdentifier"))
                 .authType(AuthType.valueOf(source.getTransactionType()))
                 //.usageType(incrementalRequest.getUsageType())
                 .guestName(customer.getFullName())
                 .transDate(source.getTransactionDateTime())
-                .originDate(helper.getValueByName(source, "originDate"))
+                .originDate(helper.getValueFromSaleDetails(source, "originDate"))
                 .binCurrencyCode(currencyConversion.getBinCurrencyCode())
                 .currencyIndicator(transactionAmount.getCurrencyIndicator())
                 .cardNumber(card.getMaskedCardNumber())
@@ -118,11 +115,12 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .incrementalAuthInvoiceId(source.getIncrementalAuthInvoiceId())
                 .cpTransactionType(TransactionType.INIT_AUTH_CNP);
         if (Objects.nonNull(authorizationRouterResponse)) {
+            SaleItem saleItem = transactionDetails.getSaleItem();
             newPayment.binCurrencyCode(authorizationRouterResponse.getBinCurrencyCode())
             .cardExpirationDate(authorizationRouterResponse.getCardExpirationDate())
             .returnCode(authorizationRouterResponse.getReturnCode())
             .cardNumber(String.valueOf(authorizationRouterResponse.getCardNumber()))
-            .resvNameID(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
+            .resvNameID(Objects.nonNull(saleItem) ? saleItem.getSaleReferenceIdentifier() : null)
             .sequenceNumber(authorizationRouterResponse.getSequenceNumber())
             .transDate(authorizationRouterResponse.getTransDate())
             .approvalCode(authorizationRouterResponse.getApprovalCode())
@@ -142,7 +140,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         CurrencyConversion currencyConversion = transactionDetails.getCurrencyConversion();
         Card card = transactionDetails.getCard();
         Merchant merchant = transactionDetails.getMerchant();
-
         Payment.PaymentBuilder newPayment = Payment.builder();
         newPayment
                 .merchantId(merchant.getMerchantIdentifier())
@@ -151,7 +148,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .uniqueID(card.getTokenValue())
                 .clientID(captureRequest.getClientID())
                 .corelationId(captureRequest.getCorelationId())
-                .propertyCode(helper.getValueByName(captureRequest, "propertyIdentifier"))
+                .propertyCode(helper.getValueFromSaleDetails(captureRequest, "propertyIdentifier"))
                 //TODO: check if below fields are coming in IntelligentRouterResponse
                 //.usageType(captureRequest.getUsageType())
                 .guestName(customer.getFullName())
@@ -160,7 +157,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .binCurrencyCode(currencyConversion.getBinCurrencyCode())
                 .cardNumber(card.getMaskedCardNumber())
                 .cardExpirationDate(card.getExpiryDate())
-                .resvNameID(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
+                .resvNameID(Objects.nonNull(transactionDetails.getSaleItem()) ? transactionDetails.getSaleItem().getSaleReferenceIdentifier() : null)
                 //.trackIndicator(captureRequest.getTrackIndicator())
                 .incrementalAuthInvoiceId(captureRequest.getIncrementalAuthInvoiceId())
                 .sequenceNumber(captureRequest.getTransactionIdentifier())
@@ -239,7 +236,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .cardExpirationDate(card.getExpiryDate())
                 .currencyIndicator(currencyConversion.getConversionFlag())
                 .guestName(customer.getFullName())
-                .resvNameID(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
+                .resvNameID(Objects.nonNull(transactionDetails.getSaleItem()) ? transactionDetails.getSaleItem().getSaleReferenceIdentifier() : null)
                 .merchantId(merchant.getMerchantIdentifier())
                 .clientID(cpPaymentRefundRequest.getClientID())
                 .corelationId(cpPaymentRefundRequest.getCorelationId())

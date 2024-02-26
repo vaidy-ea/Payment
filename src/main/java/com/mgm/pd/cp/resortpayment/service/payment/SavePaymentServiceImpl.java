@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
-import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.SUCCESS_MESSAGE;
+import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.*;
 import static com.mgm.pd.cp.payment.common.constant.TransactionType.REFUND;
 
 @Service
@@ -60,9 +60,9 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .cardType(String.valueOf(card.getCardType()))
                 .startDate(card.getStartDate())
                 .issueNumber(Integer.valueOf(card.getSequenceNumber()))
-                .propertyCode(helper.getValueFromSaleDetails(source, "propertyIdentifier"))
+                .propertyCode(helper.getValueFromSaleDetails(source, PROPERTY_IDENTIFIER))
                 .merchantId(merchant.getMerchantIdentifier())
-                .originDate(helper.getValueFromSaleDetails(source, "originDate"))
+                .originDate(helper.getValueFromSaleDetails(source, ORIGIN_DATE))
                 .resvNameID(Objects.nonNull(saleItem) ? saleItem.getSaleReferenceIdentifier() : null)
                 .vendorTranID(source.getGatewayInfo().getGatewayTransactionIdentifier())
                 .balance(transactionDetails.getTransactionAmount().getBalanceAmount())
@@ -100,12 +100,12 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         CurrencyConversion currencyConversion = transactionDetails.getCurrencyConversion();
         Card card = transactionDetails.getCard();
         Payment.PaymentBuilder newPayment = Payment.builder();
-        newPayment.propertyCode(helper.getValueFromSaleDetails(source, "propertyIdentifier"))
+        newPayment.propertyCode(helper.getValueFromSaleDetails(source, PROPERTY_IDENTIFIER))
                 .authType(AuthType.valueOf(source.getTransactionType()))
                 //.usageType(incrementalRequest.getUsageType())
                 .guestName(customer.getFullName())
                 .transDate(source.getTransactionDateTime())
-                .originDate(helper.getValueFromSaleDetails(source, "originDate"))
+                .originDate(helper.getValueFromSaleDetails(source, ORIGIN_DATE))
                 .binCurrencyCode(currencyConversion.getBinCurrencyCode())
                 .currencyIndicator(transactionAmount.getCurrencyIndicator())
                 .cardNumber(card.getMaskedCardNumber())
@@ -148,7 +148,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .uniqueID(card.getTokenValue())
                 .clientID(captureRequest.getClientID())
                 .corelationId(captureRequest.getCorelationId())
-                .propertyCode(helper.getValueFromSaleDetails(captureRequest, "propertyIdentifier"))
+                .propertyCode(helper.getValueFromSaleDetails(captureRequest, PROPERTY_IDENTIFIER))
                 //TODO: check if below fields are coming in IntelligentRouterResponse
                 //.usageType(captureRequest.getUsageType())
                 .guestName(customer.getFullName())
@@ -226,21 +226,26 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         Card card = transactionDetails.getCard();
         Customer customer = transactionDetails.getCustomer();
         Merchant merchant = transactionDetails.getMerchant();
+        String sequenceNumber = card.getSequenceNumber();
         newPayment
                 .authAmountRequested(transactionAmount.getRequestedAmount())
                 .binRate(currencyConversion.getBinCurrencyRate())
                 .authTotalAmount(transactionAmount.getAuthorizedAmount())
                 .balance(transactionAmount.getDetailedAmount().getAmount())
                 .binCurrencyCode(currencyConversion.getBinCurrencyCode())
-                .cardNumber(card.getCardHolderName())
+                .cardNumber(card.getMaskedCardNumber())
                 .cardExpirationDate(card.getExpiryDate())
-                .currencyIndicator(currencyConversion.getConversionFlag())
+                .propertyCode(helper.getValueFromSaleDetails(cpPaymentRefundRequest, PROPERTY_IDENTIFIER))
+                .issueNumber(Objects.nonNull(sequenceNumber) ? Integer.valueOf(sequenceNumber) : null)
+                //.currencyIndicator(currencyConversion.getConversionFlag())
                 .guestName(customer.getFullName())
                 .resvNameID(Objects.nonNull(transactionDetails.getSaleItem()) ? transactionDetails.getSaleItem().getSaleReferenceIdentifier() : null)
                 .merchantId(merchant.getMerchantIdentifier())
                 .clientID(cpPaymentRefundRequest.getClientID())
                 .corelationId(cpPaymentRefundRequest.getCorelationId())
                 .comments(cpPaymentRefundRequest.getComments())
+                .incrementalAuthInvoiceId(cpPaymentRefundRequest.getIncrementalAuthInvoiceId())
+                .sequenceNumber(cpPaymentRefundRequest.getTransactionIdentifier())
                 .cpTransactionType(REFUND);
         if (Objects.nonNull(refundResponse)) {
             newPayment.authTotalAmount(refundResponse.getTotalAuthAmount())

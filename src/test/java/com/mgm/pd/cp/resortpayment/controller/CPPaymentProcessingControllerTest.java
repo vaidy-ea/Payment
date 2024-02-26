@@ -2,6 +2,7 @@ package com.mgm.pd.cp.resortpayment.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
+import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
 import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalAuthRequest;
@@ -39,9 +40,11 @@ import java.util.List;
 @Slf4j
 public class CPPaymentProcessingControllerTest {
     public static final String INCREMENTAL_AUTH_PATH = "/services/v1/payments/incrementalauth";
+    public static final String AUTHORIZE_PATH = "/services/v1/payments/authorize";
     public static final String CAPTURE_PATH = "/services/v1/payments/capture";
     public static final String VOID_PATH = "/services/v1/payments/void";
     public static final String REFUND_PATH = "/services/v1/payments/refund";
+    public static final String INVALID_REQUEST_PARAMETERS = "Invalid Request Parameters";
 
     @Autowired
     private MockMvc mockMvc;
@@ -125,7 +128,7 @@ public class CPPaymentProcessingControllerTest {
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
-        Assertions.assertEquals("Invalid Request Parameters", JsonPath.read(responseJson, "$.title"));
+        Assertions.assertEquals(INVALID_REQUEST_PARAMETERS, JsonPath.read(responseJson, "$.title"));
         List<String> errorList = JsonPath.read(responseJson, "$.messages");
         Assertions.assertEquals(2, errorList.size());
     }
@@ -207,7 +210,7 @@ public class CPPaymentProcessingControllerTest {
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
-        Assertions.assertEquals("Invalid Request Parameters", JsonPath.read(responseJson, "$.title"));
+        Assertions.assertEquals(INVALID_REQUEST_PARAMETERS, JsonPath.read(responseJson, "$.title"));
         Assertions.assertEquals(Integer.valueOf(HttpStatus.BAD_REQUEST.value()), JsonPath.read(responseJson, "$.status"));
         List<String> errorList = JsonPath.read(responseJson, "$.messages");
         Assertions.assertEquals(2, errorList.size());
@@ -290,7 +293,7 @@ public class CPPaymentProcessingControllerTest {
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
-        Assertions.assertEquals("Invalid Request Parameters", JsonPath.read(responseJson, "$.title"));
+        Assertions.assertEquals(INVALID_REQUEST_PARAMETERS, JsonPath.read(responseJson, "$.title"));
         Assertions.assertEquals(Integer.valueOf(HttpStatus.BAD_REQUEST.value()), JsonPath.read(responseJson, "$.status"));
         List<String> errorList = JsonPath.read(responseJson, "$.messages");
         Assertions.assertEquals(2, errorList.size());
@@ -372,7 +375,7 @@ public class CPPaymentProcessingControllerTest {
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
-        Assertions.assertEquals("Invalid Request Parameters", JsonPath.read(responseJson, "$.title"));
+        Assertions.assertEquals(INVALID_REQUEST_PARAMETERS, JsonPath.read(responseJson, "$.title"));
         Assertions.assertEquals(Integer.valueOf(HttpStatus.BAD_REQUEST.value()), JsonPath.read(responseJson, "$.status"));
         List<String> errorList = JsonPath.read(responseJson, "$.messages");
         Assertions.assertEquals(2, errorList.size());
@@ -391,5 +394,67 @@ public class CPPaymentProcessingControllerTest {
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
         Assertions.assertEquals("Initial Payment is missing", JsonPath.read(responseJson, "$.title"));
+    }
+
+    @Test
+    void when_provided_valid_authorization_payment_payload_should_process_and_return_approval_code() throws Exception {
+        //given
+        CPPaymentAuthorizationRequest mockRequest = TestHelperUtil.getAuthorizationRequest();
+        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getAuthorizationRouterResponseJson());
+        //when
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(AUTHORIZE_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(mockRequest));
+        MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        String responseJson = mvcResult.getResponse().getContentAsString();
+        //then
+        Assertions.assertEquals("OK196Z", JsonPath.read(responseJson, "$.approvalCode"));
+    }
+
+    @Test
+    void when_provided_valid_authorization_payment_payload_should_process_and_return_response_to_opera() throws Exception {
+        //given
+        CPPaymentAuthorizationRequest mockRequest = TestHelperUtil.getAuthorizationRequest();
+        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getAuthorizationRouterResponseJson());
+        //when
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(AUTHORIZE_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(mockRequest));
+        MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
+        String responseJson = mvcResult.getResponse().getContentAsString();
+        //then
+        JSONAssert.assertEquals(responseJson, TestHelperUtil.getOperaResponse(), false);
+    }
+
+    @Test
+    void valid_authorization_intelligent_router_response_should_persist_in_payment_db() throws Exception {
+        //given
+        CPPaymentAuthorizationRequest mockRequest = TestHelperUtil.getAuthorizationRequest();
+        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getAuthorizationRouterResponseJson());
+        //when
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(AUTHORIZE_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(mockRequest));
+        mockMvc.perform(requestBuilder);
+        //then
+        Assertions.assertEquals(1, paymentRepository.findAll().size());
+    }
+
+    @Test
+    void when_provided_invalid_authorization_payment_payload_should_throw_validation_error_and_return_bad_request() throws Exception {
+        //given
+        CPPaymentAuthorizationRequest mockRequest = TestHelperUtil.getAuthorizationRequest();
+        mockRequest.setTransactionIdentifier(null);
+        mockRequest.setTransactionDateTime(null);
+        //when
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(AUTHORIZE_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(mockRequest));
+        MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isBadRequest()).andReturn();
+        String responseJson = mvcResult.getResponse().getContentAsString();
+        //then
+        Assertions.assertEquals(INVALID_REQUEST_PARAMETERS, JsonPath.read(responseJson, "$.title"));
+        List<String> errorList = JsonPath.read(responseJson, "$.messages");
+        Assertions.assertEquals(2, errorList.size());
     }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.mgm.pd.cp.payment.common.model.Payment;
+import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
 import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalAuthRequest;
@@ -72,7 +73,7 @@ public class TestHelperUtil {
 	}
 
 	public static CPPaymentRefundRequest getRefundPaymentRequest() throws IOException {
-		return new ObjectMapper().registerModule(new JavaTimeModule()).readValue(new ClassPathResource("UC10/refundPaymentRequest.json").getFile(),
+		return new ObjectMapper().registerModule(new JavaTimeModule()).readValue(new ClassPathResource("UC10_UC11_UC27/refundPaymentRequest.json").getFile(),
 				CPPaymentRefundRequest.class);
 	}
 	public static RouterResponseJson getRefundRouterResponseJson() {
@@ -85,5 +86,15 @@ public class TestHelperUtil {
 
 	public static String getOperaResponseForRefundOperation() {
 		return "{\"approvalCode\":\"OK846Z\",\"responseCode\":\"Approved\",\"gatewayInfo\":{},\"transactionDateTime\":\"2021-04-15T00:00:00.000-07:00\",\"transactionAmount\":{\"balanceAmount\":0.0,\"requestedAmount\":300.0,\"cumulativeAmount\":100.0,\"currencyIndicator\":\"string\",\"detailedAmount\":{}},\"card\":{\"cardType\":\"VS\",\"sequenceNumber\":\"1234\",\"isTokenized\":false},\"printDetails\":[{}]}";
+	}
+
+	public static CPPaymentAuthorizationRequest getAuthorizationRequest() throws IOException {
+		return new ObjectMapper().registerModule(new JavaTimeModule()).readValue(new ClassPathResource("UC12/authorizationPaymentRequest.json").getFile(),
+				CPPaymentAuthorizationRequest.class);
+	}
+
+	public static RouterResponseJson getAuthorizationRouterResponseJson() {
+		String mockResponse = "{\"dateTime\":\"2021-04-15T09:18:23.000-07:00\",\"totalAuthAmount\":898.07,\"cardType\":\"VS\",\"returnCode\":\"A\",\"sequenceNumber\":\"1234\",\"transDate\":\"2021041509:18:23\",\"vendorTranId\":\"0000192029\",\"approvalCode\":\"OK196Z\"}";
+		return RouterResponseJson.builder().responseJson(mockResponse).build();
 	}
 }

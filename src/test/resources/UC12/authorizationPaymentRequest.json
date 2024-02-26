@@ -1,0 +1,98 @@
+{
+  "dateTime": "2021-04-15T09:18:23Z",
+  "clerkId": "1576",
+  "incrementalAuthInvoiceId": 5432154321,
+  "transactionIdentifier": "1234",
+  "originalTransactionIdentifier": "192029",
+  "transactionDateTime": "2019-08-24T14:15:22Z",
+  "transactionLOB": "string",
+  "transactionType": "INIT",
+  "transactionDetails": {
+    "isCardPresent": true,
+    "transactionAmount": {
+      "balanceAmount": 500,
+      "requestedAmount": 300,
+      "authorizedAmount": 200,
+      "cumulativeAmount": 500,
+      "currencyIndicator": "USD",
+      "detailedAmount": {
+        "amount": 0,
+        "cashBack": 0,
+        "gratuity": 0,
+        "fees": 0,
+        "rebate": 0,
+        "vat": 0,
+        "surcharge": 0
+      }
+    },
+    "card": {
+      "cardType": "VB",
+      "maskedCardNumber": "8048994003381119",
+      "cardHolderName": "ser",
+      "startDate": "string",
+      "expiryDate": "0325",
+      "cardIssuerName": "string",
+      "cardIssuerIdentification": "string",
+      "sequenceNumber": "1234",
+      "track1": "string",
+      "track2": "string",
+      "track3": "string",
+      "isTokenized": true,
+      "tokenType": "string",
+      "tokenValue": "string"
+    },
+    "customer": {
+      "fullName": "first last",
+      "firstName": "first",
+      "lastName": "last",
+      "billingAddress": {
+        "addressLine": "string",
+        "streetName": "string",
+        "buildingNumber": "string",
+        "postCode": "string",
+        "townName": "string",
+        "countrySubDivision": "string",
+        "country": "string"
+      }
+    },
+    "currencyConversion": {
+      "amount": "23.20",
+      "conversionIdentifier": "2323",
+      "conversionFlag": "string",
+      "binCurrencyCode": "USD",
+      "binCurrencyRate": "89.23"
+    },
+    "merchant": {
+      "merchantIdentifier": "string",
+      "terminalIdentifier": "string",
+      "version": "string",
+      "clerkIdentifier": "1576"
+    },
+    "saleItem": {
+      "saleType": "string",
+      "saleDate": "2019-08-24T14:15:22Z",
+      "saleReferenceIdentifier": "resvName123",
+      "saleDetails": {
+        "propertyChainIdentifier": "123home",
+        "propertyIdentifier": "123home",
+        "roomNumber": "string",
+        "roomRate": "323.23",
+        "originDate": "2019-08-24T14:15:22Z",
+        "departureDate": "2019-08-24T14:15:22Z",
+        "checkInDate": "2019-08-24T14:15:22Z",
+        "checkOutDate": "2019-08-24T14:15:22Z",
+        "estimatedDuration": 5
+      }
+    },
+    "additionalData": [
+      {
+        "name": "string",
+        "value": "string"
+      }
+    ]
+  },
+  "gatewayInfo": {
+    "gatewayTransactionIdentifier": "192029",
+    "gatewayIdentifier": "string"
+  }
+}

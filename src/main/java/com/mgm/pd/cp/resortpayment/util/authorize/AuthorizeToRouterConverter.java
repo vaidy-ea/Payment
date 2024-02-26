@@ -15,12 +15,12 @@ import lombok.AllArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
-import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.AUTHORIZE_OPERATION;
-import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.SHIFT4_GATEWAY_ID;
+import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.*;
 
 @Component
 @AllArgsConstructor
 public class AuthorizeToRouterConverter implements Converter<CPPaymentAuthorizationRequest, RouterRequest> {
+    public static final String NULL = "null";
     ObjectMapper mapper;
     private PaymentProcessingServiceHelper helper;
 
@@ -33,7 +33,7 @@ public class AuthorizeToRouterConverter implements Converter<CPPaymentAuthorizat
         CurrencyConversion currencyConversion = transactionDetails.getCurrencyConversion();
         Card card = transactionDetails.getCard();
         Merchant merchant = transactionDetails.getMerchant();
-        String roomRate = helper.getValueFromSaleDetails(source, "roomRate");
+        String roomRate = helper.getValueFromSaleDetails(source, ROOM_RATE);
         IncrementalRouterRequestJson requestJson = IncrementalRouterRequestJson.builder()
                 .authorizationAmount(transactionAmount.getRequestedAmount())
                 .totalAuthAmount(transactionAmount.getCumulativeAmount())
@@ -63,13 +63,13 @@ public class AuthorizeToRouterConverter implements Converter<CPPaymentAuthorizat
                 .merchantID(merchant.getMerchantIdentifier())
                 .version(merchant.getVersion())
                 .workstation(merchant.getTerminalIdentifier())
-                .propertyCode(helper.getValueFromSaleDetails(source, "propertyIdentifier"))
-                .chainCode(helper.getValueFromSaleDetails(source, "propertyChainIdentifier"))
-                .checkOutDate(helper.getValueFromSaleDetails(source, "checkOutDate"))
-                .checkInDate(helper.getValueFromSaleDetails(source, "checkInDate"))
-                .originDate(helper.getValueFromSaleDetails(source, "originDate"))
-                .roomNum(helper.getValueFromSaleDetails(source, "roomNumber"))
-                .roomRate(!roomRate.equals("null") ? Double.valueOf(roomRate) : null)
+                .propertyCode(helper.getValueFromSaleDetails(source, PROPERTY_IDENTIFIER))
+                .chainCode(helper.getValueFromSaleDetails(source, PROPERTY_CHAIN_IDENTIFIER))
+                .checkOutDate(helper.getValueFromSaleDetails(source, CHECK_IN_DATE))
+                .checkInDate(helper.getValueFromSaleDetails(source, CHECK_OUT_DATE))
+                .originDate(helper.getValueFromSaleDetails(source, ORIGIN_DATE))
+                .roomNum(helper.getValueFromSaleDetails(source, ROOM_NUMBER))
+                .roomRate(!roomRate.equals(NULL) ? Double.valueOf(roomRate) : null)
                 .resvNameID(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
                 .vendorTranID(source.getGatewayInfo().getGatewayTransactionIdentifier())
                 .balance(transactionDetails.getTransactionAmount().getBalanceAmount())

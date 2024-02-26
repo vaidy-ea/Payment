@@ -13,7 +13,7 @@ import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalAuthR
 import com.mgm.pd.cp.resortpayment.dto.incrementalauth.IncrementalAuthorizationRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.refund.CPPaymentRefundRequest;
 import com.mgm.pd.cp.resortpayment.dto.refund.RefundRouterResponse;
-import com.mgm.pd.cp.resortpayment.service.router.RouterService;
+import com.mgm.pd.cp.resortpayment.service.router.RouterHelper;
 import com.mgm.pd.cp.resortpayment.util.common.PaymentProcessingServiceHelper;
 import feign.FeignException;
 import lombok.AllArgsConstructor;
@@ -24,130 +24,190 @@ import java.util.Optional;
 
 import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.INITIAL_PAYMENT_IS_MISSING;
 
+/**
+ * This service class is responsible for implementing the methods
+ * declared in CpPaymentProcessingService
+ * and to provide complete implementation for those methods.
+ */
 @Service
 @AllArgsConstructor
 public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingService {
     private FindPaymentService findPaymentService;
     private SavePaymentService savePaymentService;
-    private RouterService routerService;
+    private RouterHelper routerHelper;
     private PaymentProcessingServiceHelper serviceHelper;
 
     /**
+     * This method is responsible to send the Incremental Authorization request
+     * to Intelligent Router(IR),
+     * saving Details to Payment DB, returning response or Error back to upstream systems.
      *
-     * @param request
-     * @return response
-     * @throws JsonProcessingException
+     * @param request: sent to IR
+     * @return response from IR
      */
     @Override
-    public ResponseEntity<GenericResponse> processIncrementalAuthorizationRequest(CPPaymentIncrementalAuthRequest request) throws JsonProcessingException {
+    public ResponseEntity<GenericResponse<?>> processIncrementalAuthorizationRequest(CPPaymentIncrementalAuthRequest request) throws JsonProcessingException {
+        //finding initial Payment as pre-requisite for processing of Incremental Authorization
         Optional<Payment> optionalInitialPayment = serviceHelper.getInitialAuthPayment(request);
         if (optionalInitialPayment.isPresent()) {
             IncrementalAuthorizationRouterResponse irResponse = null;
             Payment payment;
             try{
-                irResponse = routerService.sendIncrementalAuthorizationRequestToRouter(request, optionalInitialPayment.get().getIncrementalAuthInvoiceId());
+                //sending request to IR
+                irResponse = routerHelper.sendIncrementalAuthorizationRequestToRouter(request, optionalInitialPayment.get().getIncrementalAuthInvoiceId());
             } catch(FeignException feignEx) {
+                //adding comments in case of Exception from IR
                 irResponse = IncrementalAuthorizationRouterResponse.builder().comments(serviceHelper.getCommentsFromException(feignEx)).build();
+                //throwing back to Exception Handler(CPPaymentProcessingExceptionHandler.java)
                 throw feignEx;
             }
             finally {
+                //saving combined response of (Request and response from IR) to Payment DB
                 payment = savePaymentService.saveIncrementalAuthorizationPayment(request, irResponse);
             }
-            return serviceHelper.responseForOpera(payment);
+            //converting and returning response for upstream system
+            return serviceHelper.response(payment);
         }
+        //Saving the comments in Payment DB and sending an Error Response to upstreams system
         request.setComments(INITIAL_PAYMENT_IS_MISSING);
         savePaymentService.saveIncrementalAuthorizationPayment(request, null);
         return serviceHelper.initialPaymentIsMissing();
     }
 
+    /**
+     * This method is responsible to send the Authorization request
+     * to Intelligent Router(IR),
+     * saving Details to Payment DB, returning response or Error back to upstream systems.
+     *
+     * @param request: sent to IR
+     * @return response from IR
+     */
     @Override
-    public ResponseEntity<GenericResponse> processAuthorizeRequest(CPPaymentAuthorizationRequest cpPaymentAuthorizationRequest) throws JsonProcessingException {
+    public ResponseEntity<GenericResponse<?>> processAuthorizeRequest(CPPaymentAuthorizationRequest request) throws JsonProcessingException {
         AuthorizationRouterResponse authRouterResponse = null;
         Payment payment;
         try{
-            authRouterResponse = routerService.sendAuthorizeRequestToRouter(cpPaymentAuthorizationRequest, 12345L);
+            //sending request to IR
+            authRouterResponse = routerHelper.sendAuthorizeRequestToRouter(request, 12345L);
         } catch(FeignException feignEx) {
+            //adding comments in case of Exception from IR
             authRouterResponse = AuthorizationRouterResponse.builder().comments(serviceHelper.getCommentsFromException(feignEx)).build();
+            //throwing back to Exception Handler(CPPaymentProcessingExceptionHandler.java)
             throw feignEx;
         }
         finally {
-            payment = savePaymentService.saveAuthorizationPayment(cpPaymentAuthorizationRequest, authRouterResponse);
+            //saving combined response of (Request and response from IR) to Payment DB
+            payment = savePaymentService.saveAuthorizationPayment(request, authRouterResponse);
         }
-        return serviceHelper.responseForOpera(payment);
+        //converting and returning response for upstream system
+        return serviceHelper.response(payment);
     }
 
     /**
+     * This method is responsible to send the Capture request
+     * to Intelligent Router(IR),
+     * saving Details to Payment DB, returning response or Error back to upstream systems.
      *
-     * @param request
-     * @return response
-     * @throws JsonProcessingException
+     * @param request: sent to IR
+     * @return response from IR
      */
     @Override
-    public ResponseEntity<GenericResponse> processCaptureRequest(CPPaymentCaptureRequest request) throws JsonProcessingException {
+    public ResponseEntity<GenericResponse<?>> processCaptureRequest(CPPaymentCaptureRequest request) throws JsonProcessingException {
+        //finding initial Payment as pre-requisite for processing of Capture
         Optional<Payment> optionalInitialPayment = serviceHelper.getInitialAuthPayment(request);
         if (optionalInitialPayment.isPresent()) {
             Payment initialPayment = optionalInitialPayment.get();
             Payment payment;
             CaptureRouterResponse crResponse = null;
             try{
-                crResponse = routerService.sendCaptureRequestToRouter(request, initialPayment.getIncrementalAuthInvoiceId());
+                //sending request to IR
+                crResponse = routerHelper.sendCaptureRequestToRouter(request, initialPayment.getIncrementalAuthInvoiceId());
             } catch(FeignException feignEx) {
+                //adding comments in case of Exception from IR
                 crResponse = CaptureRouterResponse.builder().comments(serviceHelper.getCommentsFromException(feignEx)).build();
+                //throwing back to Exception Handler(CPPaymentProcessingExceptionHandler.java)
                 throw feignEx;
             } finally {
+                //saving combined response of (Request and response from IR) to Payment DB
                 payment = savePaymentService.saveCaptureAuthPayment(request, crResponse, initialPayment.getAuthTotalAmount());
             }
-            return serviceHelper.responseForOpera(payment);
+            //converting and returning response for upstream system
+            return serviceHelper.response(payment);
         }
+        //Saving the comments in Payment DB and sending an Error Response to upstreams system
         request.setComments(INITIAL_PAYMENT_IS_MISSING);
         savePaymentService.saveCaptureAuthPayment(request, null, null);
         return serviceHelper.initialPaymentIsMissing();
     }
 
     /**
+     * This method is responsible to send the Card Void request
+     * to Intelligent Router(IR),
+     * saving Details to Payment DB, returning response or Error back to upstream systems.
      *
-     * @param cvRequest
-     * @return response
-     * @throws JsonProcessingException
+     * @param request: sent to IR
+     * @return response from IR
      */
     @Override
-    public ResponseEntity<GenericResponse> processCardVoidRequest(CPPaymentCardVoidRequest cvRequest) throws JsonProcessingException {
-        Optional<Payment> optionalInitialPayment = findPaymentService.getPaymentDetails(cvRequest.getPropertyCode(), cvRequest.getResvNameID());
+    public ResponseEntity<GenericResponse<?>> processCardVoidRequest(CPPaymentCardVoidRequest request) throws JsonProcessingException {
+        //finding initial Payment as pre-requisite for processing of Card Void Request
+        Optional<Payment> optionalInitialPayment = findPaymentService.getPaymentDetails(request.getPropertyCode(), request.getResvNameID());
         if (optionalInitialPayment.isPresent()) {
             Payment payment;
             CardVoidRouterResponse cvrResponse = null;
             try{
-                cvrResponse = routerService.sendCardVoidRequestToRouter(cvRequest, optionalInitialPayment.get().getIncrementalAuthInvoiceId());
+                //sending request to IR
+                cvrResponse = routerHelper.sendCardVoidRequestToRouter(request, optionalInitialPayment.get().getIncrementalAuthInvoiceId());
             } catch(FeignException feignEx) {
+                //adding comments in case of Exception from IR
                 cvrResponse = serviceHelper.addCommentsForCardVoidResponse(feignEx);
+                //throwing back to Exception Handler(CPPaymentProcessingExceptionHandler.java)
                 throw feignEx;
             } finally {
-                payment = savePaymentService.saveCardVoidAuthPayment(cvRequest, cvrResponse);
+                //saving combined response of (Request and response from IR) to Payment DB
+                payment = savePaymentService.saveCardVoidAuthPayment(request, cvrResponse);
             }
-            return serviceHelper.responseForOpera(payment);
+            //converting and returning response for upstream system
+            return serviceHelper.response(payment);
         }
-        cvRequest.setComments(INITIAL_PAYMENT_IS_MISSING);
-        savePaymentService.saveCardVoidAuthPayment(cvRequest, null);
+        //Saving the comments in Payment DB and sending an Error Response to upstreams system
+        request.setComments(INITIAL_PAYMENT_IS_MISSING);
+        savePaymentService.saveCardVoidAuthPayment(request, null);
         return serviceHelper.initialPaymentIsMissing();
     }
 
+    /**
+     * This method is responsible to send the Refund request
+     * to Intelligent Router(IR),
+     * saving Details to Payment DB, returning response or Error back to upstream systems.
+     *
+     * @param request: sent to IR
+     * @return response from IR
+     */
     @Override
-    public ResponseEntity<GenericResponse> processRefundRequest(CPPaymentRefundRequest request) throws JsonProcessingException {
+    public ResponseEntity<GenericResponse<?>> processRefundRequest(CPPaymentRefundRequest request) throws JsonProcessingException {
+        //finding initial Payment as pre-requisite for processing of Refund Request
         Optional<Payment> optionalInitialPayment = serviceHelper.getInitialAuthPayment(request);
         if (optionalInitialPayment.isPresent()) {
             RefundRouterResponse rrResponse = null;
             Payment payment;
             try{
-                rrResponse = routerService.sendRefundRequestToRouter(request, optionalInitialPayment.get().getIncrementalAuthInvoiceId());
+                //sending request to IR
+                rrResponse = routerHelper.sendRefundRequestToRouter(request, optionalInitialPayment.get().getIncrementalAuthInvoiceId());
             } catch(FeignException feignEx) {
+                //adding comments in case of Exception from IR
                 rrResponse = RefundRouterResponse.builder().comments(serviceHelper.getCommentsFromException(feignEx)).build();
+                //throwing back to Exception Handler(CPPaymentProcessingExceptionHandler.java)
                 throw feignEx;
             }
             finally {
+                //saving combined response of (Request and response from IR) to Payment DB
                 payment = savePaymentService.saveRefundPayment(request, rrResponse);
             }
-            return serviceHelper.responseForOpera(payment);
+            //converting and returning response for upstream system
+            return serviceHelper.response(payment);
         }
+        //Saving the comments in Payment DB and sending an Error Response to upstreams system
         request.setComments(INITIAL_PAYMENT_IS_MISSING);
         savePaymentService.saveRefundPayment(request, null);
         return serviceHelper.initialPaymentIsMissing();

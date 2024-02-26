@@ -8,7 +8,6 @@ import com.mgm.pd.cp.payment.common.dto.opera.OperaResponse;
 import com.mgm.pd.cp.payment.common.model.Payment;
 import com.mgm.pd.cp.resortpayment.dto.CPPaymentProcessingRequest;
 import com.mgm.pd.cp.resortpayment.dto.SaleItem;
-import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CardVoidRouterResponse;
 import com.mgm.pd.cp.resortpayment.service.payment.FindPaymentService;
 import feign.FeignException;
@@ -27,6 +26,7 @@ import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.INTELLI
 @Component
 @AllArgsConstructor
 public class PaymentProcessingServiceHelper {
+    public static final String PROPERTY_IDENTIFIER = "propertyIdentifier";
     private FindPaymentService findPaymentService;
     private ObjectMapper mapper;
     private Converter converter;
@@ -65,28 +65,29 @@ public class PaymentProcessingServiceHelper {
         return null;
     }
 
-    public ResponseEntity<GenericResponse> responseForOpera(Payment payment) {
+    public ResponseEntity<GenericResponse<?>> response(Payment payment) {
         OperaResponse operaResponse;
         operaResponse = converter.convert(payment);
         return response(operaResponse, HttpStatus.OK);
     }
 
-    private <D> ResponseEntity<GenericResponse> response(D data, HttpStatus status) {
+    private <D> ResponseEntity<GenericResponse<?>> response(D data, HttpStatus status) {
         return new ResponseEntity<>(GenericResponse.builder().data(data).build(), status);
     }
 
-    public ResponseEntity<GenericResponse> initialPaymentIsMissing() {
+    public ResponseEntity<GenericResponse<?>> initialPaymentIsMissing() {
         return response(new ErrorResponse(null, 422, INITIAL_PAYMENT_IS_MISSING,
                 INITIAL_PAYMENT_IS_MISSING, null, null, null), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
+    /**
+     * This method is responsible to find and return initial Authorization Payment for all types of requests.
+     * @param request: any type of Card Payment Request
+     * @return Payment details from Payment DB
+     */
     public <T> Optional<Payment> getInitialAuthPayment(T request) {
-        Optional<Payment> optionalInitialPayment = Optional.empty();
-        if(!request.getClass().equals(CPPaymentAuthorizationRequest.class)) {
-            SaleItem saleItem = ((CPPaymentProcessingRequest) request).getTransactionDetails().getSaleItem();
-            optionalInitialPayment = findPaymentService.getPaymentDetails(getValueFromSaleDetails(request,  "propertyIdentifier"),
-                    ((Objects.nonNull(saleItem) && Objects.nonNull(saleItem.getSaleDetails())) ? saleItem.getSaleReferenceIdentifier() : null));
-        }
-        return optionalInitialPayment;
+        SaleItem<?> saleItem = ((CPPaymentProcessingRequest) request).getTransactionDetails().getSaleItem();
+        return findPaymentService.getPaymentDetails(getValueFromSaleDetails(request, PROPERTY_IDENTIFIER),
+                ((Objects.nonNull(saleItem) && Objects.nonNull(saleItem.getSaleDetails())) ? saleItem.getSaleReferenceIdentifier() : null));
     }
 }

@@ -16,6 +16,7 @@ import com.mgm.pd.cp.resortpayment.util.common.PaymentProcessingServiceHelper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.REFUND_OPERATION;
@@ -35,6 +36,7 @@ public class RefundToRouterConverter {
         Merchant merchant = transactionDetails.getMerchant();
         Customer customer = transactionDetails.getCustomer();
         String roomRate = helper.getValueFromSaleDetails(cpPaymentRefundRequest, "roomRate");
+        String originalTransactionIdentifier = cpPaymentRefundRequest.getOriginalTransactionIdentifier();
         Optional<RefundRouterRequestJson> requestJson= Optional.ofNullable(RefundRouterRequestJson.builder()
                 .amount(transactionAmount.getDetailedAmount().getAmount())
                 .totalAuthAmount(transactionAmount.getCumulativeAmount())
@@ -66,7 +68,7 @@ public class RefundToRouterConverter {
                 .resvNameID(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
                 .vendorTranID(cpPaymentRefundRequest.getGatewayInfo().getGatewayTransactionIdentifier())
                 .sequenceNumber(cpPaymentRefundRequest.getTransactionIdentifier())
-                .originalAuthSequence(Long.valueOf(cpPaymentRefundRequest.getOriginalTransactionIdentifier()))
+                .originalAuthSequence(Objects.nonNull(originalTransactionIdentifier) ? Long.valueOf(originalTransactionIdentifier) : null)
                 .transDate(cpPaymentRefundRequest.getTransactionDateTime())
                 .messageType(cpPaymentRefundRequest.getTransactionType())
                 .clientID(card.getCardIssuerName())

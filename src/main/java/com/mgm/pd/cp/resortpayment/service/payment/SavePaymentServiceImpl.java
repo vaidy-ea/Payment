@@ -244,11 +244,11 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .cpTransactionType(REFUND);
         if (Objects.nonNull(refundResponse)) {
             newPayment.authTotalAmount(refundResponse.getTotalAuthAmount())
-                    .returnCode(String.valueOf(refundResponse.getResponseCode()))
+                    .returnCode(refundResponse.getReturnCode())
                     .vendorTranID(refundResponse.getVendorTranID())
                     .sequenceNumber(refundResponse.getSequenceNumber())
                     .transDate(refundResponse.getTransDate())
-                    .approvalCode(refundResponse.getResponseCode())
+                    .approvalCode(refundResponse.getApprovalCode())
                     .cardType(String.valueOf(refundResponse.getCardType()))
                     .comments(Objects.nonNull(refundResponse.getComments()) ? refundResponse.getComments() : SUCCESS_MESSAGE);
         }

@@ -63,4 +63,7 @@ public class RefundRouterResponse {
     @NotBlank(message = "Corelation ID can't be empty or NULL")
     private String corelationId;
     private String comments;
+    private String dateTime;
+    private String returnCode;
+    private String approvalCode;
 }

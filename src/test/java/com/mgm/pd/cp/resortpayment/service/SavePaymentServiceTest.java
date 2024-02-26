@@ -26,4 +26,11 @@ class SavePaymentServiceTest {
         Assertions.assertEquals(1, paymentRepository.findAll().size());
     }
 
+    @Test
+    void test_refund_payment_with_payload() throws IOException {
+        paymentRepository.deleteAll();
+        paymentService.saveRefundPayment(TestHelperUtil.getRefundPaymentRequest(), TestHelperUtil.getRefundRouterResponse());
+        Assertions.assertEquals(1, paymentRepository.findAll().size());
+    }
+
 }

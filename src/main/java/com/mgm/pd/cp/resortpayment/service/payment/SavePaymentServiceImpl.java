@@ -180,32 +180,42 @@ public class SavePaymentServiceImpl implements SavePaymentService {
 
     @Override
     public Payment saveCardVoidAuthPayment(CPPaymentCardVoidRequest voidRequest, CardVoidRouterResponse vrResponse) {
+        BaseTransactionDetails transactionDetails = voidRequest.getTransactionDetails();
+        Card card = new Card();
+        Merchant merchant = new Merchant();
+        SaleItem<?> saleItem = new SaleItem<>();
+        if (Objects.nonNull(transactionDetails)) {
+            card = transactionDetails.getCard();
+            merchant = transactionDetails.getMerchant();
+            saleItem = transactionDetails.getSaleItem();
+        }
         Payment.PaymentBuilder newPayment = Payment.builder();
-        newPayment.issueNumber(voidRequest.getIssueNumber())
-                .startDate(voidRequest.getStartDate())
-                .propertyCode(voidRequest.getPropertyCode())
+        String sequenceNumber = card.getSequenceNumber();
+        newPayment.issueNumber(Objects.nonNull(sequenceNumber) ? Integer.valueOf(sequenceNumber) : null)
+                .startDate(card.getStartDate())
+                .propertyCode(helper.getValueFromSaleDetails(voidRequest, PROPERTY_IDENTIFIER))
                 //TODO: check if below fields are coming in IntelligentRouterResponse
-                .usageType(voidRequest.getUsageType())
-                .guestName(voidRequest.getGuestName())
-                .binRate(voidRequest.getBinRate())
-                .dccAmount(voidRequest.getDccAmount())
-                .binCurrencyCode(voidRequest.getBinCurrencyCode())
-                .resvNameID(voidRequest.getResvNameID())
-                .trackIndicator(voidRequest.getTrackIndicator())
-                .incrementalAuthInvoiceId(voidRequest.getIncrementalAuthInvoiceId())
-                .merchantId(voidRequest.getMerchantID())
-                .sequenceNumber(voidRequest.getSequenceNumber())
-                .transDate(voidRequest.getTransDate())
-                .uniqueID(voidRequest.getUniqueID())
+                /*.usageType(captureRequest.getUsageType())
+                .guestName(customer.getFullName())
+                .dccAmount(Double.valueOf(currencyConversion.getAmount()))
+                .binRate(currencyConversion.getBinCurrencyRate())
+                .binCurrencyCode(currencyConversion.getBinCurrencyCode())*/
+                .resvNameID(Objects.nonNull(saleItem) ? saleItem.getSaleReferenceIdentifier() : null)
+                //.trackIndicator(captureRequest.getTrackIndicator()).incrementalAuthInvoiceId(voidRequest.getIncrementalAuthInvoiceId())
+                .merchantId(merchant.getMerchantIdentifier())
+                .sequenceNumber(voidRequest.getTransactionIdentifier())
+                .transDate(voidRequest.getTransactionDateTime())
+                .uniqueID(card.getTokenValue())
                 .clientID(voidRequest.getClientID())
                 .corelationId(voidRequest.getCorelationId())
-                .cardNumber(voidRequest.getCardNumber())
+                .cardNumber(card.getMaskedCardNumber())
+                .cardExpirationDate(card.getExpiryDate())
+                .incrementalAuthInvoiceId(voidRequest.getIncrementalAuthInvoiceId())
+                //.settleAmount(transactionAmount.getCumulativeAmount())
                 .cpTransactionType(TransactionType.CARD_VOID)
                 .comments(voidRequest.getComments());
         if (Objects.nonNull(vrResponse)) {
-            newPayment.settleAmount(vrResponse.getSettleAmount())
-                    .cardType(String.valueOf(vrResponse.getCardType()))
-                    .cardExpirationDate(voidRequest.getCardExpirationDate())
+            newPayment.cardType(String.valueOf(vrResponse.getCardType()))
                     .returnCode(String.valueOf(vrResponse.getReturnCode()))
                     .vendorTranID(vrResponse.getVendorTranID())
                     .authTotalAmount(vrResponse.getTotalAuthAmount())

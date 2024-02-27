@@ -151,7 +151,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
     @Override
     public ResponseEntity<GenericResponse<?>> processCardVoidRequest(CPPaymentCardVoidRequest request) throws JsonProcessingException {
         //finding initial Payment as pre-requisite for processing of Card Void Request
-        Optional<Payment> optionalInitialPayment = findPaymentService.getPaymentDetails(request.getPropertyCode(), request.getResvNameID());
+        Optional<Payment> optionalInitialPayment = serviceHelper.getInitialAuthPayment(request);
         if (optionalInitialPayment.isPresent()) {
             Payment payment;
             CardVoidRouterResponse cvrResponse = null;
@@ -160,7 +160,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
                 cvrResponse = routerHelper.sendCardVoidRequestToRouter(request, optionalInitialPayment.get().getIncrementalAuthInvoiceId());
             } catch(FeignException feignEx) {
                 //adding comments in case of Exception from IR
-                cvrResponse = serviceHelper.addCommentsForCardVoidResponse(feignEx);
+                cvrResponse = CardVoidRouterResponse.builder().comments(serviceHelper.getCommentsFromException(feignEx)).build();
                 //throwing back to Exception Handler(CPPaymentProcessingExceptionHandler.java)
                 throw feignEx;
             } finally {

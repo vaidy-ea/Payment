@@ -31,7 +31,7 @@ public class TestHelperUtil {
 	}
 
 	public static RouterResponseJson getIncrementalRouterResponseJson() {
-		String mockResponse = "{\"dateTime\":\"2021-04-15T09:18:23.000-07:00\",\"totalAuthAmount\":898.07,\"cardType\":\"VS\",\"returnCode\":\"A\",\"sequenceNumber\":\"1234\",\"transDate\":\"2021041509:18:23\",\"vendorTranId\":\"0000192029\",\"approvalCode\":\"OK196Z\"}";
+		String mockResponse = "{\"dateTime\":\"2021-04-15T09:18:23.000-07:00\",\"totalAuthAmount\":898.07,\"cardType\":\"VS\",\"returnCode\":\"A\",\"sequenceNumber\":\"1234\",\"transDate\":\"2019-08-24T14:15:22Z\",\"vendorTranId\":\"0000192029\",\"approvalCode\":\"OK196Z\"}";
         return RouterResponseJson.builder().responseJson(mockResponse).build();
 	}
 
@@ -60,7 +60,7 @@ public class TestHelperUtil {
 	}
 
 	public static String getOperaResponse() {
-		return "{\"approvalCode\":\"OK196Z\",\"responseCode\":\"A\",\"gatewayInfo\":{},\"transactionDateTime\":\"2021041509:18:23\",\"transactionAmount\":{\"balanceAmount\":500.0,\"requestedAmount\":300.0,\"cumulativeAmount\":898.07,\"currencyIndicator\":\"USD\",\"detailedAmount\":{}},\"card\":{\"cardType\":\"VS\",\"sequenceNumber\":\"1234\",\"isTokenized\":false},\"printDetails\":[{}]}";
+		return "{\"approvalCode\":\"OK196Z\",\"responseCode\":\"A\",\"gatewayInfo\":{},\"transactionDateTime\":\"2019-08-24T14:15:22Z\",\"transactionAmount\":{\"balanceAmount\":500.0,\"requestedAmount\":300.0,\"cumulativeAmount\":898.07,\"currencyIndicator\":\"USD\",\"detailedAmount\":{}},\"card\":{\"cardType\":\"VS\",\"sequenceNumber\":\"1234\",\"isTokenized\":false},\"printDetails\":[{}]}";
 	}
 
 	public static Optional<Payment> getInitialPayment() throws IOException {
@@ -94,7 +94,7 @@ public class TestHelperUtil {
 	}
 
 	public static RouterResponseJson getAuthorizationRouterResponseJson() {
-		String mockResponse = "{\"dateTime\":\"2021-04-15T09:18:23.000-07:00\",\"totalAuthAmount\":898.07,\"cardType\":\"VS\",\"returnCode\":\"A\",\"sequenceNumber\":\"1234\",\"transDate\":\"2021041509:18:23\",\"vendorTranId\":\"0000192029\",\"approvalCode\":\"OK196Z\"}";
+		String mockResponse = "{\"dateTime\":\"2021-04-15T09:18:23.000-07:00\",\"totalAuthAmount\":898.07,\"cardType\":\"VS\",\"returnCode\":\"A\",\"sequenceNumber\":\"1234\",\"transDate\":\"2019-08-24T14:15:22Z\",\"vendorTranId\":\"0000192029\",\"approvalCode\":\"OK196Z\"}";
 		return RouterResponseJson.builder().responseJson(mockResponse).build();
 	}
 }

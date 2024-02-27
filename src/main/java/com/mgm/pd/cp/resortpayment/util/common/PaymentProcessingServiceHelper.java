@@ -6,9 +6,10 @@ import com.mgm.pd.cp.payment.common.dto.ErrorResponse;
 import com.mgm.pd.cp.payment.common.dto.GenericResponse;
 import com.mgm.pd.cp.payment.common.dto.opera.OperaResponse;
 import com.mgm.pd.cp.payment.common.model.Payment;
+import com.mgm.pd.cp.resortpayment.dto.BaseTransactionDetails;
 import com.mgm.pd.cp.resortpayment.dto.CPPaymentProcessingRequest;
 import com.mgm.pd.cp.resortpayment.dto.SaleItem;
-import com.mgm.pd.cp.resortpayment.dto.cardvoid.CardVoidRouterResponse;
+import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
 import com.mgm.pd.cp.resortpayment.service.payment.FindPaymentService;
 import feign.FeignException;
 import lombok.AllArgsConstructor;
@@ -41,25 +42,15 @@ public class PaymentProcessingServiceHelper {
         return INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE;
     }
 
-    public CardVoidRouterResponse addCommentsForCardVoidResponse(FeignException feignEx) throws JsonProcessingException {
-        String contentedUTF8 = feignEx.contentUTF8();
-        CardVoidRouterResponse cvrResponse;
-        if (!contentedUTF8.isBlank()) {
-            ErrorResponse irEx = mapper.readValue(contentedUTF8, ErrorResponse.class);
-            //To get the error message from Router to save in comments column in Payment table
-            cvrResponse = CardVoidRouterResponse.builder().comments(irEx.getDetail()).build();
-        } else {
-            cvrResponse = CardVoidRouterResponse.builder().comments(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE).build();
-        }
-        return cvrResponse;
-    }
-
     public <T> String getValueFromSaleDetails(T request, String key) {
-        SaleItem saleItem = ((CPPaymentProcessingRequest) request).getTransactionDetails().getSaleItem();
-        if (Objects.nonNull(saleItem)) {
-            Object saleDetails = saleItem.getSaleDetails();
-            if (Objects.nonNull(saleDetails) && saleDetails instanceof LinkedHashMap) {
-                return String.valueOf(((LinkedHashMap<?, ?>) saleDetails).get(key));
+        BaseTransactionDetails transactionDetails = getBaseTransactionDetails(request);
+        if (Objects.nonNull(transactionDetails)) {
+            SaleItem<?> saleItem = transactionDetails.getSaleItem();
+            if (Objects.nonNull(saleItem)) {
+                Object saleDetails = saleItem.getSaleDetails();
+                if (Objects.nonNull(saleDetails) && saleDetails instanceof LinkedHashMap) {
+                    return String.valueOf(((LinkedHashMap<?, ?>) saleDetails).get(key));
+                }
             }
         }
         return null;
@@ -86,8 +77,22 @@ public class PaymentProcessingServiceHelper {
      * @return Payment details from Payment DB
      */
     public <T> Optional<Payment> getInitialAuthPayment(T request) {
-        SaleItem<?> saleItem = ((CPPaymentProcessingRequest) request).getTransactionDetails().getSaleItem();
-        return findPaymentService.getPaymentDetails(getValueFromSaleDetails(request, PROPERTY_IDENTIFIER),
-                ((Objects.nonNull(saleItem) && Objects.nonNull(saleItem.getSaleDetails())) ? saleItem.getSaleReferenceIdentifier() : null));
+        BaseTransactionDetails transactionDetails = getBaseTransactionDetails(request);
+        if (Objects.nonNull(transactionDetails)) {
+            SaleItem<?> saleItem = transactionDetails.getSaleItem();
+            return findPaymentService.getPaymentDetails(getValueFromSaleDetails(request, PROPERTY_IDENTIFIER),
+                    ((Objects.nonNull(saleItem) && Objects.nonNull(saleItem.getSaleDetails())) ? saleItem.getSaleReferenceIdentifier() : null));
+        }
+        return Optional.empty();
+    }
+
+    private static <T> BaseTransactionDetails getBaseTransactionDetails(T request) {
+        BaseTransactionDetails transactionDetails;
+        if (request.getClass().equals(CPPaymentCardVoidRequest.class)) {
+            transactionDetails = ((CPPaymentCardVoidRequest) request).getTransactionDetails();
+        } else {
+            transactionDetails = ((CPPaymentProcessingRequest) request).getTransactionDetails();
+        }
+        return transactionDetails;
     }
 }

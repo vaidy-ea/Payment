@@ -81,7 +81,7 @@ public class CPPaymentProcessingController {
      */
     @PostMapping("/void")
     public ResponseEntity<GenericResponse<?>> cardVoid(@Valid @RequestBody CPPaymentCardVoidRequest cpPaymentCardVoidRequest) throws JsonProcessingException {
-        logger.log(Level.DEBUG, "cardVoid Request in DEBUG is : " + cpPaymentCardVoidRequest.getPropertyCode());
+        logger.log(Level.DEBUG, "cardVoid Request in DEBUG is : " + cpPaymentCardVoidRequest.getTransactionIdentifier());
         return processPayload(cpPaymentCardVoidRequest);
     }
 

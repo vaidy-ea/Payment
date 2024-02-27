@@ -124,9 +124,7 @@
 				<configuration>
 					<excludes>
 						<exclude>**/dto/**</exclude>
-						<exclude>**/constant/*</exclude>
-						<exclude>**/config/*</exclude>
-						<exclude>**/model/*</exclude>
+						<exclude>**/constants/*</exclude>
 						<exclude>**/exception/*</exclude>
 						<exclude>com/mgm/pd/cp/resortpayment/CPPaymentProcessing.class</exclude>
 					</excludes>

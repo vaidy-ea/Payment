@@ -5,21 +5,24 @@ import com.mgm.pd.cp.payment.common.validation.ValidDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.validation.constraints.*;
+import java.io.Serializable;
 
 @Data
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
-public class CardVoidRouterRequestJson {
+public class CPPaymentCardVoidRequest_DomainTeam implements Serializable {
     @NotNull(message = "Amount can't be empty or NULL")
     @Min(value = 0L, message = "Amount can't be negative")
-    @Max(value = 99999999999999999L)
+    @Max(value = 99999999999999999L, message = "Amount can't be greater than 99999999999999999")
     private Double amount;
     @Min(value = 0L, message = "Amount can't be negative")
-    @Max(value = 9999999999L)
+    @Max(value = 9999999999L, message = "Amount can't be greater than 9999999999")
     private Double taxAmount;
     @NotNull(message = "TotalAuthAmount can't be empty or NULL")
     @Min(value = 0L, message = "TotalAuthAmount can't be negative")
@@ -28,17 +31,15 @@ public class CardVoidRouterRequestJson {
     @NotBlank(message = "guestName can't be empty or NULL")
     @Size(max = 80, message = "guestName exceed the permissible length")
     private String guestName;
-    @Digits(integer = 17, fraction = 0, message = "DCCAmount exceed the permissible length")
     @Min(value = 0L, message = "DCCAmount can't be negative")
-    @Max(value = 99999999999999999L)
+    @Max(value = 99999999999999999L, message = "DCCAmount exceeds the permissible value of 99999999999999999")
     private Double dccAmount;
-    @Digits(integer = 14, fraction = 0, message = "DCCAmount exceed the permissible length")
-    @Min(value = 0L, message = "DCCAmount can't be negative")
-    @Max(value = 9999999999999L)
+    @Min(value = 0L, message = "dccControlNumber can't be negative")
+    @Max(value = 99999999999999L, message = "DCCControlNumber can't be greater than 99999999999999")
     private Double dccControlNumber;
     @NotBlank(message = "DCCFlag can't be empty or NULL")
     @Size(min = 1, max = 1, message = "DCCFlag exceed the permissible length")
-    private String dCCFlag;
+    private String dccFlag;
     @NotBlank(message = "BinCurrencyCode can't be empty or NULL")
     @Size(max = 3, message = "BinCurrencyCode exceed the permissible length")
     private String binCurrencyCode;
@@ -131,5 +132,5 @@ public class CardVoidRouterRequestJson {
     @NotNull(message = "incrementalAuthInvoiceId ID can't be empty or NULL")
     private Long incrementalAuthInvoiceId;
     private String dateTime;
-    private Long clerkId;
+    private String comments;
 }

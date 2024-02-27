@@ -284,8 +284,8 @@ public class CPPaymentProcessingControllerTest {
         //given
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentCardVoidRequest mockRequest = TestHelperUtil.getVoidPaymentRequest();
-        mockRequest.setAmount(null);
-        mockRequest.setGuestName(null);
+        mockRequest.setTransactionIdentifier(null);
+        mockRequest.setTransactionDateTime(null);
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(VOID_PATH)
                 .contentType(MediaType.APPLICATION_JSON)

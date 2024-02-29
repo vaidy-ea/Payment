@@ -21,17 +21,23 @@ import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.INITIAL_PAYMENT_IS_MISSING;
-import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE;
+import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.*;
 
+/**
+ * Helper class for utility methods
+ */
 @Component
 @AllArgsConstructor
 public class PaymentProcessingServiceHelper {
-    public static final String PROPERTY_IDENTIFIER = "propertyIdentifier";
     private FindPaymentService findPaymentService;
     private ObjectMapper mapper;
     private Converter converter;
 
+    /**
+     *
+     * @param feignEx: taking exception from Intelligent Router
+     * returning details to add in comments column
+     */
     public String getCommentsFromException(FeignException feignEx) throws JsonProcessingException {
         String contentedUTF8 = feignEx.contentUTF8();
         if (!contentedUTF8.isBlank()) {
@@ -56,8 +62,13 @@ public class PaymentProcessingServiceHelper {
         return null;
     }
 
+    /**
+     * Method to convert a positive response from Payment DB for Opera
+     * @param payment: data from Payment DB
+     */
     public ResponseEntity<GenericResponse<?>> response(Payment payment) {
         OperaResponse operaResponse;
+        //converting the response from Payment DB for Opera
         operaResponse = converter.convert(payment);
         return response(operaResponse, HttpStatus.OK);
     }
@@ -80,6 +91,7 @@ public class PaymentProcessingServiceHelper {
         BaseTransactionDetails transactionDetails = getBaseTransactionDetails(request);
         if (Objects.nonNull(transactionDetails)) {
             SaleItem<?> saleItem = transactionDetails.getSaleItem();
+            //Property Identifies is equivalent to PropertyCode and SaleReferenceIdentifier is equivalent to ResortId
             return findPaymentService.getPaymentDetails(getValueFromSaleDetails(request, PROPERTY_IDENTIFIER),
                     ((Objects.nonNull(saleItem) && Objects.nonNull(saleItem.getSaleDetails())) ? saleItem.getSaleReferenceIdentifier() : null));
         }

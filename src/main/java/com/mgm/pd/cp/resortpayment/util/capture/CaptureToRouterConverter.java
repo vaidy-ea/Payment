@@ -2,11 +2,11 @@ package com.mgm.pd.cp.resortpayment.util.capture;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mgm.pd.cp.payment.common.constant.BooleanValue;
 import com.mgm.pd.cp.payment.common.constant.CardType;
 import com.mgm.pd.cp.payment.common.dto.opera.Card;
 import com.mgm.pd.cp.payment.common.dto.opera.DetailedAmount;
 import com.mgm.pd.cp.payment.common.dto.opera.TransactionAmount;
-import com.mgm.pd.cp.resortpayment.constants.BooleanValue;
 import com.mgm.pd.cp.resortpayment.dto.CurrencyConversion;
 import com.mgm.pd.cp.resortpayment.dto.Merchant;
 import com.mgm.pd.cp.resortpayment.dto.TransactionDetails;
@@ -23,8 +23,7 @@ import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.*;
 @Component
 @AllArgsConstructor
 public class CaptureToRouterConverter implements Converter<CPPaymentCaptureRequest, RouterRequest> {
-    public static final String NULL = "null";
-    ObjectMapper mapper;
+    private ObjectMapper mapper;
     private PaymentProcessingServiceHelper helper;
 
     @Override

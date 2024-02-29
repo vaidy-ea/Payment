@@ -7,6 +7,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 
+/**
+ * Converter Class from payment to Opera Response
+ */
 @Component
 public class Converter {
     //TODO: Map null values to actual values

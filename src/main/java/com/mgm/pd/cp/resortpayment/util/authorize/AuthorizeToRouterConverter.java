@@ -3,9 +3,9 @@ package com.mgm.pd.cp.resortpayment.util.authorize;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mgm.pd.cp.payment.common.constant.AuthType;
+import com.mgm.pd.cp.payment.common.constant.BooleanValue;
 import com.mgm.pd.cp.payment.common.dto.opera.Card;
 import com.mgm.pd.cp.payment.common.dto.opera.TransactionAmount;
-import com.mgm.pd.cp.resortpayment.constants.BooleanValue;
 import com.mgm.pd.cp.resortpayment.dto.*;
 import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
 import com.mgm.pd.cp.resortpayment.dto.incrementalauth.IncrementalRouterRequestJson;
@@ -20,8 +20,7 @@ import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.*;
 @Component
 @AllArgsConstructor
 public class AuthorizeToRouterConverter implements Converter<CPPaymentAuthorizationRequest, RouterRequest> {
-    public static final String NULL = "null";
-    ObjectMapper mapper;
+    private ObjectMapper mapper;
     private PaymentProcessingServiceHelper helper;
 
     @Override

@@ -2,9 +2,9 @@ package com.mgm.pd.cp.resortpayment.util.refund;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mgm.pd.cp.payment.common.constant.BooleanValue;
 import com.mgm.pd.cp.payment.common.dto.opera.Card;
 import com.mgm.pd.cp.payment.common.dto.opera.TransactionAmount;
-import com.mgm.pd.cp.resortpayment.constants.BooleanValue;
 import com.mgm.pd.cp.resortpayment.dto.CurrencyConversion;
 import com.mgm.pd.cp.resortpayment.dto.Customer;
 import com.mgm.pd.cp.resortpayment.dto.Merchant;

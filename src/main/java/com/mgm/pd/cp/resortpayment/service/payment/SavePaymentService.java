@@ -13,6 +13,9 @@ import com.mgm.pd.cp.resortpayment.dto.refund.CPPaymentRefundRequest;
 import com.mgm.pd.cp.resortpayment.dto.refund.RefundRouterResponse;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Methods which can be utilised to save different type of requests
+ */
 public interface SavePaymentService {
     @Transactional
     Payment saveIncrementalAuthorizationPayment(CPPaymentIncrementalAuthRequest incrementalRequest, IncrementalAuthorizationRouterResponse irResponse);

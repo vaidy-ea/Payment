@@ -19,7 +19,6 @@ import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.*;
 @Component
 @AllArgsConstructor
 public class VoidToRouterConverter implements Converter<CPPaymentCardVoidRequest, RouterRequest> {
-    public static final String NULL = "null";
     private ObjectMapper mapper;
     private PaymentProcessingServiceHelper helper;
 

@@ -21,7 +21,8 @@ import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.*;
+import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.INITIAL_PAYMENT_IS_MISSING;
+import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE;
 
 /**
  * Helper class for utility methods
@@ -88,14 +89,13 @@ public class PaymentProcessingServiceHelper {
      * @return Payment details from Payment DB
      */
     public <T> Optional<Payment> getInitialAuthPayment(T request) {
-        BaseTransactionDetails transactionDetails = getBaseTransactionDetails(request);
-        if (Objects.nonNull(transactionDetails)) {
-            SaleItem<?> saleItem = transactionDetails.getSaleItem();
-            //Property Identifies is equivalent to PropertyCode and SaleReferenceIdentifier is equivalent to ResortId
-            return findPaymentService.getPaymentDetails(getValueFromSaleDetails(request, PROPERTY_IDENTIFIER),
-                    ((Objects.nonNull(saleItem) && Objects.nonNull(saleItem.getSaleDetails())) ? saleItem.getSaleReferenceIdentifier() : null));
+        Long incrementalAuthInvoiceId;
+        if (request.getClass().equals(CPPaymentCardVoidRequest.class)) {
+            incrementalAuthInvoiceId = ((CPPaymentCardVoidRequest) request).getIncrementalAuthInvoiceId();
+        } else {
+            incrementalAuthInvoiceId = ((CPPaymentProcessingRequest) request).getIncrementalAuthInvoiceId();
         }
-        return Optional.empty();
+        return findPaymentService.getPaymentDetails(incrementalAuthInvoiceId);
     }
 
     private static <T> BaseTransactionDetails getBaseTransactionDetails(T request) {

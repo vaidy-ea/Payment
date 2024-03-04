@@ -74,7 +74,7 @@ public class CaptureToRouterConverter implements Converter<CPPaymentCaptureReque
                 .originalAuthSequence(Long.valueOf(source.getOriginalTransactionIdentifier()))
                 .transDate(source.getTransactionDateTime())
                 //.approvalCode(source.getApprovalCode())
-                .messageType(source.getTransactionType())
+                .messageType(String.valueOf(source.getTransactionType()))
                 //.installments(source.getInstallments())
                 .clientID(source.getClientID())
                 .corelationId(source.getCorelationId())

@@ -54,7 +54,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
             Payment payment;
             try{
                 //sending request to IR
-                irResponse = routerHelper.sendIncrementalAuthorizationRequestToRouter(request, optionalInitialPayment.get().getIncrementalAuthInvoiceId());
+                irResponse = routerHelper.sendIncrementalAuthorizationRequestToRouter(request, optionalInitialPayment.get());
             } catch(FeignException feignEx) {
                 //adding comments in case of Exception from IR
                 irResponse = IncrementalAuthorizationRouterResponse.builder().comments(serviceHelper.getCommentsFromException(feignEx)).build();
@@ -70,6 +70,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
         }
         //Saving the comments in Payment DB and sending an Error Response to upstreams system
         request.setComments(INITIAL_PAYMENT_IS_MISSING);
+        request.setIncrementalAuthInvoiceId(null);
         savePaymentService.saveIncrementalAuthorizationPayment(request, null);
         return serviceHelper.initialPaymentIsMissing();
     }
@@ -121,7 +122,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
             CaptureRouterResponse crResponse = null;
             try{
                 //sending request to IR
-                crResponse = routerHelper.sendCaptureRequestToRouter(request, initialPayment.getIncrementalAuthInvoiceId());
+                crResponse = routerHelper.sendCaptureRequestToRouter(request, initialPayment);
             } catch(FeignException feignEx) {
                 //adding comments in case of Exception from IR
                 crResponse = CaptureRouterResponse.builder().comments(serviceHelper.getCommentsFromException(feignEx)).build();
@@ -129,13 +130,14 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
                 throw feignEx;
             } finally {
                 //saving combined response of (Request and response from IR) to Payment DB
-                payment = savePaymentService.saveCaptureAuthPayment(request, crResponse, initialPayment.getAuthTotalAmount());
+                payment = savePaymentService.saveCaptureAuthPayment(request, crResponse, initialPayment);
             }
             //converting and returning response for upstream system
             return serviceHelper.response(payment);
         }
         //Saving the comments in Payment DB and sending an Error Response to upstreams system
         request.setComments(INITIAL_PAYMENT_IS_MISSING);
+        request.setIncrementalAuthInvoiceId(null);
         savePaymentService.saveCaptureAuthPayment(request, null, null);
         return serviceHelper.initialPaymentIsMissing();
     }
@@ -157,7 +159,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
             CardVoidRouterResponse cvrResponse = null;
             try{
                 //sending request to IR
-                cvrResponse = routerHelper.sendCardVoidRequestToRouter(request, optionalInitialPayment.get().getIncrementalAuthInvoiceId());
+                cvrResponse = routerHelper.sendCardVoidRequestToRouter(request, optionalInitialPayment.get());
             } catch(FeignException feignEx) {
                 //adding comments in case of Exception from IR
                 cvrResponse = CardVoidRouterResponse.builder().comments(serviceHelper.getCommentsFromException(feignEx)).build();
@@ -172,6 +174,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
         }
         //Saving the comments in Payment DB and sending an Error Response to upstreams system
         request.setComments(INITIAL_PAYMENT_IS_MISSING);
+        request.setIncrementalAuthInvoiceId(null);
         savePaymentService.saveCardVoidAuthPayment(request, null);
         return serviceHelper.initialPaymentIsMissing();
     }
@@ -193,7 +196,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
             Payment payment;
             try{
                 //sending request to IR
-                rrResponse = routerHelper.sendRefundRequestToRouter(request, optionalInitialPayment.get().getIncrementalAuthInvoiceId());
+                rrResponse = routerHelper.sendRefundRequestToRouter(request, optionalInitialPayment.get());
             } catch(FeignException feignEx) {
                 //adding comments in case of Exception from IR
                 rrResponse = RefundRouterResponse.builder().comments(serviceHelper.getCommentsFromException(feignEx)).build();
@@ -209,6 +212,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
         }
         //Saving the comments in Payment DB and sending an Error Response to upstreams system
         request.setComments(INITIAL_PAYMENT_IS_MISSING);
+        request.setIncrementalAuthInvoiceId(null);
         savePaymentService.saveRefundPayment(request, null);
         return serviceHelper.initialPaymentIsMissing();
     }

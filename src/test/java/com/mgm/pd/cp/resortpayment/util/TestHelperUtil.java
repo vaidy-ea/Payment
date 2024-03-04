@@ -60,7 +60,7 @@ public class TestHelperUtil {
 	}
 
 	public static String getOperaResponse() {
-		return "{\"approvalCode\":\"OK196Z\",\"responseCode\":\"A\",\"gatewayInfo\":{},\"transactionDateTime\":\"2019-08-24T14:15:22Z\",\"transactionAmount\":{\"balanceAmount\":500.0,\"requestedAmount\":300.0,\"cumulativeAmount\":898.07,\"currencyIndicator\":\"USD\",\"detailedAmount\":{}},\"card\":{\"cardType\":\"VS\",\"sequenceNumber\":\"1234\",\"isTokenized\":false},\"printDetails\":[{}]}";
+		return "{\"approvalCode\":\"OK196Z\",\"responseCode\":\"A\",\"gatewayInfo\":{\"gatewayTransactionIdentifier\":\"12345\"},\"transactionDateTime\":\"2019-08-24T14:15:22\",\"transactionAmount\":{\"balanceAmount\":0.0,\"requestedAmount\":898.07,\"authorizedAmount\":898.07,\"cumulativeAmount\":0.0,\"detailedAmount\":{\"amount\":0.0}},\"card\":{\"cardType\":\"null\",\"cardHolderName\":\"ser\",\"isTokenized\":false},\"printDetails\":[{}]}";
 	}
 
 	public static Optional<Payment> getInitialPayment() throws IOException {
@@ -69,7 +69,31 @@ public class TestHelperUtil {
     }
 
 	public static String getOperaResponseForCaptureOperation() {
-		return "{\"approvalCode\":\"OK684Z\",\"responseCode\":\"A\",\"gatewayInfo\":{},\"transactionDateTime\":\"2019-08-24T14:15:22Z\",\"transactionAmount\":{\"authorizedAmount\":1500.0,\"cumulativeAmount\":898.07,\"detailedAmount\":{}},\"card\":{\"cardType\":\"VS\",\"sequenceNumber\":\"1234\",\"isTokenized\":false},\"printDetails\":[{}]}";
+		return "{\n" +
+				"    \"responseCode\": \"A\",\n" +
+				"    \"approvalCode\": \"OK684Z\",\n" +
+				"    \"gatewayInfo\": {\n" +
+				"        \"gatewayTransactionIdentifier\": \"12345\"\n" +
+				"    },\n" +
+				"    \"transactionDateTime\": \"2019-08-24T14:15:22\",\n" +
+				"    \"transactionAmount\": {\n" +
+				"        \"balanceAmount\": 0.0,\n" +
+				"        \"requestedAmount\": 898.07,\n" +
+				"        \"authorizedAmount\": 898.07,\n" +
+				"        \"cumulativeAmount\": 0.0,\n" +
+				"        \"detailedAmount\": {\n" +
+				"            \"amount\": 0.0\n" +
+				"        }\n" +
+				"    },\n" +
+				"    \"card\": {\n" +
+				"        \"cardType\": \"null\",\n" +
+				"        \"cardHolderName\": \"ser\",\n" +
+				"        \"isTokenized\": false\n" +
+				"    },\n" +
+				"    \"printDetails\": [\n" +
+				"        {}\n" +
+				"    ]\n" +
+				"}";
 	}
 
 	public static CPPaymentRefundRequest getRefundPaymentRequest() throws IOException {
@@ -85,7 +109,31 @@ public class TestHelperUtil {
 	}
 
 	public static String getOperaResponseForRefundOperation() {
-		return "{\"approvalCode\":\"OK846Z\",\"responseCode\":\"Approved\",\"gatewayInfo\":{},\"transactionDateTime\":\"2021-04-15T00:00:00.000-07:00\",\"transactionAmount\":{\"balanceAmount\":0.0,\"requestedAmount\":300.0,\"cumulativeAmount\":100.0,\"currencyIndicator\":\"string\",\"detailedAmount\":{}},\"card\":{\"cardType\":\"VS\",\"sequenceNumber\":\"1234\",\"isTokenized\":false},\"printDetails\":[{}]}";
+		return "{\n" +
+				"    \"approvalCode\": \"OK846Z\",\n" +
+				"    \"responseCode\": \"Approved\",\n" +
+				"    \"gatewayInfo\": {\n" +
+				"        \"gatewayTransactionIdentifier\": \"12345\"\n" +
+				"    },\n" +
+				"    \"transactionDateTime\": \"2019-08-24T14:15:22\",\n" +
+				"    \"transactionAmount\": {\n" +
+				"        \"balanceAmount\": 0.0,\n" +
+				"        \"requestedAmount\": 100.0,\n" +
+				"        \"authorizedAmount\": 100.0,\n" +
+				"        \"cumulativeAmount\": 0.0,\n" +
+				"        \"detailedAmount\": {\n" +
+				"            \"amount\": 0.0\n" +
+				"        }\n" +
+				"    },\n" +
+				"    \"card\": {\n" +
+				"        \"cardType\": \"null\",\n" +
+				"        \"cardHolderName\": \"ser\",\n" +
+				"        \"isTokenized\": false\n" +
+				"    },\n" +
+				"    \"printDetails\": [\n" +
+				"        {}\n" +
+				"    ]\n" +
+				"}";
 	}
 
 	public static CPPaymentAuthorizationRequest getAuthorizationRequest() throws IOException {

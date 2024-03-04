@@ -1,8 +1,9 @@
 package com.mgm.pd.cp.resortpayment.service.payment;
 
-import com.mgm.pd.cp.payment.common.constant.AuthType;
+import com.mgm.pd.cp.payment.common.constant.CardType;
 import com.mgm.pd.cp.payment.common.constant.TransactionType;
 import com.mgm.pd.cp.payment.common.dto.opera.Card;
+import com.mgm.pd.cp.payment.common.dto.opera.DetailedAmount;
 import com.mgm.pd.cp.payment.common.dto.opera.TransactionAmount;
 import com.mgm.pd.cp.payment.common.model.Payment;
 import com.mgm.pd.cp.resortpayment.dto.*;
@@ -17,16 +18,17 @@ import com.mgm.pd.cp.resortpayment.dto.incrementalauth.IncrementalAuthorizationR
 import com.mgm.pd.cp.resortpayment.dto.refund.CPPaymentRefundRequest;
 import com.mgm.pd.cp.resortpayment.dto.refund.RefundRouterResponse;
 import com.mgm.pd.cp.resortpayment.repository.PaymentRepository;
-import com.mgm.pd.cp.resortpayment.util.common.PaymentProcessingServiceHelper;
 import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
+import java.util.UUID;
 
-import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.*;
 import static com.mgm.pd.cp.payment.common.constant.TransactionType.REFUND;
 
 @Service
@@ -35,240 +37,321 @@ public class SavePaymentServiceImpl implements SavePaymentService {
     private static final Logger logger = LogManager.getLogger(SavePaymentServiceImpl.class);
 
     private PaymentRepository paymentRepository;
-    private PaymentProcessingServiceHelper helper;
 
     @Override
-    public Payment saveIncrementalAuthorizationPayment(CPPaymentIncrementalAuthRequest source, IncrementalAuthorizationRouterResponse irResponse) {
-        TransactionDetails transactionDetails = source.getTransactionDetails();
+    public Payment saveIncrementalAuthorizationPayment(CPPaymentIncrementalAuthRequest request, IncrementalAuthorizationRouterResponse response) {
+        TransactionDetails transactionDetails = request.getTransactionDetails();
         TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
         Customer customer = transactionDetails.getCustomer();
         CurrencyConversion currencyConversion = transactionDetails.getCurrencyConversion();
         Card card = transactionDetails.getCard();
-        Merchant merchant = transactionDetails.getMerchant();
         Payment.PaymentBuilder newPayment = Payment.builder();
-        SaleItem saleItem = transactionDetails.getSaleItem();
+        String randomId = UUID.randomUUID().toString();
+        DetailedAmount detailedAmount = transactionAmount.getDetailedAmount();
+        Address billingAddress = customer.getBillingAddress();
         newPayment
-                .authAmountRequested(transactionAmount.getRequestedAmount())
-                .currencyIndicator(transactionAmount.getCurrencyIndicator())
-                .guestName(customer.getFullName())
-                .dccAmount(Double.valueOf(currencyConversion.getAmount()))
-                .binRate(currencyConversion.getBinCurrencyRate())
-                .uniqueID(card.getTokenValue())
-                .binCurrencyCode(currencyConversion.getBinCurrencyCode())
-                .cardNumber(card.getMaskedCardNumber())
-                .cardExpirationDate(card.getExpiryDate())
-                .cardType(String.valueOf(card.getCardType()))
-                .startDate(card.getStartDate())
-                .issueNumber(Integer.valueOf(card.getSequenceNumber()))
-                .propertyCode(helper.getValueFromSaleDetails(source, PROPERTY_IDENTIFIER))
-                .merchantId(merchant.getMerchantIdentifier())
-                .originDate(helper.getValueFromSaleDetails(source, ORIGIN_DATE))
-                .resvNameID(Objects.nonNull(saleItem) ? saleItem.getSaleReferenceIdentifier() : null)
-                .vendorTranID(source.getGatewayInfo().getGatewayTransactionIdentifier())
-                .balance(transactionDetails.getTransactionAmount().getBalanceAmount())
-                .sequenceNumber(source.getTransactionIdentifier())
-                .transDate(source.getTransactionDateTime())
-                .authType(AuthType.valueOf(source.getTransactionType()))
-                .clientID(source.getClientID())
-                .corelationId(source.getCorelationId())
-                .incrementalAuthInvoiceId(source.getIncrementalAuthInvoiceId())
-                //.usageType(incrementalRequest.getUsageType())
-                //.trackIndicator(incrementalRequest.getTrackIndicator())
-                .cpTransactionType(TransactionType.INCREMENTAL_AUTH)
-                .comments(source.getComments());
-        if (Objects.nonNull(irResponse)) {
+                .paymentId(randomId)
+                .referenceId(String.valueOf(request.getReferenceId()))
+                .groupId(null)
+                .gatewayRelationNumber(request.getCorelationId())
+                .gatewayChainId(String.valueOf(request.getIncrementalAuthInvoiceId()))
+                .clientReferenceNumber(request.getTransactionIdentifier())
+                .amount(detailedAmount.getAmount())
+                .authChainId(request.getIncrementalAuthInvoiceId())
+                //TODO: check if it is coming in which request parameter
+                //.gatewayId()
+                .clientId(request.getClientID())
+                //.orderType()
+                .mgmId(null)
+                .mgmToken(card.getMaskedCardNumber())
+                .cardHolderName(card.getCardHolderName())
+                .tenderCategory(null)
+                .currencyCode(currencyConversion.getBinCurrencyCode())
+                //.last4DigitsOfCard()
+                .billingAddress1(billingAddress.getAddressLine())
+                .billingAddress2(billingAddress.getStreetName())
+                .billingCity(billingAddress.getTownName())
+                .billingState(billingAddress.getTownName())
+                .billingZipCode(billingAddress.getPostCode())
+                .billingCountry(billingAddress.getCountry())
+                //.clerkId()
+                .transactionType(TransactionType.INCREMENTAL_AUTH)
+                //.gatewayReasonCode().gatewayReasonDescription().gatewayResponseCode().gatewayAuthSource()
+                .deferredAuth(null)
+                .createdTimeStamp(convertToTimestamp(request.getTransactionDateTime()))
+                //.createdBy().updatedBy()
+                .correlationId(request.getCorelationId())
+                //.journeyId().transactionSessionId()
+                //.cardEntryMode().avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
+                //.processorStatusCode().processorStatusMessage().processorAuthCode()
+                .authSubType(request.getTransactionType());
+        if (Objects.nonNull(response)) {
+            String transDate = response.getTransDate();
+            String cardType = response.getCardType();
             newPayment
-                    .authTotalAmount(irResponse.getTotalAuthAmount())
-                    .cardType(irResponse.getCardType())
-                    .returnCode(irResponse.getReturnCode())
-                    .sequenceNumber(irResponse.getSequenceNumber())
-                    .transDate(irResponse.getTransDate())
-                    .vendorTranID(irResponse.getVendorTranID())
-                    .approvalCode(irResponse.getApprovalCode())
-                    .comments(Objects.nonNull(irResponse.getComments()) ? irResponse.getComments() : SUCCESS_MESSAGE);
+                    .authorizedAmount(response.getTotalAuthAmount())
+                    //.tenderType(TenderType.valueOf(response.getCardType()))
+                    .issuerType(Objects.nonNull(cardType) ? CardType.valueOf(cardType) : null)
+                    .gatewayAuthCode(response.getApprovalCode())
+                    .transactionStatus(response.getReturnCode())
+                    .updatedTimestamp(Objects.nonNull(transDate) ? convertToTimestamp(transDate) : null);
         }
         Payment payment = newPayment.build();
-        logger.log(Level.INFO, "Transaction Type is: " + payment.getCpTransactionType());
+        logger.log(Level.INFO, "Transaction Type is: " + payment.getTransactionType());
         return this.paymentRepository.save(payment);
     }
 
     @Override
-    public Payment saveAuthorizationPayment(CPPaymentAuthorizationRequest source, AuthorizationRouterResponse authorizationRouterResponse) {
-        TransactionDetails transactionDetails = source.getTransactionDetails();
+    public Payment saveAuthorizationPayment(CPPaymentAuthorizationRequest request, AuthorizationRouterResponse response) {
+        TransactionDetails transactionDetails = request.getTransactionDetails();
         TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
         Customer customer = transactionDetails.getCustomer();
         CurrencyConversion currencyConversion = transactionDetails.getCurrencyConversion();
         Card card = transactionDetails.getCard();
         Payment.PaymentBuilder newPayment = Payment.builder();
-        newPayment.propertyCode(helper.getValueFromSaleDetails(source, PROPERTY_IDENTIFIER))
-                .authType(AuthType.valueOf(source.getTransactionType()))
-                //.usageType(incrementalRequest.getUsageType())
-                .guestName(customer.getFullName())
-                .transDate(source.getTransactionDateTime())
-                .originDate(helper.getValueFromSaleDetails(source, ORIGIN_DATE))
-                .binCurrencyCode(currencyConversion.getBinCurrencyCode())
-                .currencyIndicator(transactionAmount.getCurrencyIndicator())
-                .cardNumber(card.getMaskedCardNumber())
-                .cardExpirationDate(card.getExpiryDate())
-                .balance(transactionDetails.getTransactionAmount().getBalanceAmount())
-                //.trackIndicator(incrementalRequest.getTrackIndicator())
-                .incrementalAuthInvoiceId(source.getIncrementalAuthInvoiceId())
-                .cpTransactionType(TransactionType.INIT_AUTH_CNP);
-        if (Objects.nonNull(authorizationRouterResponse)) {
-            SaleItem saleItem = transactionDetails.getSaleItem();
-            newPayment.binCurrencyCode(authorizationRouterResponse.getBinCurrencyCode())
-            .cardExpirationDate(authorizationRouterResponse.getCardExpirationDate())
-            .returnCode(authorizationRouterResponse.getReturnCode())
-            .cardNumber(String.valueOf(authorizationRouterResponse.getCardNumber()))
-            .resvNameID(Objects.nonNull(saleItem) ? saleItem.getSaleReferenceIdentifier() : null)
-            .sequenceNumber(authorizationRouterResponse.getSequenceNumber())
-            .transDate(authorizationRouterResponse.getTransDate())
-            .approvalCode(authorizationRouterResponse.getApprovalCode())
-            .comments(Objects.nonNull(authorizationRouterResponse.getComments()) ? authorizationRouterResponse.getComments() : SUCCESS_MESSAGE);
+        String randomId = UUID.randomUUID().toString();
+        DetailedAmount detailedAmount = transactionAmount.getDetailedAmount();
+        Address billingAddress = customer.getBillingAddress();
+        newPayment
+                .paymentId(randomId)
+                .referenceId(null)
+                .groupId(null)
+                .gatewayRelationNumber(request.getCorelationId())
+                .gatewayChainId(String.valueOf(request.getIncrementalAuthInvoiceId()))
+                .clientReferenceNumber(request.getTransactionIdentifier())
+                .amount(detailedAmount.getAmount())
+                .authChainId(request.getIncrementalAuthInvoiceId())
+                //TODO: check if it is coming in which request parameter
+                //.gatewayId()
+                .clientId(request.getClientID())
+                //.orderType()
+                .mgmId(null)
+                .mgmToken(card.getMaskedCardNumber())
+                .cardHolderName(card.getCardHolderName())
+                .tenderCategory(null)
+                .currencyCode(currencyConversion.getBinCurrencyCode())
+                //.last4DigitsOfCard()
+                .billingAddress1(billingAddress.getAddressLine())
+                .billingAddress2(billingAddress.getStreetName())
+                .billingCity(billingAddress.getTownName())
+                .billingState(billingAddress.getTownName())
+                .billingZipCode(billingAddress.getPostCode())
+                .billingCountry(billingAddress.getCountry())
+                //.clerkId()
+                .transactionType(TransactionType.INIT_AUTH_CNP)
+                //.gatewayReasonCode().gatewayReasonDescription().gatewayResponseCode().gatewayAuthSource()
+                .deferredAuth(null)
+                .createdTimeStamp(convertToTimestamp(request.getTransactionDateTime()))
+                //.createdBy().updatedBy()
+                .correlationId(request.getCorelationId())
+                //.journeyId().transactionSessionId()
+                //.cardEntryMode().avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
+                //.processorStatusCode().processorStatusMessage().processorAuthCode()
+                .authSubType(request.getTransactionType());
+        if (Objects.nonNull(response)) {
+            String transDate = response.getTransDate();
+            String cardType = response.getCardType();
+            newPayment
+                    .authorizedAmount(response.getTotalAuthAmount())
+                    //.tenderType(TenderType.valueOf(response.getCardType()))
+                    .issuerType(Objects.nonNull(cardType) ? CardType.valueOf(cardType) : null)
+                    .gatewayAuthCode(response.getApprovalCode())
+                    .transactionStatus(response.getReturnCode())
+                    .updatedTimestamp(Objects.nonNull(transDate) ? convertToTimestamp(transDate) : null);
         }
         Payment payment = newPayment.build();
-        logger.log(Level.INFO, "Transaction Type is: " + payment.getCpTransactionType());
+        logger.log(Level.INFO, "Transaction Type is: " + payment.getTransactionType());
         return  this.paymentRepository.save(payment);
     }
 
+    private LocalDateTime convertToTimestamp(String transactionDateTime) {
+        transactionDateTime = transactionDateTime.substring(0, 19);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd['T']HH:mm:ss['Z']");
+        return LocalDateTime.parse(transactionDateTime, formatter);
+    }
+
     @Override
-    public Payment saveCaptureAuthPayment(CPPaymentCaptureRequest captureRequest
-            , CaptureRouterResponse crResponse, Double initialAuthAmount) {
-        TransactionDetails transactionDetails = captureRequest.getTransactionDetails();
+    public Payment saveCaptureAuthPayment(CPPaymentCaptureRequest request, CaptureRouterResponse response, Payment initialAuthAmount) {
+        TransactionDetails transactionDetails = request.getTransactionDetails();
         TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
         Customer customer = transactionDetails.getCustomer();
         CurrencyConversion currencyConversion = transactionDetails.getCurrencyConversion();
         Card card = transactionDetails.getCard();
-        Merchant merchant = transactionDetails.getMerchant();
         Payment.PaymentBuilder newPayment = Payment.builder();
+        String string = UUID.randomUUID().toString();
+        DetailedAmount detailedAmount = transactionAmount.getDetailedAmount();
+        Address billingAddress = customer.getBillingAddress();
         newPayment
-                .merchantId(merchant.getMerchantIdentifier())
-                .issueNumber(Integer.valueOf(card.getSequenceNumber()))
-                .startDate(card.getStartDate())
-                .uniqueID(card.getTokenValue())
-                .clientID(captureRequest.getClientID())
-                .corelationId(captureRequest.getCorelationId())
-                .propertyCode(helper.getValueFromSaleDetails(captureRequest, PROPERTY_IDENTIFIER))
-                //TODO: check if below fields are coming in IntelligentRouterResponse
-                //.usageType(captureRequest.getUsageType())
-                .guestName(customer.getFullName())
-                .dccAmount(Double.valueOf(currencyConversion.getAmount()))
-                .binRate(currencyConversion.getBinCurrencyRate())
-                .binCurrencyCode(currencyConversion.getBinCurrencyCode())
-                .cardNumber(card.getMaskedCardNumber())
-                .cardExpirationDate(card.getExpiryDate())
-                .resvNameID(Objects.nonNull(transactionDetails.getSaleItem()) ? transactionDetails.getSaleItem().getSaleReferenceIdentifier() : null)
-                //.trackIndicator(captureRequest.getTrackIndicator())
-                .incrementalAuthInvoiceId(captureRequest.getIncrementalAuthInvoiceId())
-                .sequenceNumber(captureRequest.getTransactionIdentifier())
-                .transDate(captureRequest.getTransactionDateTime())
-                .settleAmount(transactionAmount.getCumulativeAmount())
-                .cpTransactionType(setCaptureTransactionType(initialAuthAmount, transactionAmount.getCumulativeAmount()))
-                .comments(captureRequest.getComments());
-        if (Objects.nonNull(crResponse)) {
-            newPayment.authTotalAmount(crResponse.getTotalAuthAmount())
-                    .returnCode(String.valueOf(crResponse.getReturnCode()))
-                    .vendorTranID(crResponse.getVendorTranID())
-                    .approvalCode(crResponse.getApprovalCode())
-                    .cardType(String.valueOf(crResponse.getCardType()))
-                    .comments(Objects.nonNull(crResponse.getComments()) ? crResponse.getComments() : SUCCESS_MESSAGE);
+                .paymentId(string)
+                .referenceId(String.valueOf(request.getReferenceId()))
+                .groupId(null)
+                .gatewayRelationNumber(request.getCorelationId())
+                .gatewayChainId(String.valueOf(request.getIncrementalAuthInvoiceId()))
+                .clientReferenceNumber(request.getTransactionIdentifier())
+                .amount(detailedAmount.getAmount())
+                .authChainId(request.getIncrementalAuthInvoiceId())
+                //TODO: check if it is coming in which request parameter
+                //.gatewayId()
+                .clientId(request.getClientID())
+                //.orderType()
+                .mgmId(null)
+                .mgmToken(card.getMaskedCardNumber())
+                .cardHolderName(card.getCardHolderName())
+                .tenderCategory(null)
+                .currencyCode(currencyConversion.getBinCurrencyCode())
+                //.last4DigitsOfCard()
+                .billingAddress1(billingAddress.getAddressLine())
+                .billingAddress2(billingAddress.getStreetName())
+                .billingCity(billingAddress.getTownName())
+                .billingState(billingAddress.getTownName())
+                .billingZipCode(billingAddress.getPostCode())
+                .billingCountry(billingAddress.getCountry())
+                //.clerkId()
+                .transactionType(TransactionType.CAPTURE)
+                //.gatewayReasonCode().gatewayReasonDescription().gatewayResponseCode().gatewayAuthSource()
+                .deferredAuth(null)
+                .createdTimeStamp(convertToTimestamp(request.getTransactionDateTime()))
+                //.createdBy().updatedBy()
+                .correlationId(request.getCorelationId())
+                //.journeyId().transactionSessionId()
+                //.cardEntryMode().avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
+                //.processorStatusCode().processorStatusMessage().processorAuthCode()
+                .authSubType(request.getTransactionType());
+        if (Objects.nonNull(response)) {
+            String transDate = response.getTransDate();
+            CardType cardType = response.getCardType();
+            newPayment
+                    .authorizedAmount(response.getTotalAuthAmount())
+                    //.tenderType(TenderType.valueOf(response.getCardType()))
+                    .issuerType(Objects.nonNull(cardType) ? cardType : null)
+                    .gatewayAuthCode(response.getApprovalCode())
+                    .transactionStatus(response.getReturnCode())
+                    .updatedTimestamp(Objects.nonNull(transDate) ? convertToTimestamp(transDate) : null);
         }
         Payment payment = newPayment.build();
-        logger.log(Level.INFO, "Transaction Type is: " + payment.getCpTransactionType());
+        logger.log(Level.INFO, "Transaction Type is: " + payment.getTransactionType());
         return this.paymentRepository.save(payment);
     }
 
     @Override
-    public Payment saveCardVoidAuthPayment(CPPaymentCardVoidRequest voidRequest, CardVoidRouterResponse vrResponse) {
-        BaseTransactionDetails transactionDetails = voidRequest.getTransactionDetails();
+    public Payment saveCardVoidAuthPayment(CPPaymentCardVoidRequest request, CardVoidRouterResponse response) {
+        BaseTransactionDetails transactionDetails = request.getTransactionDetails();
         Card card = new Card();
-        Merchant merchant = new Merchant();
-        SaleItem<?> saleItem = new SaleItem<>();
         if (Objects.nonNull(transactionDetails)) {
             card = transactionDetails.getCard();
-            merchant = transactionDetails.getMerchant();
-            saleItem = transactionDetails.getSaleItem();
         }
         Payment.PaymentBuilder newPayment = Payment.builder();
-        String sequenceNumber = card.getSequenceNumber();
-        newPayment.issueNumber(Objects.nonNull(sequenceNumber) ? Integer.valueOf(sequenceNumber) : null)
-                .startDate(card.getStartDate())
-                .propertyCode(helper.getValueFromSaleDetails(voidRequest, PROPERTY_IDENTIFIER))
-                //TODO: check if below fields are coming in IntelligentRouterResponse
-                /*.usageType(captureRequest.getUsageType())
-                .guestName(customer.getFullName())
-                .dccAmount(Double.valueOf(currencyConversion.getAmount()))
-                .binRate(currencyConversion.getBinCurrencyRate())
-                .binCurrencyCode(currencyConversion.getBinCurrencyCode())*/
-                .resvNameID(Objects.nonNull(saleItem) ? saleItem.getSaleReferenceIdentifier() : null)
-                //.trackIndicator(captureRequest.getTrackIndicator()).incrementalAuthInvoiceId(voidRequest.getIncrementalAuthInvoiceId())
-                .merchantId(merchant.getMerchantIdentifier())
-                .sequenceNumber(voidRequest.getTransactionIdentifier())
-                .transDate(voidRequest.getTransactionDateTime())
-                .uniqueID(card.getTokenValue())
-                .clientID(voidRequest.getClientID())
-                .corelationId(voidRequest.getCorelationId())
-                .cardNumber(card.getMaskedCardNumber())
-                .cardExpirationDate(card.getExpiryDate())
-                .incrementalAuthInvoiceId(voidRequest.getIncrementalAuthInvoiceId())
-                //.settleAmount(transactionAmount.getCumulativeAmount())
-                .cpTransactionType(TransactionType.CARD_VOID)
-                .comments(voidRequest.getComments());
-        if (Objects.nonNull(vrResponse)) {
-            newPayment.cardType(String.valueOf(vrResponse.getCardType()))
-                    .returnCode(String.valueOf(vrResponse.getReturnCode()))
-                    .vendorTranID(vrResponse.getVendorTranID())
-                    .authTotalAmount(vrResponse.getTotalAuthAmount())
-                    .approvalCode(vrResponse.getApprovalCode())
-                    .comments(Objects.nonNull(vrResponse.getComments()) ? vrResponse.getComments() : SUCCESS_MESSAGE);
+        String string = UUID.randomUUID().toString();
+        newPayment
+                .paymentId(string)
+                .referenceId(String.valueOf(request.getReferenceId()))
+                .groupId(null)
+                .gatewayRelationNumber(request.getCorelationId())
+                .gatewayChainId(String.valueOf(request.getIncrementalAuthInvoiceId()))
+                .clientReferenceNumber(request.getTransactionIdentifier())
+                //.amount(detailedAmount.getAmount())
+                .authChainId(request.getIncrementalAuthInvoiceId())
+                //TODO: check if it is coming in which request parameter
+                //.gatewayId()
+                .clientId(request.getClientID())
+                //.orderType()
+                .mgmId(null)
+                .mgmToken(card.getMaskedCardNumber())
+                .cardHolderName(card.getCardHolderName())
+                .tenderCategory(null)
+                //.currencyCode(currencyConversion.getBinCurrencyCode())
+                //.last4DigitsOfCard()
+                /*.billingAddress1(billingAddress.getAddressLine())
+                .billingAddress2(billingAddress.getStreetName())
+                .billingCity(billingAddress.getTownName())
+                .billingState(billingAddress.getTownName())
+                .billingZipCode(billingAddress.getPostCode())
+                .billingCountry(billingAddress.getCountry())*/
+                //.clerkId()
+                .transactionType(TransactionType.CARD_VOID)
+                //.gatewayReasonCode().gatewayReasonDescription().gatewayResponseCode().gatewayAuthSource()
+                .deferredAuth(null)
+                .createdTimeStamp(convertToTimestamp(request.getTransactionDateTime()))
+                //.createdBy().updatedBy()
+                .correlationId(request.getCorelationId());
+                //.journeyId().transactionSessionId()
+                //.cardEntryMode().avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
+                //.processorStatusCode().processorStatusMessage().processorAuthCode()
+                //.authSubType(AuthType.valueOf(request.getTransactionType()));
+        if (Objects.nonNull(response)) {
+            String transDate = response.getTransDate();
+            newPayment
+                    .authorizedAmount(response.getTotalAuthAmount())
+                    //.tenderType(TenderType.valueOf(response.getCardType()))
+                    .issuerType(response.getCardType())
+                    .gatewayAuthCode(response.getApprovalCode())
+                    .transactionStatus(response.getReturnCode())
+                    .updatedTimestamp(Objects.nonNull(transDate) ? convertToTimestamp(transDate) : null);
         }
         Payment payment = newPayment.build();
-        logger.log(Level.INFO, "Transaction Type is: " +  payment.getCpTransactionType());
+        logger.log(Level.INFO, "Transaction Type is: " + payment.getTransactionType());
         return this.paymentRepository.save(payment);
     }
 
     @Override
-    public Payment saveRefundPayment(CPPaymentRefundRequest cpPaymentRefundRequest, RefundRouterResponse refundResponse) {
+    public Payment saveRefundPayment(CPPaymentRefundRequest request, RefundRouterResponse response) {
         Payment.PaymentBuilder newPayment = Payment.builder();
-        TransactionDetails transactionDetails = cpPaymentRefundRequest.getTransactionDetails();
+        TransactionDetails transactionDetails = request.getTransactionDetails();
         TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
         CurrencyConversion currencyConversion = transactionDetails.getCurrencyConversion();
         Card card = transactionDetails.getCard();
         Customer customer = transactionDetails.getCustomer();
-        Merchant merchant = transactionDetails.getMerchant();
-        String sequenceNumber = card.getSequenceNumber();
+        String string = UUID.randomUUID().toString();
+        DetailedAmount detailedAmount = transactionAmount.getDetailedAmount();
+        Address billingAddress = customer.getBillingAddress();
         newPayment
-                .authAmountRequested(transactionAmount.getRequestedAmount())
-                .binRate(currencyConversion.getBinCurrencyRate())
-                .authTotalAmount(transactionAmount.getAuthorizedAmount())
-                .balance(transactionAmount.getDetailedAmount().getAmount())
-                .binCurrencyCode(currencyConversion.getBinCurrencyCode())
-                .cardNumber(card.getMaskedCardNumber())
-                .cardExpirationDate(card.getExpiryDate())
-                .propertyCode(helper.getValueFromSaleDetails(cpPaymentRefundRequest, PROPERTY_IDENTIFIER))
-                .issueNumber(Objects.nonNull(sequenceNumber) ? Integer.valueOf(sequenceNumber) : null)
-                //.currencyIndicator(currencyConversion.getConversionFlag())
-                .guestName(customer.getFullName())
-                .resvNameID(Objects.nonNull(transactionDetails.getSaleItem()) ? transactionDetails.getSaleItem().getSaleReferenceIdentifier() : null)
-                .merchantId(merchant.getMerchantIdentifier())
-                .clientID(cpPaymentRefundRequest.getClientID())
-                .corelationId(cpPaymentRefundRequest.getCorelationId())
-                .comments(cpPaymentRefundRequest.getComments())
-                .incrementalAuthInvoiceId(cpPaymentRefundRequest.getIncrementalAuthInvoiceId())
-                .sequenceNumber(cpPaymentRefundRequest.getTransactionIdentifier())
-                .cpTransactionType(REFUND);
-        if (Objects.nonNull(refundResponse)) {
-            newPayment.authTotalAmount(refundResponse.getTotalAuthAmount())
-                    .returnCode(refundResponse.getReturnCode())
-                    .vendorTranID(refundResponse.getVendorTranID())
-                    .sequenceNumber(refundResponse.getSequenceNumber())
-                    .transDate(refundResponse.getTransDate())
-                    .approvalCode(refundResponse.getApprovalCode())
-                    .cardType(String.valueOf(refundResponse.getCardType()))
-                    .comments(Objects.nonNull(refundResponse.getComments()) ? refundResponse.getComments() : SUCCESS_MESSAGE);
+                .paymentId(string)
+                .referenceId(String.valueOf(request.getReferenceId()))
+                .groupId(null)
+                .gatewayRelationNumber(request.getCorelationId())
+                .gatewayChainId(String.valueOf(request.getIncrementalAuthInvoiceId()))
+                .clientReferenceNumber(request.getTransactionIdentifier())
+                .amount(detailedAmount.getAmount())
+                .authChainId(request.getIncrementalAuthInvoiceId())
+                //TODO: check if it is coming in which request parameter
+                //.gatewayId()
+                .clientId(request.getClientID())
+                //.orderType()
+                .mgmId(null)
+                .mgmToken(card.getMaskedCardNumber())
+                .cardHolderName(card.getCardHolderName())
+                .tenderCategory(null)
+                .currencyCode(currencyConversion.getBinCurrencyCode())
+                //.last4DigitsOfCard()
+                .billingAddress1(billingAddress.getAddressLine())
+                .billingAddress2(billingAddress.getStreetName())
+                .billingCity(billingAddress.getTownName())
+                .billingState(billingAddress.getTownName())
+                .billingZipCode(billingAddress.getPostCode())
+                .billingCountry(billingAddress.getCountry())
+                //.clerkId()
+                .transactionType(REFUND)
+                //.gatewayReasonCode().gatewayReasonDescription().gatewayResponseCode().gatewayAuthSource()
+                .deferredAuth(null)
+                .createdTimeStamp(convertToTimestamp(request.getTransactionDateTime()))
+                //.createdBy().updatedBy()
+                .correlationId(request.getCorelationId())
+                //.journeyId().transactionSessionId()
+                //.cardEntryMode().avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
+                //.processorStatusCode().processorStatusMessage().processorAuthCode()
+                .authSubType(request.getTransactionType());
+        if (Objects.nonNull(response)) {
+            String transDate = response.getTransDate();
+            newPayment
+                    .authorizedAmount(response.getTotalAuthAmount())
+                    //.tenderType(TenderType.valueOf(response.getCardType()))
+                    .issuerType(response.getCardType())
+                    .gatewayAuthCode(response.getApprovalCode())
+                    .transactionStatus(response.getReturnCode())
+                    .updatedTimestamp(Objects.nonNull(transDate) ? convertToTimestamp(transDate) : null);
         }
         Payment payment = newPayment.build();
-        logger.log(Level.INFO, "Transaction Type is: " + payment.getCpTransactionType());
+        logger.log(Level.INFO, "Transaction Type is: " + payment.getTransactionType());
         return this.paymentRepository.save(payment);
     }
 

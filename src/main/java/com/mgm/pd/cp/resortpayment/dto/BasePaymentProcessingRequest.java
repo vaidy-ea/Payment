@@ -35,6 +35,7 @@ public class BasePaymentProcessingRequest {
     private String clientID;
     private String corelationId;
     private Long incrementalAuthInvoiceId;
+    private String referenceId;
     private String dateTime;
     private Long clerkId;
     private String comments;

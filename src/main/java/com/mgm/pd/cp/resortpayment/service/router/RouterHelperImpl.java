@@ -2,6 +2,7 @@ package com.mgm.pd.cp.resortpayment.service.router;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mgm.pd.cp.payment.common.model.Payment;
 import com.mgm.pd.cp.resortpayment.dto.authorize.AuthorizationRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
@@ -50,13 +51,14 @@ public class RouterHelperImpl implements RouterHelper {
      * Retry (Resilience4J) mechanism is used to try sending request to IR as per application properties file
      *
      * @param request: request to convert and send to Router
-     * @param incrementalAuthInvoiceId: authInvoiceId
+     * @param initialPayment: initialPayment
      */
     @Override
     @Retry(name = "incrementalAuthorizationMessage")
     public IncrementalAuthorizationRouterResponse sendIncrementalAuthorizationRequestToRouter(CPPaymentIncrementalAuthRequest request,
-                                                                                            Long incrementalAuthInvoiceId) throws JsonProcessingException {
-        request.setIncrementalAuthInvoiceId(incrementalAuthInvoiceId);
+                                                                                              Payment initialPayment) throws JsonProcessingException {
+        request.setIncrementalAuthInvoiceId(initialPayment.getAuthChainId());
+        request.setReferenceId(initialPayment.getPaymentId());
         //converting request to IR compatible
         RouterRequest routerRequest = incrementalToRouterConverter.convert(request);
         logger.log(Level.DEBUG, "Attempting to send message to Intelligent Router for IncrementalAuthorizationRequest");
@@ -73,12 +75,12 @@ public class RouterHelperImpl implements RouterHelper {
      * Retry (Resilience4J) mechanism is used to try sending request to IR as per application properties file
      *
      * @param request: request to convert and send to Router
-     * @param incrementalAuthInvoiceId: authInvoiceId
+     * @param initialPayment: initialPayment
      */
     @Override
     @Retry(name = "authorizeMessage")
-    public AuthorizationRouterResponse sendAuthorizeRequestToRouter(CPPaymentAuthorizationRequest request, Long incrementalAuthInvoiceId) throws JsonProcessingException {
-        request.setIncrementalAuthInvoiceId(incrementalAuthInvoiceId);
+    public AuthorizationRouterResponse sendAuthorizeRequestToRouter(CPPaymentAuthorizationRequest request, Long initialPayment) throws JsonProcessingException {
+        request.setIncrementalAuthInvoiceId(initialPayment);
         //converting request to IR compatible
         RouterRequest routerRequest = authorizeToRouterConverter.convert(request);
         logger.log(Level.DEBUG, "Attempting to send message to Intelligent Router for AuthorizeRequest");
@@ -95,12 +97,13 @@ public class RouterHelperImpl implements RouterHelper {
      * Retry (Resilience4J) mechanism is used to try sending request to IR as per application properties file
      *
      * @param request: request to convert and send to Router
-     * @param incrementalAuthInvoiceId: authInvoiceId
+     * @param initialPayment: initialPayment
      */
     @Override
     @Retry(name = "captureMessage")
-    public CaptureRouterResponse sendCaptureRequestToRouter(CPPaymentCaptureRequest request, Long incrementalAuthInvoiceId) throws JsonProcessingException {
-        request.setIncrementalAuthInvoiceId(incrementalAuthInvoiceId);
+    public CaptureRouterResponse sendCaptureRequestToRouter(CPPaymentCaptureRequest request, Payment initialPayment) throws JsonProcessingException {
+        request.setIncrementalAuthInvoiceId(initialPayment.getAuthChainId());
+        request.setReferenceId(initialPayment.getPaymentId());
         //converting request to IR compatible
         RouterRequest routerRequest = captureToRouterConverter.convert(request);
         logger.log(Level.DEBUG, "Attempting to send Message To Intelligent Router for CaptureRequest");
@@ -117,12 +120,13 @@ public class RouterHelperImpl implements RouterHelper {
      * Retry (Resilience4J) mechanism is used to try sending request to IR as per application properties file
      *
      * @param request: request to convert and send to Router
-     * @param incrementalAuthInvoiceId: authInvoiceId
+     * @param initialPayment: initialPayment
      */
     @Override
     @Retry(name = "cardVoidMessage")
-    public CardVoidRouterResponse sendCardVoidRequestToRouter(CPPaymentCardVoidRequest request, Long incrementalAuthInvoiceId) throws JsonProcessingException {
-        request.setIncrementalAuthInvoiceId(incrementalAuthInvoiceId);
+    public CardVoidRouterResponse sendCardVoidRequestToRouter(CPPaymentCardVoidRequest request, Payment initialPayment) throws JsonProcessingException {
+        request.setIncrementalAuthInvoiceId(initialPayment.getAuthChainId());
+        request.setReferenceId(initialPayment.getPaymentId());
         //converting request to IR compatible
         RouterRequest routerRequest = voidToRouterConverter.convert(request);
         logger.log(Level.DEBUG, "Attempting to send Message To Intelligent Router for CardVoidRequest");
@@ -139,12 +143,13 @@ public class RouterHelperImpl implements RouterHelper {
      * Retry (Resilience4J) mechanism is used to try sending request to IR as per application properties file
      *
      * @param request: request to convert and send to Router
-     * @param incrementalAuthInvoiceId: authInvoiceId
+     * @param initialPayment: initialPayment
      */
     @Override
     @Retry(name = "refundMessage")
-    public RefundRouterResponse sendRefundRequestToRouter(CPPaymentRefundRequest request, Long incrementalAuthInvoiceId) throws JsonProcessingException {
-        request.setIncrementalAuthInvoiceId(incrementalAuthInvoiceId);
+    public RefundRouterResponse sendRefundRequestToRouter(CPPaymentRefundRequest request, Payment initialPayment) throws JsonProcessingException {
+        request.setIncrementalAuthInvoiceId(initialPayment.getAuthChainId());
+        request.setReferenceId(initialPayment.getPaymentId());
         //converting request to IR compatible
         RouterRequest routerRequest = refundToRouterConverter.convert(request);
         logger.log(Level.DEBUG, "Attempting to send Message To Intelligent Router for Refund Request");

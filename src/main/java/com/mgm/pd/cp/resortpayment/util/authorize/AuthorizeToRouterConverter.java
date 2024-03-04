@@ -2,7 +2,6 @@ package com.mgm.pd.cp.resortpayment.util.authorize;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mgm.pd.cp.payment.common.constant.AuthType;
 import com.mgm.pd.cp.payment.common.constant.BooleanValue;
 import com.mgm.pd.cp.payment.common.dto.opera.Card;
 import com.mgm.pd.cp.payment.common.dto.opera.TransactionAmount;
@@ -75,7 +74,7 @@ public class AuthorizeToRouterConverter implements Converter<CPPaymentAuthorizat
                 .sequenceNumber(source.getTransactionIdentifier())
                 .originalAuthSequence(Long.valueOf(source.getOriginalTransactionIdentifier()))
                 .transDate(source.getTransactionDateTime())
-                .authType(AuthType.valueOf(source.getTransactionType()))
+                .authType(source.getTransactionType())
                 //.aVSStatus(source.getAVSStatus())
                 .clientID(source.getClientID())
                 .corelationId(source.getCorelationId())

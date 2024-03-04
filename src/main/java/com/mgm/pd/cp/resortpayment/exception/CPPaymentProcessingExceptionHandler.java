@@ -25,12 +25,15 @@ import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.INTELLI
 
 @RestControllerAdvice
 public class CPPaymentProcessingExceptionHandler {
+
+    public static final String INVALID_REQUEST_PARAMETERS = "Invalid Request Parameters";
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
         List<String> errors = ex.getBindingResult().getFieldErrors()
                 .stream().map(FieldError::getDefaultMessage).collect(Collectors.toList());
-        return new ResponseEntity<>(ErrorResponse.builder().status(HttpStatus.BAD_REQUEST.value()).title("Invalid Request Parameters")
-                .detail("Invalid Request Parameters").messages(errors).build(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ErrorResponse.builder().status(HttpStatus.BAD_REQUEST.value()).title(INVALID_REQUEST_PARAMETERS)
+                .detail(INVALID_REQUEST_PARAMETERS).messages(errors).build(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(DateTimeParseException.class)
@@ -46,12 +49,14 @@ public class CPPaymentProcessingExceptionHandler {
                 .detail("Invalid Json").messages(Collections.singletonList(ex.getMessage())).build(), HttpStatus.BAD_REQUEST);
     }
 
+    //Used when PPS is unable to connect to Intelligent Router
     @ExceptionHandler(RetryableException.class)
     public ResponseEntity<ErrorResponse> handleConnectionException(RetryableException ex) {
         return new ResponseEntity<>(ErrorResponse.builder().status(HttpStatus.SERVICE_UNAVAILABLE.value()).title(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE)
                 .detail(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE).build(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    //Used for Validation of Enum Values
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
         String errorDetails = "Unacceptable JSON " + ex.getMessage();
@@ -63,8 +68,8 @@ public class CPPaymentProcessingExceptionHandler {
                         Arrays.toString(inavlidFormatEx.getTargetType().getEnumConstants()));
             }
         }
-        return new ResponseEntity<>(ErrorResponse.builder().status(HttpStatus.BAD_REQUEST.value()).title(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE)
-                .detail(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE).messages(Collections.singletonList(errorDetails)).build(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ErrorResponse.builder().status(HttpStatus.BAD_REQUEST.value()).title(INVALID_REQUEST_PARAMETERS)
+                .detail(INVALID_REQUEST_PARAMETERS).messages(Collections.singletonList(errorDetails)).build(), HttpStatus.BAD_REQUEST);
     }
 
     //Used to catch exception/errors from Intelligent Router

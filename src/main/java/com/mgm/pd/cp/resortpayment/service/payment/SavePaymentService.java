@@ -22,7 +22,7 @@ public interface SavePaymentService {
     @Transactional
     Payment saveAuthorizationPayment(CPPaymentAuthorizationRequest authRequest, AuthorizationRouterResponse irResponse);
     @Transactional
-    Payment saveCaptureAuthPayment(CPPaymentCaptureRequest captureRequest, CaptureRouterResponse crResponse, Double authAmountRequested);
+    Payment saveCaptureAuthPayment(CPPaymentCaptureRequest captureRequest, CaptureRouterResponse crResponse, Payment authAmountRequested);
     @Transactional
     Payment saveCardVoidAuthPayment(CPPaymentCardVoidRequest voidRequest, CardVoidRouterResponse vrResponse);
     @Transactional

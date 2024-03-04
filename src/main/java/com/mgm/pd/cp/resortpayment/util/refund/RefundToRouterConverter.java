@@ -69,7 +69,7 @@ public class RefundToRouterConverter {
                 .sequenceNumber(cpPaymentRefundRequest.getTransactionIdentifier())
                 .originalAuthSequence(Objects.nonNull(originalTransactionIdentifier) ? Long.valueOf(originalTransactionIdentifier) : null)
                 .transDate(cpPaymentRefundRequest.getTransactionDateTime())
-                .messageType(cpPaymentRefundRequest.getTransactionType())
+                .messageType(String.valueOf(cpPaymentRefundRequest.getTransactionType()))
                 .clientID(card.getCardIssuerName())
                 .corelationId(card.getCardIssuerIdentification())
                 .approvalCode(card.getTokenType())

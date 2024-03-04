@@ -15,12 +15,12 @@ public class Converter {
     //TODO: Map null values to actual values
     public OperaResponse convert(Payment payment) {
         GatewayInfo gatewayInfo = GatewayInfo.builder()
-                .gatewayTransactionIdentifier(null)
+                .gatewayTransactionIdentifier(payment.getGatewayChainId())
                 .gatewayIdentifier(null)
                 .build();
 
         DetailedAmount detailedAmount = DetailedAmount.builder()
-                .amount(null)
+                .amount(payment.getAmount())
                 .cashBack(null)
                 .gratuity(null)
                 .fees(null)
@@ -30,23 +30,23 @@ public class Converter {
                 .build();
 
         TransactionAmount transactionAmount = TransactionAmount.builder()
-                .balanceAmount(payment.getBalance())
-                .requestedAmount(payment.getAuthAmountRequested())
-                .authorizedAmount(payment.getSettleAmount())
-                .cumulativeAmount(payment.getAuthTotalAmount())
-                .currencyIndicator(payment.getCurrencyIndicator())
+                .balanceAmount(payment.getAmount())
+                .requestedAmount(payment.getAuthorizedAmount())
+                .authorizedAmount(payment.getAuthorizedAmount())
+                .cumulativeAmount(payment.getAmount())
+                .currencyIndicator(null)
                 .detailedAmount(detailedAmount)
                 .build();
 
         Card card = Card.builder()
-                .cardType(payment.getCardType())
-                .maskedCardNumber(null)
-                .cardHolderName(null)
+                .cardType(String.valueOf(payment.getCardEntryMode()))
+                .maskedCardNumber(payment.getLast4DigitsOfCard())
+                .cardHolderName(payment.getCardHolderName())
                 .startDate(null)
                 .expiryDate(null)
                 .cardIssuerName(null)
                 .cardIssuerIdentification(null)
-                .sequenceNumber(payment.getSequenceNumber())
+                //.sequenceNumber(payment.getSequenceNumber())
                 .track1(null)
                 .track2(null)
                 .track3(null)
@@ -62,13 +62,13 @@ public class Converter {
                 .build();
 
         return OperaResponse.builder()
-                .approvalCode(payment.getApprovalCode())
-                .responseCode(payment.getReturnCode())
-                .responseReason(null)
+                .approvalCode(payment.getGatewayAuthCode())
+                .responseCode(payment.getTransactionStatus())
+                .responseReason(payment.getGatewayReasonDescription())
                 .gatewayInfo(gatewayInfo)
                 .networkIdentifier(null)
                 .originalTransactionIdentifier(null)
-                .transactionDateTime(payment.getTransDate())
+                .transactionDateTime(String.valueOf(payment.getCreatedTimeStamp()))
                 .transactionAmount(transactionAmount)
                 .card(card)
                 .printDetails(Collections.singletonList(printDetails))

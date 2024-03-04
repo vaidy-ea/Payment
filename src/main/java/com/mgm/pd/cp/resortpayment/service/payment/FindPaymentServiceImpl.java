@@ -16,10 +16,11 @@ import java.util.Optional;
 public class FindPaymentServiceImpl implements FindPaymentService {
     private static final Logger logger = LogManager.getLogger(FindPaymentServiceImpl.class);
     private PaymentRepository paymentRepository;
+
     @Override
     @Retry(name = "initialAuthPayment")
-    public Optional<Payment> getPaymentDetails(String resortId, String reservationNumber) {
-        logger.log(Level.DEBUG, "Attempting to find Initial Auth from Payment DB using resortId: " + resortId);
-        return paymentRepository.findFirstByPropertyCodeAndResvNameIDAndAuthTypeNotNullAndApprovalCodeNotNullOrderByIdDesc(resortId, reservationNumber);
+    public Optional<Payment> getPaymentDetails(Long incrementalAuthInvoiceId) {
+        logger.log(Level.DEBUG, "Attempting to find Initial Auth from Payment DB using incrementalAuthInvoiceId: " + incrementalAuthInvoiceId);
+        return paymentRepository.findFirstByAuthChainId(incrementalAuthInvoiceId);
     }
 }

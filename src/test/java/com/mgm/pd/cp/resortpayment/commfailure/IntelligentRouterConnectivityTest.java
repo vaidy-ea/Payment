@@ -46,7 +46,7 @@ public class IntelligentRouterConnectivityTest {
 
     @Test
     void fail_when_intelligent_router_is_down_for_incremental_auth_request () throws Exception {
-        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
+        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentIncrementalAuthRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(INCREMENTAL_AUTH_PATH)
@@ -75,7 +75,7 @@ public class IntelligentRouterConnectivityTest {
 
     @Test
     void fail_when_intelligent_router_is_down_for_capture_request () throws Exception {
-        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
+        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentCaptureRequest mockRequest = TestHelperUtil.getCapturePaymentRequest();
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(CAPTURE_PATH)
@@ -90,7 +90,7 @@ public class IntelligentRouterConnectivityTest {
 
     @Test
     void fail_when_intelligent_router_is_down_for_card_void_request () throws Exception {
-        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
+        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentCardVoidRequest mockRequest = TestHelperUtil.getVoidPaymentRequest();
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(VOID_PATH)
@@ -105,7 +105,7 @@ public class IntelligentRouterConnectivityTest {
 
     @Test
     void fail_when_intelligent_router_is_down_for_refund_request () throws Exception {
-        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
+        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentRefundRequest mockRequest = TestHelperUtil.getRefundPaymentRequest();
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(REFUND_PATH)

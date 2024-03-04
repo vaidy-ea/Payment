@@ -25,6 +25,7 @@ import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
 /**
@@ -52,18 +53,19 @@ public class RouterHelperImpl implements RouterHelper {
      *
      * @param request: request to convert and send to Router
      * @param initialPayment: initialPayment
+     * @param headers: Request Headers
      */
     @Override
     @Retry(name = "incrementalAuthorizationMessage")
     public IncrementalAuthorizationRouterResponse sendIncrementalAuthorizationRequestToRouter(CPPaymentIncrementalAuthRequest request,
-                                                                                              Payment initialPayment) throws JsonProcessingException {
+                                                                                              Payment initialPayment, HttpHeaders headers) throws JsonProcessingException {
         request.setIncrementalAuthInvoiceId(initialPayment.getAuthChainId());
         request.setReferenceId(initialPayment.getPaymentId());
         //converting request to IR compatible
         RouterRequest routerRequest = incrementalToRouterConverter.convert(request);
         logger.log(Level.DEBUG, "Attempting to send message to Intelligent Router for IncrementalAuthorizationRequest");
         //sending request to IR using Feign Client
-        RouterResponseJson responseJson = routerClient.sendRequest(routerRequest);
+        RouterResponseJson responseJson = routerClient.sendRequest(headers, routerRequest);
         logger.log(Level.DEBUG, "Successfully Sent message to Intelligent Router for IncrementalAuthorizationRequest");
         //using object Mapper to convert response received from IR
         return mapper.readValue(responseJson.getResponseJson(), IncrementalAuthorizationRouterResponse.class);
@@ -76,16 +78,17 @@ public class RouterHelperImpl implements RouterHelper {
      *
      * @param request: request to convert and send to Router
      * @param initialPayment: initialPayment
+     * @param headers: Request Headers
      */
     @Override
     @Retry(name = "authorizeMessage")
-    public AuthorizationRouterResponse sendAuthorizeRequestToRouter(CPPaymentAuthorizationRequest request, Long initialPayment) throws JsonProcessingException {
+    public AuthorizationRouterResponse sendAuthorizeRequestToRouter(CPPaymentAuthorizationRequest request, Long initialPayment, HttpHeaders headers) throws JsonProcessingException {
         request.setIncrementalAuthInvoiceId(initialPayment);
         //converting request to IR compatible
         RouterRequest routerRequest = authorizeToRouterConverter.convert(request);
         logger.log(Level.DEBUG, "Attempting to send message to Intelligent Router for AuthorizeRequest");
         //sending request to IR using Feign Client
-        RouterResponseJson responseJson = routerClient.sendRequest(routerRequest);
+        RouterResponseJson responseJson = routerClient.sendRequest(headers, routerRequest);
         logger.log(Level.DEBUG, "Successfully Sent message to Intelligent Router for AuthorizeRequest");
         //using object Mapper to convert response received from IR
         return mapper.readValue(responseJson.getResponseJson(), AuthorizationRouterResponse.class);
@@ -98,17 +101,18 @@ public class RouterHelperImpl implements RouterHelper {
      *
      * @param request: request to convert and send to Router
      * @param initialPayment: initialPayment
+     * @param headers: Request Headers
      */
     @Override
     @Retry(name = "captureMessage")
-    public CaptureRouterResponse sendCaptureRequestToRouter(CPPaymentCaptureRequest request, Payment initialPayment) throws JsonProcessingException {
+    public CaptureRouterResponse sendCaptureRequestToRouter(CPPaymentCaptureRequest request, Payment initialPayment, HttpHeaders headers) throws JsonProcessingException {
         request.setIncrementalAuthInvoiceId(initialPayment.getAuthChainId());
         request.setReferenceId(initialPayment.getPaymentId());
         //converting request to IR compatible
         RouterRequest routerRequest = captureToRouterConverter.convert(request);
         logger.log(Level.DEBUG, "Attempting to send Message To Intelligent Router for CaptureRequest");
         //sending request to IR using Feign Client
-        RouterResponseJson responseJson = routerClient.sendRequest(routerRequest);
+        RouterResponseJson responseJson = routerClient.sendRequest(headers, routerRequest);
         logger.log(Level.DEBUG, "Successfully Sent Message To Intelligent Router for CaptureRequest");
         //using object Mapper to convert response received from IR
         return mapper.readValue(responseJson.getResponseJson(), CaptureRouterResponse.class);
@@ -121,17 +125,18 @@ public class RouterHelperImpl implements RouterHelper {
      *
      * @param request: request to convert and send to Router
      * @param initialPayment: initialPayment
+     * @param headers: Request Headers
      */
     @Override
     @Retry(name = "cardVoidMessage")
-    public CardVoidRouterResponse sendCardVoidRequestToRouter(CPPaymentCardVoidRequest request, Payment initialPayment) throws JsonProcessingException {
+    public CardVoidRouterResponse sendCardVoidRequestToRouter(CPPaymentCardVoidRequest request, Payment initialPayment, HttpHeaders headers) throws JsonProcessingException {
         request.setIncrementalAuthInvoiceId(initialPayment.getAuthChainId());
         request.setReferenceId(initialPayment.getPaymentId());
         //converting request to IR compatible
         RouterRequest routerRequest = voidToRouterConverter.convert(request);
         logger.log(Level.DEBUG, "Attempting to send Message To Intelligent Router for CardVoidRequest");
         //sending request to IR using Feign Client
-        RouterResponseJson responseJson = routerClient.sendRequest(routerRequest);
+        RouterResponseJson responseJson = routerClient.sendRequest(headers, routerRequest);
         logger.log(Level.DEBUG, "Successfully Sent Message To Intelligent Router for CardVoidRequest");
         //using object Mapper to convert response received from IR
         return mapper.readValue(responseJson.getResponseJson(), CardVoidRouterResponse.class);
@@ -144,17 +149,18 @@ public class RouterHelperImpl implements RouterHelper {
      *
      * @param request: request to convert and send to Router
      * @param initialPayment: initialPayment
+     * @param headers: Request Headers
      */
     @Override
     @Retry(name = "refundMessage")
-    public RefundRouterResponse sendRefundRequestToRouter(CPPaymentRefundRequest request, Payment initialPayment) throws JsonProcessingException {
+    public RefundRouterResponse sendRefundRequestToRouter(CPPaymentRefundRequest request, Payment initialPayment, HttpHeaders headers) throws JsonProcessingException {
         request.setIncrementalAuthInvoiceId(initialPayment.getAuthChainId());
         request.setReferenceId(initialPayment.getPaymentId());
         //converting request to IR compatible
         RouterRequest routerRequest = refundToRouterConverter.convert(request);
         logger.log(Level.DEBUG, "Attempting to send Message To Intelligent Router for Refund Request");
         //sending request to IR using Feign Client
-        RouterResponseJson responseJson = routerClient.sendRequest(routerRequest);
+        RouterResponseJson responseJson = routerClient.sendRequest(headers, routerRequest);
         logger.log(Level.DEBUG, "Successfully Sent Message To Intelligent Router for Refund Request");
         //using object Mapper to convert response received from IR
         return mapper.readValue(responseJson.getResponseJson(), RefundRouterResponse.class);

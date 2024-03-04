@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -48,10 +49,12 @@ public class IntelligentRouterConnectivityTest {
     void fail_when_intelligent_router_is_down_for_incremental_auth_request () throws Exception {
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentIncrementalAuthRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
+        HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(INCREMENTAL_AUTH_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(mockRequest));
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(mockHeaders);
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
@@ -62,10 +65,12 @@ public class IntelligentRouterConnectivityTest {
     @Test
     void fail_when_intelligent_router_is_down_for_auth_request () throws Exception {
         CPPaymentAuthorizationRequest mockRequest = TestHelperUtil.getAuthorizationRequest();
+        HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(AUTHORIZE_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(mockRequest));
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(mockHeaders);
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
@@ -77,10 +82,12 @@ public class IntelligentRouterConnectivityTest {
     void fail_when_intelligent_router_is_down_for_capture_request () throws Exception {
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentCaptureRequest mockRequest = TestHelperUtil.getCapturePaymentRequest();
+        HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(CAPTURE_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(mockRequest));
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(mockHeaders);
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
@@ -92,10 +99,12 @@ public class IntelligentRouterConnectivityTest {
     void fail_when_intelligent_router_is_down_for_card_void_request () throws Exception {
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentCardVoidRequest mockRequest = TestHelperUtil.getVoidPaymentRequest();
+        HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(VOID_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(mockRequest));
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(mockHeaders);
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
@@ -107,10 +116,12 @@ public class IntelligentRouterConnectivityTest {
     void fail_when_intelligent_router_is_down_for_refund_request () throws Exception {
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentRefundRequest mockRequest = TestHelperUtil.getRefundPaymentRequest();
+        HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(REFUND_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(mockRequest));
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(mockHeaders);
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then

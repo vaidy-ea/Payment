@@ -12,6 +12,7 @@ import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalAuthR
 import com.mgm.pd.cp.resortpayment.dto.incrementalauth.IncrementalAuthorizationRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.refund.CPPaymentRefundRequest;
 import com.mgm.pd.cp.resortpayment.dto.refund.RefundRouterResponse;
+import org.springframework.http.HttpHeaders;
 
 /**
  *  This interface provides methods/contract about the requests which can be sent to Intelligent Router for Processing
@@ -24,29 +25,29 @@ public interface RouterHelper {
      * This method takes the action for IncrementalAuthorization operation only.
      * It shouldn't be called without passing the IncrementalAuthorization Request.
      */
-    IncrementalAuthorizationRouterResponse sendIncrementalAuthorizationRequestToRouter(CPPaymentIncrementalAuthRequest incrementalRequest, Payment incrementalAuthInvoiceId) throws JsonProcessingException;
+    IncrementalAuthorizationRouterResponse sendIncrementalAuthorizationRequestToRouter(CPPaymentIncrementalAuthRequest incrementalRequest, Payment incrementalAuthInvoiceId, HttpHeaders headers) throws JsonProcessingException;
 
     /**
      * This method takes the action for Authorization operation only.
      * It shouldn't be called without passing the Authorization Request.
      */
-    AuthorizationRouterResponse sendAuthorizeRequestToRouter(CPPaymentAuthorizationRequest authorizationRequest, Long incrementalAuthInvoiceId) throws JsonProcessingException ;
+    AuthorizationRouterResponse sendAuthorizeRequestToRouter(CPPaymentAuthorizationRequest authorizationRequest, Long incrementalAuthInvoiceId, HttpHeaders headers) throws JsonProcessingException ;
 
     /**
      * This method takes the action for Capture operation only.
      * It shouldn't be called without passing the Capture Request.
      */
-    CaptureRouterResponse sendCaptureRequestToRouter(CPPaymentCaptureRequest captureRequest, Payment incrementalAuthInvoiceId) throws JsonProcessingException;
+    CaptureRouterResponse sendCaptureRequestToRouter(CPPaymentCaptureRequest captureRequest, Payment incrementalAuthInvoiceId, HttpHeaders headers) throws JsonProcessingException;
 
     /**
      * This method takes the action for Card Void operation only.
      * It shouldn't be called without passing the Card Void Request.
      */
-    CardVoidRouterResponse sendCardVoidRequestToRouter(CPPaymentCardVoidRequest cvRequest, Payment incrementalAuthInvoiceId) throws JsonProcessingException;
+    CardVoidRouterResponse sendCardVoidRequestToRouter(CPPaymentCardVoidRequest cvRequest, Payment incrementalAuthInvoiceId, HttpHeaders headers) throws JsonProcessingException;
 
     /**
      * This method takes the action for Refund operation only.
      * It shouldn't be called without passing the Refund Request.
      */
-    RefundRouterResponse sendRefundRequestToRouter(CPPaymentRefundRequest refundRequest, Payment incrementalAuthInvoiceId) throws JsonProcessingException;
+    RefundRouterResponse sendRefundRequestToRouter(CPPaymentRefundRequest refundRequest, Payment incrementalAuthInvoiceId, HttpHeaders headers) throws JsonProcessingException;
 }

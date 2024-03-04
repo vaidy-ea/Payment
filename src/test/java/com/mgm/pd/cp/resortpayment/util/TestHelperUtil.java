@@ -3,6 +3,7 @@ package com.mgm.pd.cp.resortpayment.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.mgm.pd.cp.payment.common.dto.CPRequestHeaders;
 import com.mgm.pd.cp.payment.common.model.Payment;
 import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
@@ -15,6 +16,7 @@ import com.mgm.pd.cp.resortpayment.dto.router.RouterResponseJson;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -144,5 +146,34 @@ public class TestHelperUtil {
 	public static RouterResponseJson getAuthorizationRouterResponseJson() {
 		String mockResponse = "{\"dateTime\":\"2021-04-15T09:18:23.000-07:00\",\"totalAuthAmount\":898.07,\"cardType\":\"VS\",\"returnCode\":\"A\",\"sequenceNumber\":\"1234\",\"transDate\":\"2019-08-24T14:15:22Z\",\"vendorTranId\":\"0000192029\",\"approvalCode\":\"OK196Z\"}";
 		return RouterResponseJson.builder().responseJson(mockResponse).build();
+	}
+
+	public static HttpHeaders getHeaders() {
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.add("x-mgm-source", "testSource");
+		httpHeaders.add("x-mgm-journey-id", "testJourney");
+		httpHeaders.add("x-mgm-correlation-id", "testCorrelation");
+		httpHeaders.add("x-mgm-transaction-id", "testTransaction");
+		httpHeaders.add("x-mgm-channel", "testTransaction");
+		httpHeaders.add("x-mgm-client-id", "testClient");
+		httpHeaders.add("authorization", "testAuthorization");
+		return httpHeaders;
+	}
+
+	public static CPPaymentIncrementalAuthRequest getIncrementalAuthRequestWithHeaders() throws IOException {
+		CPPaymentIncrementalAuthRequest incrementalAuthRequest = getIncrementalAuthRequest();
+		incrementalAuthRequest.setHeaders(buildCustomHeaders());
+		return incrementalAuthRequest;
+	}
+
+	private static CPRequestHeaders buildCustomHeaders() {
+		return CPRequestHeaders.builder().channel("testChannel").source("testSource").transactionId("testTransaction")
+				.journeyId("testJourney").correlationId("testCorrelation").clientId("testClient").authorization("testAuth").build();
+	}
+
+	public static CPPaymentRefundRequest getRefundPaymentRequestWithHeaders() throws IOException {
+		CPPaymentRefundRequest refundPaymentRequest = getRefundPaymentRequest();
+		refundPaymentRequest.setHeaders(buildCustomHeaders());
+		return refundPaymentRequest;
 	}
 }

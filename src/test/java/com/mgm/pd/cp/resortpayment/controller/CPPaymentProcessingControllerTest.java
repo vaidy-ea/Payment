@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -72,11 +73,13 @@ public class CPPaymentProcessingControllerTest {
         //given
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentIncrementalAuthRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
-        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getIncrementalRouterResponseJson());
+        HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
+        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getIncrementalRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(INCREMENTAL_AUTH_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(mockRequest));
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(mockHeaders);
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
@@ -88,11 +91,13 @@ public class CPPaymentProcessingControllerTest {
         //given
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentIncrementalAuthRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
-        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getIncrementalRouterResponseJson());
+        HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
+        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getIncrementalRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(INCREMENTAL_AUTH_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(mockRequest));
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(mockHeaders);
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
@@ -104,11 +109,13 @@ public class CPPaymentProcessingControllerTest {
         //given
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentIncrementalAuthRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
-        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getIncrementalRouterResponseJson());
+        HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
+        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getIncrementalRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(INCREMENTAL_AUTH_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(mockRequest));
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(mockHeaders);
         mockMvc.perform(requestBuilder);
         //then
         Assertions.assertEquals(1, paymentRepository.findAll().size());
@@ -137,11 +144,13 @@ public class CPPaymentProcessingControllerTest {
     void when_provided_valid_incremental_payment_payload_but_initial_payment_is_missing_then_should_not_process_and_return_unsuccessful() throws Exception {
         //given
         CPPaymentIncrementalAuthRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
-        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getIncrementalRouterResponseJson());
+        HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
+        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getIncrementalRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(INCREMENTAL_AUTH_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(mockRequest));
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(mockHeaders);
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
@@ -154,11 +163,13 @@ public class CPPaymentProcessingControllerTest {
         //given
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentCaptureRequest mockRequest = TestHelperUtil.getCapturePaymentRequest();
-        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getCaptureRouterResponseJson());
+        HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
+        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getCaptureRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(CAPTURE_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(mockRequest));
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(mockHeaders);
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
@@ -170,11 +181,13 @@ public class CPPaymentProcessingControllerTest {
         //given
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentCaptureRequest mockRequest = TestHelperUtil.getCapturePaymentRequest();
-        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getCaptureRouterResponseJson());
+        HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
+        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getCaptureRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(CAPTURE_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(mockRequest));
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(mockHeaders);
         mockMvc.perform(requestBuilder);
         //then
         Assertions.assertEquals(1, paymentRepository.findAll().size());
@@ -185,11 +198,13 @@ public class CPPaymentProcessingControllerTest {
         //given
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentCaptureRequest mockRequest = TestHelperUtil.getCapturePaymentRequest();
-        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getCaptureRouterResponseJson());
+        HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
+        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getCaptureRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(CAPTURE_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(mockRequest));
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(mockHeaders);
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
@@ -220,11 +235,13 @@ public class CPPaymentProcessingControllerTest {
     void when_provided_valid_capture_payment_payload_but_initial_payment_is_missing_then_should_not_process_and_return_unsuccessful() throws Exception {
         //given
         CPPaymentCaptureRequest mockRequest = TestHelperUtil.getCapturePaymentRequest();
-        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getCaptureRouterResponseJson());
+        HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
+        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getCaptureRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(CAPTURE_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(mockRequest));
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(mockHeaders);
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
@@ -237,11 +254,13 @@ public class CPPaymentProcessingControllerTest {
         //given
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentCardVoidRequest mockRequest = TestHelperUtil.getVoidPaymentRequest();
-        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getVoidRouterResponseJson());
+        HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
+        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getVoidRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(VOID_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(mockRequest));
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(mockHeaders);
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
@@ -253,11 +272,13 @@ public class CPPaymentProcessingControllerTest {
         //given
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentCardVoidRequest mockRequest = TestHelperUtil.getVoidPaymentRequest();
-        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getVoidRouterResponseJson());
+        HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
+        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getVoidRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(VOID_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(mockRequest));
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(mockHeaders);
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
@@ -269,11 +290,13 @@ public class CPPaymentProcessingControllerTest {
         //given
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentCardVoidRequest mockRequest = TestHelperUtil.getVoidPaymentRequest();
-        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getVoidRouterResponseJson());
+        HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
+        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getVoidRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(VOID_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(mockRequest));
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(mockHeaders);
         mockMvc.perform(requestBuilder);
         //then
         Assertions.assertEquals(1, paymentRepository.findAll().size());
@@ -303,11 +326,13 @@ public class CPPaymentProcessingControllerTest {
     void when_provided_valid_card_void_payment_payload_but_initial_payment_is_missing_then_should_not_process_and_return_unsuccessful() throws Exception {
         //given
         CPPaymentCardVoidRequest mockRequest = TestHelperUtil.getVoidPaymentRequest();
-        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getVoidRouterResponseJson());
+        HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
+        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getVoidRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(VOID_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(mockRequest));
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(mockHeaders);
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().is4xxClientError()).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
@@ -319,11 +344,13 @@ public class CPPaymentProcessingControllerTest {
         //given
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentRefundRequest mockRequest = TestHelperUtil.getRefundPaymentRequest();
-        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getVoidRouterResponseJson());
+        HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
+        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getVoidRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(REFUND_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(mockRequest));
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(mockHeaders);
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
@@ -335,11 +362,13 @@ public class CPPaymentProcessingControllerTest {
         //given
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentRefundRequest mockRequest = TestHelperUtil.getRefundPaymentRequest();
-        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getRefundRouterResponseJson());
+        HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
+        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getRefundRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(REFUND_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(mockRequest));
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(mockHeaders);
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
@@ -351,11 +380,13 @@ public class CPPaymentProcessingControllerTest {
         //given
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentRefundRequest mockRequest = TestHelperUtil.getRefundPaymentRequest();
-        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getRefundRouterResponseJson());
+        HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
+        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getRefundRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(REFUND_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(mockRequest));
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(mockHeaders);
         mockMvc.perform(requestBuilder);
         //then
         Assertions.assertEquals(1, paymentRepository.findAll().size());
@@ -385,11 +416,13 @@ public class CPPaymentProcessingControllerTest {
     void when_provided_valid_refund_payment_payload_but_initial_payment_is_missing_then_should_not_process_and_return_unsuccessful() throws Exception {
         //given
         CPPaymentRefundRequest mockRequest = TestHelperUtil.getRefundPaymentRequest();
-        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getVoidRouterResponseJson());
+        HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
+        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getVoidRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(REFUND_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(mockRequest));
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(mockHeaders);
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().is4xxClientError()).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
@@ -400,11 +433,13 @@ public class CPPaymentProcessingControllerTest {
     void when_provided_valid_authorization_payment_payload_should_process_and_return_approval_code() throws Exception {
         //given
         CPPaymentAuthorizationRequest mockRequest = TestHelperUtil.getAuthorizationRequest();
-        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getAuthorizationRouterResponseJson());
+        HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
+        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getAuthorizationRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(AUTHORIZE_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(mockRequest));
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(mockHeaders);
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
@@ -415,11 +450,13 @@ public class CPPaymentProcessingControllerTest {
     void when_provided_valid_authorization_payment_payload_should_process_and_return_response_to_opera() throws Exception {
         //given
         CPPaymentAuthorizationRequest mockRequest = TestHelperUtil.getAuthorizationRequest();
-        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getAuthorizationRouterResponseJson());
+        HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
+        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getAuthorizationRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(AUTHORIZE_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(mockRequest));
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(mockHeaders);
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
@@ -430,11 +467,13 @@ public class CPPaymentProcessingControllerTest {
     void valid_authorization_intelligent_router_response_should_persist_in_payment_db() throws Exception {
         //given
         CPPaymentAuthorizationRequest mockRequest = TestHelperUtil.getAuthorizationRequest();
-        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getAuthorizationRouterResponseJson());
+        HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
+        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getAuthorizationRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(AUTHORIZE_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(mockRequest));
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(mockHeaders);
         mockMvc.perform(requestBuilder);
         //then
         Assertions.assertEquals(1, paymentRepository.findAll().size());

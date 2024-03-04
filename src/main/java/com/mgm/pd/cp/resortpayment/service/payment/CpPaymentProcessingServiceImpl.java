@@ -17,6 +17,7 @@ import com.mgm.pd.cp.resortpayment.service.router.RouterHelper;
 import com.mgm.pd.cp.resortpayment.util.common.PaymentProcessingServiceHelper;
 import feign.FeignException;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +33,6 @@ import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.INITIAL
 @Service
 @AllArgsConstructor
 public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingService {
-    private FindPaymentService findPaymentService;
     private SavePaymentService savePaymentService;
     private RouterHelper routerHelper;
     private PaymentProcessingServiceHelper serviceHelper;
@@ -43,10 +43,12 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
      * saving Details to Payment DB, returning response or Error back to upstream systems.
      *
      * @param request: sent to IR
+     * @param headers: Request Headers
      * @return response from IR
      */
     @Override
-    public ResponseEntity<GenericResponse<?>> processIncrementalAuthorizationRequest(CPPaymentIncrementalAuthRequest request) throws JsonProcessingException {
+    public ResponseEntity<GenericResponse<?>> processIncrementalAuthorizationRequest(CPPaymentIncrementalAuthRequest request, HttpHeaders headers) throws JsonProcessingException {
+        request = serviceHelper.mapHeadersInRequest(request, headers);
         //finding initial Payment as pre-requisite for processing of Incremental Authorization
         Optional<Payment> optionalInitialPayment = serviceHelper.getInitialAuthPayment(request);
         if (optionalInitialPayment.isPresent()) {
@@ -54,7 +56,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
             Payment payment;
             try{
                 //sending request to IR
-                irResponse = routerHelper.sendIncrementalAuthorizationRequestToRouter(request, optionalInitialPayment.get());
+                irResponse = routerHelper.sendIncrementalAuthorizationRequestToRouter(request, optionalInitialPayment.get(), headers);
             } catch(FeignException feignEx) {
                 //adding comments in case of Exception from IR
                 irResponse = IncrementalAuthorizationRouterResponse.builder().comments(serviceHelper.getCommentsFromException(feignEx)).build();
@@ -81,15 +83,17 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
      * saving Details to Payment DB, returning response or Error back to upstream systems.
      *
      * @param request: sent to IR
+     * @param headers: Request Headers
      * @return response from IR
      */
     @Override
-    public ResponseEntity<GenericResponse<?>> processAuthorizeRequest(CPPaymentAuthorizationRequest request) throws JsonProcessingException {
+    public ResponseEntity<GenericResponse<?>> processAuthorizeRequest(CPPaymentAuthorizationRequest request, HttpHeaders headers) throws JsonProcessingException {
+        request = serviceHelper.mapHeadersInRequest(request, headers);
         AuthorizationRouterResponse authRouterResponse = null;
         Payment payment;
         try{
             //sending request to IR
-            authRouterResponse = routerHelper.sendAuthorizeRequestToRouter(request, 12345L);
+            authRouterResponse = routerHelper.sendAuthorizeRequestToRouter(request, 12345L, headers);
         } catch(FeignException feignEx) {
             //adding comments in case of Exception from IR
             authRouterResponse = AuthorizationRouterResponse.builder().comments(serviceHelper.getCommentsFromException(feignEx)).build();
@@ -110,10 +114,12 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
      * saving Details to Payment DB, returning response or Error back to upstream systems.
      *
      * @param request: sent to IR
+     * @param headers: Request Headers
      * @return response from IR
      */
     @Override
-    public ResponseEntity<GenericResponse<?>> processCaptureRequest(CPPaymentCaptureRequest request) throws JsonProcessingException {
+    public ResponseEntity<GenericResponse<?>> processCaptureRequest(CPPaymentCaptureRequest request, HttpHeaders headers) throws JsonProcessingException {
+        request = serviceHelper.mapHeadersInRequest(request, headers);
         //finding initial Payment as pre-requisite for processing of Capture
         Optional<Payment> optionalInitialPayment = serviceHelper.getInitialAuthPayment(request);
         if (optionalInitialPayment.isPresent()) {
@@ -122,7 +128,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
             CaptureRouterResponse crResponse = null;
             try{
                 //sending request to IR
-                crResponse = routerHelper.sendCaptureRequestToRouter(request, initialPayment);
+                crResponse = routerHelper.sendCaptureRequestToRouter(request, initialPayment, headers);
             } catch(FeignException feignEx) {
                 //adding comments in case of Exception from IR
                 crResponse = CaptureRouterResponse.builder().comments(serviceHelper.getCommentsFromException(feignEx)).build();
@@ -148,10 +154,12 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
      * saving Details to Payment DB, returning response or Error back to upstream systems.
      *
      * @param request: sent to IR
+     * @param headers: Request Headers
      * @return response from IR
      */
     @Override
-    public ResponseEntity<GenericResponse<?>> processCardVoidRequest(CPPaymentCardVoidRequest request) throws JsonProcessingException {
+    public ResponseEntity<GenericResponse<?>> processCardVoidRequest(CPPaymentCardVoidRequest request, HttpHeaders headers) throws JsonProcessingException {
+        request = serviceHelper.mapHeadersInRequest(request, headers);
         //finding initial Payment as pre-requisite for processing of Card Void Request
         Optional<Payment> optionalInitialPayment = serviceHelper.getInitialAuthPayment(request);
         if (optionalInitialPayment.isPresent()) {
@@ -159,7 +167,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
             CardVoidRouterResponse cvrResponse = null;
             try{
                 //sending request to IR
-                cvrResponse = routerHelper.sendCardVoidRequestToRouter(request, optionalInitialPayment.get());
+                cvrResponse = routerHelper.sendCardVoidRequestToRouter(request, optionalInitialPayment.get(), headers);
             } catch(FeignException feignEx) {
                 //adding comments in case of Exception from IR
                 cvrResponse = CardVoidRouterResponse.builder().comments(serviceHelper.getCommentsFromException(feignEx)).build();
@@ -185,10 +193,12 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
      * saving Details to Payment DB, returning response or Error back to upstream systems.
      *
      * @param request: sent to IR
+     * @param headers: Request Headers
      * @return response from IR
      */
     @Override
-    public ResponseEntity<GenericResponse<?>> processRefundRequest(CPPaymentRefundRequest request) throws JsonProcessingException {
+    public ResponseEntity<GenericResponse<?>> processRefundRequest(CPPaymentRefundRequest request, HttpHeaders headers) throws JsonProcessingException {
+        request = serviceHelper.mapHeadersInRequest(request, headers);
         //finding initial Payment as pre-requisite for processing of Refund Request
         Optional<Payment> optionalInitialPayment = serviceHelper.getInitialAuthPayment(request);
         if (optionalInitialPayment.isPresent()) {
@@ -196,7 +206,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
             Payment payment;
             try{
                 //sending request to IR
-                rrResponse = routerHelper.sendRefundRequestToRouter(request, optionalInitialPayment.get());
+                rrResponse = routerHelper.sendRefundRequestToRouter(request, optionalInitialPayment.get(), headers);
             } catch(FeignException feignEx) {
                 //adding comments in case of Exception from IR
                 rrResponse = RefundRouterResponse.builder().comments(serviceHelper.getCommentsFromException(feignEx)).build();

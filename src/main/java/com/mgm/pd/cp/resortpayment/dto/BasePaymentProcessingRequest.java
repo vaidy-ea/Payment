@@ -1,5 +1,6 @@
 package com.mgm.pd.cp.resortpayment.dto;
 
+import com.mgm.pd.cp.payment.common.dto.CPRequestHeaders;
 import com.mgm.pd.cp.payment.common.dto.opera.GatewayInfo;
 import com.mgm.pd.cp.payment.common.validation.possibledatetime.PossibleDateTime;
 import lombok.AllArgsConstructor;
@@ -39,4 +40,5 @@ public class BasePaymentProcessingRequest {
     private String dateTime;
     private Long clerkId;
     private String comments;
+    private CPRequestHeaders headers;
 }

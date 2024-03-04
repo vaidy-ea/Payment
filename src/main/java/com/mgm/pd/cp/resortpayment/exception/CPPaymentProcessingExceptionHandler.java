@@ -78,4 +78,11 @@ public class CPPaymentProcessingExceptionHandler {
         ErrorResponse irEx = new ObjectMapper().readValue(ex.contentUTF8(), ErrorResponse.class);
         return new ResponseEntity<>(irEx, Objects.requireNonNull(HttpStatus.resolve(ex.status())));
     }
+
+    //Used to catch exception in case headers are not present in request
+    @ExceptionHandler(MissingHeaderException.class)
+    public ResponseEntity<ErrorResponse> handleMissingHeaderException(MissingHeaderException ex) {
+        return new ResponseEntity<>(ErrorResponse.builder().status(HttpStatus.BAD_REQUEST.value()).title(INVALID_REQUEST_PARAMETERS)
+                .detail(INVALID_REQUEST_PARAMETERS).messages(Collections.singletonList("Missing request Headers is/are: " + ex.getMessage())).build(), HttpStatus.BAD_REQUEST);
+    }
 }

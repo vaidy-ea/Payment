@@ -1,7 +1,10 @@
 package com.mgm.pd.cp.resortpayment.util.common;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mgm.pd.cp.payment.common.dto.CPRequestHeaders;
 import com.mgm.pd.cp.payment.common.dto.ErrorResponse;
 import com.mgm.pd.cp.payment.common.dto.GenericResponse;
 import com.mgm.pd.cp.payment.common.dto.opera.OperaResponse;
@@ -10,16 +13,17 @@ import com.mgm.pd.cp.resortpayment.dto.BaseTransactionDetails;
 import com.mgm.pd.cp.resortpayment.dto.CPPaymentProcessingRequest;
 import com.mgm.pd.cp.resortpayment.dto.SaleItem;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
+import com.mgm.pd.cp.resortpayment.exception.MissingHeaderException;
 import com.mgm.pd.cp.resortpayment.service.payment.FindPaymentService;
 import feign.FeignException;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.LinkedHashMap;
-import java.util.Objects;
-import java.util.Optional;
+import java.lang.reflect.Field;
+import java.util.*;
 
 import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.INITIAL_PAYMENT_IS_MISSING;
 import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE;
@@ -106,5 +110,32 @@ public class PaymentProcessingServiceHelper {
             transactionDetails = ((CPPaymentProcessingRequest) request).getTransactionDetails();
         }
         return transactionDetails;
+    }
+
+    /**
+     * This method check for all required Headers in the
+     * request and maps it to the CustomHeader class
+     * @param request: all types of requests are accepted
+     * @param headers: Request Headers
+     */
+    public <T> T mapHeadersInRequest(T request, HttpHeaders headers) {
+        List<String> missingHeaders = new ArrayList<>();
+        for (Field f: CPRequestHeaders.class.getDeclaredFields()) {
+            String value = f.getAnnotation(JsonProperty.class).value();
+            if (!headers.containsKey(value)) {
+                missingHeaders.add(value);
+            }
+        }
+        if (!missingHeaders.isEmpty()) {
+            throw new MissingHeaderException(missingHeaders);
+        }
+        CPRequestHeaders CPRequestHeaders = mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, false).convertValue(headers.toSingleValueMap(), CPRequestHeaders.class);
+        if (request.getClass().equals(CPPaymentCardVoidRequest.class)) {
+            ((CPPaymentCardVoidRequest) request).setHeaders(CPRequestHeaders);
+        } else {
+            ((CPPaymentProcessingRequest) request).setHeaders(CPRequestHeaders);
+        }
+        headers.remove("Content-Length");
+        return request;
     }
 }

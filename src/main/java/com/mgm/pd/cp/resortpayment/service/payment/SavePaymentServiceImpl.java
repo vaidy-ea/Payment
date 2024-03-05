@@ -57,7 +57,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .gatewayChainId(String.valueOf(request.getIncrementalAuthInvoiceId()))
                 .clientReferenceNumber(request.getTransactionIdentifier())
                 .amount(detailedAmount.getAmount())
-                .authChainId(request.getIncrementalAuthInvoiceId())
+                //.authChainId(request.getIncrementalAuthInvoiceId())
                 //TODO: check if it is coming in which request parameter
                 //.gatewayId()
                 .clientId(request.getClientID())
@@ -94,7 +94,8 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                     .issuerType(Objects.nonNull(cardType) ? CardType.valueOf(cardType) : null)
                     .gatewayAuthCode(response.getApprovalCode())
                     .transactionStatus(response.getReturnCode())
-                    .updatedTimestamp(Objects.nonNull(transDate) ? convertToTimestamp(transDate) : null);
+                    .updatedTimestamp(Objects.nonNull(transDate) ? convertToTimestamp(transDate) : null)
+                    .authChainId(Long.valueOf(response.getVendorTranID()));
         }
         Payment payment = newPayment.build();
         logger.log(Level.INFO, "Transaction Type is: " + payment.getTransactionType());

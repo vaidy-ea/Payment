@@ -156,4 +156,28 @@
 				</plugin>
 		</plugins>
 	</build>
+	<distributionManagement>
+		<repository>
+			<id>Payments-Maven-Feed</id>
+			<url>https://pkgs.dev.azure.com/MGMResortsDigitalEngineering/fabb8804-45b6-4140-b50a-b05406e4dbb8/_packaging/Payments-Maven-Feed/maven/v1</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</distributionManagement>
+	<repositories>
+		<repository>
+			<id>Payments-Maven-Feed</id>
+			<url>https://pkgs.dev.azure.com/MGMResortsDigitalEngineering/fabb8804-45b6-4140-b50a-b05406e4dbb8/_packaging/Payments-Maven-Feed/maven/v1</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
 </project>

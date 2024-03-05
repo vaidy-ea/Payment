@@ -31,7 +31,7 @@ public interface RouterHelper {
      * This method takes the action for Authorization operation only.
      * It shouldn't be called without passing the Authorization Request.
      */
-    AuthorizationRouterResponse sendAuthorizeRequestToRouter(CPPaymentAuthorizationRequest authorizationRequest, Long incrementalAuthInvoiceId, HttpHeaders headers) throws JsonProcessingException ;
+    AuthorizationRouterResponse sendAuthorizeRequestToRouter(CPPaymentAuthorizationRequest authorizationRequest, HttpHeaders headers) throws JsonProcessingException ;
 
     /**
      * This method takes the action for Capture operation only.

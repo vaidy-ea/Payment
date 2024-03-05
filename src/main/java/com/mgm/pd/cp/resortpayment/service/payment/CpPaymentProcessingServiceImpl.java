@@ -72,7 +72,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
         }
         //Saving the comments in Payment DB and sending an Error Response to upstreams system
         request.setComments(INITIAL_PAYMENT_IS_MISSING);
-        request.setIncrementalAuthInvoiceId(null);
+        request.setAuthChainId(null);
         savePaymentService.saveIncrementalAuthorizationPayment(request, null);
         return serviceHelper.initialPaymentIsMissing();
     }
@@ -93,7 +93,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
         Payment payment;
         try{
             //sending request to IR
-            authRouterResponse = routerHelper.sendAuthorizeRequestToRouter(request, 12345L, headers);
+            authRouterResponse = routerHelper.sendAuthorizeRequestToRouter(request, headers);
         } catch(FeignException feignEx) {
             //adding comments in case of Exception from IR
             authRouterResponse = AuthorizationRouterResponse.builder().comments(serviceHelper.getCommentsFromException(feignEx)).build();
@@ -143,7 +143,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
         }
         //Saving the comments in Payment DB and sending an Error Response to upstreams system
         request.setComments(INITIAL_PAYMENT_IS_MISSING);
-        request.setIncrementalAuthInvoiceId(null);
+        request.setAuthChainId(null);
         savePaymentService.saveCaptureAuthPayment(request, null, null);
         return serviceHelper.initialPaymentIsMissing();
     }
@@ -182,7 +182,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
         }
         //Saving the comments in Payment DB and sending an Error Response to upstreams system
         request.setComments(INITIAL_PAYMENT_IS_MISSING);
-        request.setIncrementalAuthInvoiceId(null);
+        request.setAuthChainId(null);
         savePaymentService.saveCardVoidAuthPayment(request, null);
         return serviceHelper.initialPaymentIsMissing();
     }
@@ -222,7 +222,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
         }
         //Saving the comments in Payment DB and sending an Error Response to upstreams system
         request.setComments(INITIAL_PAYMENT_IS_MISSING);
-        request.setIncrementalAuthInvoiceId(null);
+        request.setAuthChainId(null);
         savePaymentService.saveRefundPayment(request, null);
         return serviceHelper.initialPaymentIsMissing();
     }

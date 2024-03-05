@@ -101,7 +101,7 @@ public class CPPaymentProcessingControllerTest {
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
-        JSONAssert.assertEquals(responseJson, TestHelperUtil.getOperaResponse(), false);
+        JSONAssert.assertEquals(responseJson, TestHelperUtil.getOperaResponseForIncrementalAuthOperation(), false);
     }
 
     @Test
@@ -282,7 +282,7 @@ public class CPPaymentProcessingControllerTest {
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
-        JSONAssert.assertEquals(responseJson, TestHelperUtil.getOperaResponse(), false);
+        JSONAssert.assertEquals(responseJson, TestHelperUtil.getOperaResponseForCardVoidOperation(), false);
     }
 
     @Test

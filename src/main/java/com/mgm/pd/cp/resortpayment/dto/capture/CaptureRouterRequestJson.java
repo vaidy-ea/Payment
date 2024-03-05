@@ -1,13 +1,10 @@
 package com.mgm.pd.cp.resortpayment.dto.capture;
 
-import com.mgm.pd.cp.payment.common.constant.CardType;
 import com.mgm.pd.cp.payment.common.validation.ValidDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.validation.constraints.*;
 
 @Data
@@ -56,8 +53,7 @@ public class CaptureRouterRequestJson {
     private String cardNumber;
     @Size(max = 1, message = "CardPresent exceed the permissible length")
     private String cardPresent;
-    @Enumerated(EnumType.STRING)
-    private CardType cardType;
+    private String cardType;
     @Size(max = 79, message = "TrackData exceed the permissible length")
     private String trackData;
     @NotBlank(message = "TrackIndicator can't be empty or NULL")

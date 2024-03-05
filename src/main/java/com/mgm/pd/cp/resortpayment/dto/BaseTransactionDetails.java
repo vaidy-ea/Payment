@@ -27,4 +27,6 @@ public class BaseTransactionDetails {
 
     @Valid
     private List<AdditionalData> additionalData;
+
+    private String cardEntryMode;
 }

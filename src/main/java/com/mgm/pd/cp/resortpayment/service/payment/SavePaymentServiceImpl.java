@@ -1,7 +1,10 @@
 package com.mgm.pd.cp.resortpayment.service.payment;
 
 import com.mgm.pd.cp.payment.common.constant.CardType;
+import com.mgm.pd.cp.payment.common.constant.OrderType;
+import com.mgm.pd.cp.payment.common.constant.TenderType;
 import com.mgm.pd.cp.payment.common.constant.TransactionType;
+import com.mgm.pd.cp.payment.common.dto.CPRequestHeaders;
 import com.mgm.pd.cp.payment.common.dto.opera.Card;
 import com.mgm.pd.cp.payment.common.dto.opera.DetailedAmount;
 import com.mgm.pd.cp.payment.common.dto.opera.TransactionAmount;
@@ -49,19 +52,18 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         String randomId = UUID.randomUUID().toString();
         DetailedAmount detailedAmount = transactionAmount.getDetailedAmount();
         Address billingAddress = customer.getBillingAddress();
+        CPRequestHeaders headers = request.getHeaders();
         newPayment
                 .paymentId(randomId)
                 .referenceId(String.valueOf(request.getReferenceId()))
                 .groupId(null)
-                .gatewayRelationNumber(request.getCorelationId())
-                .gatewayChainId(String.valueOf(request.getIncrementalAuthInvoiceId()))
+                .gatewayRelationNumber(headers.getCorrelationId())
+                .gatewayChainId(String.valueOf(request.getAuthChainId()))
                 .clientReferenceNumber(request.getTransactionIdentifier())
                 .amount(detailedAmount.getAmount())
-                //.authChainId(request.getIncrementalAuthInvoiceId())
                 //TODO: check if it is coming in which request parameter
-                //.gatewayId()
                 .clientId(request.getClientID())
-                //.orderType()
+                .orderType(OrderType.Hotel)
                 .mgmId(null)
                 .mgmToken(card.getMaskedCardNumber())
                 .cardHolderName(card.getCardHolderName())
@@ -74,28 +76,32 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .billingState(billingAddress.getTownName())
                 .billingZipCode(billingAddress.getPostCode())
                 .billingCountry(billingAddress.getCountry())
-                //.clerkId()
+                .clerkId(transactionDetails.getMerchant().getClerkIdentifier())
                 .transactionType(TransactionType.INCREMENTAL_AUTH)
                 //.gatewayReasonCode().gatewayReasonDescription().gatewayResponseCode().gatewayAuthSource()
                 .deferredAuth(null)
                 .createdTimeStamp(convertToTimestamp(request.getTransactionDateTime()))
                 //.createdBy().updatedBy()
-                .correlationId(request.getCorelationId())
-                //.journeyId().transactionSessionId()
-                //.cardEntryMode().avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
+                .correlationId(headers.getCorrelationId())
+                .journeyId(headers.getJourneyId())
+                .transactionSessionId(headers.getTransactionId())
+                .cardEntryMode(card.getCardEntryMode())
+                //.avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
-                .authSubType(request.getTransactionType());
+                .authSubType(request.getTransactionType())
+                .tenderType(TenderType.valueOf(card.getCardType()));
         if (Objects.nonNull(response)) {
             String transDate = response.getTransDate();
             String cardType = response.getCardType();
+            String vendorTranID = response.getVendorTranID();
             newPayment
                     .authorizedAmount(response.getTotalAuthAmount())
-                    //.tenderType(TenderType.valueOf(response.getCardType()))
+                    //.gatewayId()
                     .issuerType(Objects.nonNull(cardType) ? CardType.valueOf(cardType) : null)
                     .gatewayAuthCode(response.getApprovalCode())
                     .transactionStatus(response.getReturnCode())
                     .updatedTimestamp(Objects.nonNull(transDate) ? convertToTimestamp(transDate) : null)
-                    .authChainId(Long.valueOf(response.getVendorTranID()));
+                    .authChainId(Objects.nonNull(vendorTranID) ? Long.valueOf(vendorTranID) : null);
         }
         Payment payment = newPayment.build();
         logger.log(Level.INFO, "Transaction Type is: " + payment.getTransactionType());
@@ -113,19 +119,19 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         String randomId = UUID.randomUUID().toString();
         DetailedAmount detailedAmount = transactionAmount.getDetailedAmount();
         Address billingAddress = customer.getBillingAddress();
+        CPRequestHeaders headers = request.getHeaders();
         newPayment
                 .paymentId(randomId)
                 .referenceId(null)
                 .groupId(null)
-                .gatewayRelationNumber(request.getCorelationId())
-                .gatewayChainId(String.valueOf(request.getIncrementalAuthInvoiceId()))
+                .gatewayRelationNumber(headers.getCorrelationId())
+                .gatewayChainId(String.valueOf(request.getAuthChainId()))
                 .clientReferenceNumber(request.getTransactionIdentifier())
                 .amount(detailedAmount.getAmount())
-                .authChainId(request.getIncrementalAuthInvoiceId())
+                .authChainId(request.getAuthChainId())
                 //TODO: check if it is coming in which request parameter
-                //.gatewayId()
                 .clientId(request.getClientID())
-                //.orderType()
+                .orderType(OrderType.Hotel)
                 .mgmId(null)
                 .mgmToken(card.getMaskedCardNumber())
                 .cardHolderName(card.getCardHolderName())
@@ -138,23 +144,26 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .billingState(billingAddress.getTownName())
                 .billingZipCode(billingAddress.getPostCode())
                 .billingCountry(billingAddress.getCountry())
-                //.clerkId()
+                .clerkId(transactionDetails.getMerchant().getClerkIdentifier())
                 .transactionType(TransactionType.INIT_AUTH_CNP)
                 //.gatewayReasonCode().gatewayReasonDescription().gatewayResponseCode().gatewayAuthSource()
                 .deferredAuth(null)
                 .createdTimeStamp(convertToTimestamp(request.getTransactionDateTime()))
                 //.createdBy().updatedBy()
-                .correlationId(request.getCorelationId())
-                //.journeyId().transactionSessionId()
-                //.cardEntryMode().avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
+                .correlationId(headers.getCorrelationId())
+                .journeyId(headers.getJourneyId())
+                .transactionSessionId(headers.getTransactionId())
+                .cardEntryMode(card.getCardEntryMode())
+                //.avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
-                .authSubType(request.getTransactionType());
+                .authSubType(request.getTransactionType())
+                .tenderType(TenderType.valueOf(card.getCardType()));
         if (Objects.nonNull(response)) {
             String transDate = response.getTransDate();
             String cardType = response.getCardType();
             newPayment
                     .authorizedAmount(response.getTotalAuthAmount())
-                    //.tenderType(TenderType.valueOf(response.getCardType()))
+                    //.gatewayId()
                     .issuerType(Objects.nonNull(cardType) ? CardType.valueOf(cardType) : null)
                     .gatewayAuthCode(response.getApprovalCode())
                     .transactionStatus(response.getReturnCode())
@@ -182,19 +191,18 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         String string = UUID.randomUUID().toString();
         DetailedAmount detailedAmount = transactionAmount.getDetailedAmount();
         Address billingAddress = customer.getBillingAddress();
+        CPRequestHeaders headers = request.getHeaders();
         newPayment
                 .paymentId(string)
                 .referenceId(String.valueOf(request.getReferenceId()))
                 .groupId(null)
-                .gatewayRelationNumber(request.getCorelationId())
-                .gatewayChainId(String.valueOf(request.getIncrementalAuthInvoiceId()))
+                .gatewayRelationNumber(headers.getCorrelationId())
+                .gatewayChainId(String.valueOf(request.getAuthChainId()))
                 .clientReferenceNumber(request.getTransactionIdentifier())
                 .amount(detailedAmount.getAmount())
-                .authChainId(request.getIncrementalAuthInvoiceId())
-                //TODO: check if it is coming in which request parameter
-                //.gatewayId()
+                .authChainId(request.getAuthChainId())
                 .clientId(request.getClientID())
-                //.orderType()
+                .orderType(OrderType.Hotel)
                 .mgmId(null)
                 .mgmToken(card.getMaskedCardNumber())
                 .cardHolderName(card.getCardHolderName())
@@ -207,23 +215,26 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .billingState(billingAddress.getTownName())
                 .billingZipCode(billingAddress.getPostCode())
                 .billingCountry(billingAddress.getCountry())
-                //.clerkId()
+                .clerkId(transactionDetails.getMerchant().getClerkIdentifier())
                 .transactionType(TransactionType.CAPTURE)
                 //.gatewayReasonCode().gatewayReasonDescription().gatewayResponseCode().gatewayAuthSource()
                 .deferredAuth(null)
                 .createdTimeStamp(convertToTimestamp(request.getTransactionDateTime()))
                 //.createdBy().updatedBy()
-                .correlationId(request.getCorelationId())
-                //.journeyId().transactionSessionId()
-                //.cardEntryMode().avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
+                .correlationId(headers.getCorrelationId())
+                .journeyId(headers.getJourneyId())
+                .transactionSessionId(headers.getTransactionId())
+                .cardEntryMode(card.getCardEntryMode())
+                //.avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
-                .authSubType(request.getTransactionType());
+                .authSubType(request.getTransactionType())
+                .tenderType(TenderType.valueOf(card.getCardType()));
         if (Objects.nonNull(response)) {
             String transDate = response.getTransDate();
             CardType cardType = response.getCardType();
             newPayment
                     .authorizedAmount(response.getTotalAuthAmount())
-                    //.tenderType(TenderType.valueOf(response.getCardType()))
+                    //.gatewayId()
                     .issuerType(Objects.nonNull(cardType) ? cardType : null)
                     .gatewayAuthCode(response.getApprovalCode())
                     .transactionStatus(response.getReturnCode())
@@ -243,19 +254,18 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         }
         Payment.PaymentBuilder newPayment = Payment.builder();
         String string = UUID.randomUUID().toString();
+        CPRequestHeaders headers = request.getHeaders();
         newPayment
                 .paymentId(string)
                 .referenceId(String.valueOf(request.getReferenceId()))
                 .groupId(null)
-                .gatewayRelationNumber(request.getCorelationId())
-                .gatewayChainId(String.valueOf(request.getIncrementalAuthInvoiceId()))
+                .gatewayRelationNumber(headers.getCorrelationId())
+                .gatewayChainId(String.valueOf(request.getAuthChainId()))
                 .clientReferenceNumber(request.getTransactionIdentifier())
                 //.amount(detailedAmount.getAmount())
-                .authChainId(request.getIncrementalAuthInvoiceId())
-                //TODO: check if it is coming in which request parameter
-                //.gatewayId()
+                .authChainId(request.getAuthChainId())
                 .clientId(request.getClientID())
-                //.orderType()
+                .orderType(OrderType.Hotel)
                 .mgmId(null)
                 .mgmToken(card.getMaskedCardNumber())
                 .cardHolderName(card.getCardHolderName())
@@ -268,22 +278,25 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .billingState(billingAddress.getTownName())
                 .billingZipCode(billingAddress.getPostCode())
                 .billingCountry(billingAddress.getCountry())*/
-                //.clerkId()
+                .clerkId(transactionDetails.getMerchant().getClerkIdentifier())
                 .transactionType(TransactionType.CARD_VOID)
                 //.gatewayReasonCode().gatewayReasonDescription().gatewayResponseCode().gatewayAuthSource()
                 .deferredAuth(null)
                 .createdTimeStamp(convertToTimestamp(request.getTransactionDateTime()))
                 //.createdBy().updatedBy()
-                .correlationId(request.getCorelationId());
-                //.journeyId().transactionSessionId()
-                //.cardEntryMode().avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
+                .correlationId(headers.getCorrelationId())
+                .journeyId(headers.getJourneyId())
+                .transactionSessionId(headers.getTransactionId())
+                .cardEntryMode(card.getCardEntryMode())
+                .tenderType(TenderType.valueOf(card.getCardType()));
+                //.avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
                 //.authSubType(AuthType.valueOf(request.getTransactionType()));
         if (Objects.nonNull(response)) {
             String transDate = response.getTransDate();
             newPayment
                     .authorizedAmount(response.getTotalAuthAmount())
-                    //.tenderType(TenderType.valueOf(response.getCardType()))
+                    //.gatewayId()
                     .issuerType(response.getCardType())
                     .gatewayAuthCode(response.getApprovalCode())
                     .transactionStatus(response.getReturnCode())
@@ -305,19 +318,20 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         String string = UUID.randomUUID().toString();
         DetailedAmount detailedAmount = transactionAmount.getDetailedAmount();
         Address billingAddress = customer.getBillingAddress();
+        CPRequestHeaders headers = request.getHeaders();
         newPayment
                 .paymentId(string)
                 .referenceId(String.valueOf(request.getReferenceId()))
                 .groupId(null)
-                .gatewayRelationNumber(request.getCorelationId())
-                .gatewayChainId(String.valueOf(request.getIncrementalAuthInvoiceId()))
+                .gatewayRelationNumber(headers.getCorrelationId())
+                .gatewayChainId(String.valueOf(request.getAuthChainId()))
                 .clientReferenceNumber(request.getTransactionIdentifier())
                 .amount(detailedAmount.getAmount())
-                .authChainId(request.getIncrementalAuthInvoiceId())
+                .authChainId(request.getAuthChainId())
                 //TODO: check if it is coming in which request parameter
                 //.gatewayId()
                 .clientId(request.getClientID())
-                //.orderType()
+                .orderType(OrderType.Hotel)
                 .mgmId(null)
                 .mgmToken(card.getMaskedCardNumber())
                 .cardHolderName(card.getCardHolderName())
@@ -330,22 +344,24 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .billingState(billingAddress.getTownName())
                 .billingZipCode(billingAddress.getPostCode())
                 .billingCountry(billingAddress.getCountry())
-                //.clerkId()
+                .clerkId(transactionDetails.getMerchant().getClerkIdentifier())
                 .transactionType(REFUND)
                 //.gatewayReasonCode().gatewayReasonDescription().gatewayResponseCode().gatewayAuthSource()
                 .deferredAuth(null)
                 .createdTimeStamp(convertToTimestamp(request.getTransactionDateTime()))
                 //.createdBy().updatedBy()
-                .correlationId(request.getCorelationId())
-                //.journeyId().transactionSessionId()
-                //.cardEntryMode().avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
+                .correlationId(headers.getCorrelationId())
+                .journeyId(headers.getJourneyId())
+                .transactionSessionId(headers.getTransactionId())
+                .cardEntryMode(card.getCardEntryMode())
+                //.avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
-                .authSubType(request.getTransactionType());
+                .authSubType(request.getTransactionType())
+                .tenderType(TenderType.valueOf(card.getCardType()));
         if (Objects.nonNull(response)) {
             String transDate = response.getTransDate();
             newPayment
                     .authorizedAmount(response.getTotalAuthAmount())
-                    //.tenderType(TenderType.valueOf(response.getCardType()))
                     .issuerType(response.getCardType())
                     .gatewayAuthCode(response.getApprovalCode())
                     .transactionStatus(response.getReturnCode())

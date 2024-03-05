@@ -4,10 +4,13 @@ import com.mgm.pd.cp.payment.common.model.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, String> {
     //Optional<Payment> findFirstByPropertyCodeAndResvNameIDAndAuthTypeNotNullAndApprovalCodeNotNullOrderByIdDesc(String resortId, String reservationNumber);
-    Optional<Payment> findFirstByAuthChainId(Long incrementalAuthInvoiceId);
+    //Optional<Payment> findFirstByAuthChainId(Long incrementalAuthInvoiceId);
+
+    Optional<List<Payment>> findByAuthChainId(Long authChainId);
 }

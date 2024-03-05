@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -19,8 +20,8 @@ public class FindPaymentServiceImpl implements FindPaymentService {
 
     @Override
     @Retry(name = "initialAuthPayment")
-    public Optional<Payment> getPaymentDetails(Long incrementalAuthInvoiceId) {
-        logger.log(Level.DEBUG, "Attempting to find Initial Auth from Payment DB using incrementalAuthInvoiceId: " + incrementalAuthInvoiceId);
-        return paymentRepository.findFirstByAuthChainId(incrementalAuthInvoiceId);
+    public Optional<List<Payment>> getPaymentDetails(Long authChainId) {
+        logger.log(Level.DEBUG, "Attempting to find Initial Auth from Payment DB using authChainId: " + authChainId);
+        return paymentRepository.findByAuthChainId(authChainId);
     }
 }

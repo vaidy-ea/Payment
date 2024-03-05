@@ -1,37 +1,36 @@
 {
-  "dateTime": "2024-08-24T14:15:22Z",
-  "clerkId": "1576",
-  "incrementalAuthInvoiceId": 5432154321,
+  "authChainId": "0000192029",
   "transactionIdentifier": "1234",
   "originalTransactionIdentifier": "192029",
   "transactionDateTime": "2019-08-24T14:15:22Z",
   "transactionLOB": "string",
-  "transactionType": "SUPP",
+  "transactionType": "INIT",
   "transactionDetails": {
     "isCardPresent": true,
     "transactionAmount": {
       "balanceAmount": 500,
-      "requestedAmount": 300,
-      "authorizedAmount": 200,
-      "cumulativeAmount": 1500,
+      "requestedAmount": 100,
+      "authorizedAmount": 100,
+      "cumulativeAmount": 24500,
       "currencyIndicator": "USD",
       "detailedAmount": {
-        "amount": 0,
+        "amount": 500,
         "cashBack": 0,
         "gratuity": 0,
         "fees": 0,
         "rebate": 0,
-        "vat": 1.2,
+        "vat": 0,
         "surcharge": 0
       }
     },
     "card": {
-      "cardType": "VB",
+      "cardType": "DEBIT",
+      "cardEntryMode": "MANUAL",
       "maskedCardNumber": "8048994003381119",
-      "cardHolderName": "ser",
-      "startDate": "string",
+      "cardHolderName": "John",
+      "startDate": "0222",
       "expiryDate": "0325",
-      "cardIssuerName": "string",
+      "cardIssuerName": "VI",
       "cardIssuerIdentification": "string",
       "sequenceNumber": "1234",
       "track1": "string",
@@ -46,13 +45,13 @@
       "firstName": "first",
       "lastName": "last",
       "billingAddress": {
-        "addressLine": "string",
-        "streetName": "string",
-        "buildingNumber": "string",
-        "postCode": "string",
-        "townName": "string",
-        "countrySubDivision": "string",
-        "country": "string"
+        "addressLine": "Line",
+        "streetName": "nameStreet",
+        "buildingNumber": "12D",
+        "postCode": "40795",
+        "townName": "nameTown",
+        "countrySubDivision": "CSD",
+        "country": "USA"
       }
     },
     "currencyConversion": {
@@ -92,7 +91,7 @@
     ]
   },
   "gatewayInfo": {
-    "gatewayTransactionIdentifier": "192029",
+    "gatewayTransactionIdentifier": "0000192029",
     "gatewayIdentifier": "string"
   }
 }

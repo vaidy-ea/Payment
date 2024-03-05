@@ -19,6 +19,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 public class TestHelperUtil {
@@ -62,40 +64,16 @@ public class TestHelperUtil {
 	}
 
 	public static String getOperaResponse() {
-		return "{\"approvalCode\":\"OK196Z\",\"responseCode\":\"A\",\"gatewayInfo\":{\"gatewayTransactionIdentifier\":\"12345\"},\"transactionDateTime\":\"2019-08-24T14:15:22\",\"transactionAmount\":{\"balanceAmount\":0.0,\"requestedAmount\":898.07,\"authorizedAmount\":898.07,\"cumulativeAmount\":0.0,\"detailedAmount\":{\"amount\":0.0}},\"card\":{\"cardType\":\"null\",\"cardHolderName\":\"ser\",\"isTokenized\":false},\"printDetails\":[{}]}";
+		return "{\"approvalCode\":\"OK196Z\",\"responseCode\":\"A\",\"gatewayInfo\":{\"gatewayTransactionIdentifier\":\"192029\"},\"transactionDateTime\":\"2019-08-24T14:15:22\",\"transactionAmount\":{\"balanceAmount\":500.0,\"requestedAmount\":898.07,\"authorizedAmount\":898.07,\"cumulativeAmount\":500.0,\"detailedAmount\":{\"amount\":500.0}},\"card\":{\"cardType\":\"MANUAL\",\"cardHolderName\":\"John\",\"isTokenized\":false},\"printDetails\":[{}]}";
 	}
 
-	public static Optional<Payment> getInitialPayment() throws IOException {
+	public static Optional<List<Payment>> getInitialPayment() throws IOException {
 		Payment value = new ObjectMapper().registerModule(new JavaTimeModule()).readValue(new ClassPathResource("Payments/initialPayment.json").getFile(), Payment.class);
-		return Optional.of(value);
+		return Optional.of(Collections.singletonList(value));
     }
 
 	public static String getOperaResponseForCaptureOperation() {
-		return "{\n" +
-				"    \"responseCode\": \"A\",\n" +
-				"    \"approvalCode\": \"OK684Z\",\n" +
-				"    \"gatewayInfo\": {\n" +
-				"        \"gatewayTransactionIdentifier\": \"12345\"\n" +
-				"    },\n" +
-				"    \"transactionDateTime\": \"2019-08-24T14:15:22\",\n" +
-				"    \"transactionAmount\": {\n" +
-				"        \"balanceAmount\": 0.0,\n" +
-				"        \"requestedAmount\": 898.07,\n" +
-				"        \"authorizedAmount\": 898.07,\n" +
-				"        \"cumulativeAmount\": 0.0,\n" +
-				"        \"detailedAmount\": {\n" +
-				"            \"amount\": 0.0\n" +
-				"        }\n" +
-				"    },\n" +
-				"    \"card\": {\n" +
-				"        \"cardType\": \"null\",\n" +
-				"        \"cardHolderName\": \"ser\",\n" +
-				"        \"isTokenized\": false\n" +
-				"    },\n" +
-				"    \"printDetails\": [\n" +
-				"        {}\n" +
-				"    ]\n" +
-				"}";
+		return "{\"approvalCode\":\"OK684Z\",\"responseCode\":\"A\",\"gatewayInfo\":{\"gatewayTransactionIdentifier\":\"12345\"},\"transactionDateTime\":\"2019-08-24T14:15:22\",\"transactionAmount\":{\"balanceAmount\":500.0,\"requestedAmount\":898.07,\"authorizedAmount\":898.07,\"cumulativeAmount\":500.0,\"detailedAmount\":{\"amount\":500.0}},\"card\":{\"cardType\":\"MANUAL\",\"cardHolderName\":\"John\",\"isTokenized\":false},\"printDetails\":[{}]}";
 	}
 
 	public static CPPaymentRefundRequest getRefundPaymentRequest() throws IOException {
@@ -111,31 +89,7 @@ public class TestHelperUtil {
 	}
 
 	public static String getOperaResponseForRefundOperation() {
-		return "{\n" +
-				"    \"approvalCode\": \"OK846Z\",\n" +
-				"    \"responseCode\": \"Approved\",\n" +
-				"    \"gatewayInfo\": {\n" +
-				"        \"gatewayTransactionIdentifier\": \"12345\"\n" +
-				"    },\n" +
-				"    \"transactionDateTime\": \"2019-08-24T14:15:22\",\n" +
-				"    \"transactionAmount\": {\n" +
-				"        \"balanceAmount\": 0.0,\n" +
-				"        \"requestedAmount\": 100.0,\n" +
-				"        \"authorizedAmount\": 100.0,\n" +
-				"        \"cumulativeAmount\": 0.0,\n" +
-				"        \"detailedAmount\": {\n" +
-				"            \"amount\": 0.0\n" +
-				"        }\n" +
-				"    },\n" +
-				"    \"card\": {\n" +
-				"        \"cardType\": \"null\",\n" +
-				"        \"cardHolderName\": \"ser\",\n" +
-				"        \"isTokenized\": false\n" +
-				"    },\n" +
-				"    \"printDetails\": [\n" +
-				"        {}\n" +
-				"    ]\n" +
-				"}";
+		return "{\"approvalCode\":\"OK846Z\",\"responseCode\":\"Approved\",\"gatewayInfo\":{\"gatewayTransactionIdentifier\":\"12345\"},\"transactionDateTime\":\"2019-08-24T14:15:22\",\"transactionAmount\":{\"balanceAmount\":500.0,\"requestedAmount\":100.0,\"authorizedAmount\":100.0,\"cumulativeAmount\":500.0,\"detailedAmount\":{\"amount\":500.0}},\"card\":{\"cardType\":\"MANUAL\",\"cardHolderName\":\"John\",\"isTokenized\":false},\"printDetails\":[{}]}";
 	}
 
 	public static CPPaymentAuthorizationRequest getAuthorizationRequest() throws IOException {
@@ -175,5 +129,13 @@ public class TestHelperUtil {
 		CPPaymentRefundRequest refundPaymentRequest = getRefundPaymentRequest();
 		refundPaymentRequest.setHeaders(buildCustomHeaders());
 		return refundPaymentRequest;
+	}
+
+	public static String getOperaResponseForCardVoidOperation() {
+		return "{\"approvalCode\":\"OK196Z\",\"responseCode\":\"A\",\"gatewayInfo\":{\"gatewayTransactionIdentifier\":\"12345\"},\"transactionDateTime\":\"2019-08-24T14:15:22\",\"transactionAmount\":{\"requestedAmount\":898.07,\"authorizedAmount\":898.07,\"detailedAmount\":{}},\"card\":{\"cardType\":\"MANUAL\",\"cardHolderName\":\"John\",\"isTokenized\":false},\"printDetails\":[{}]}";
+	}
+
+	public static String getOperaResponseForIncrementalAuthOperation() {
+		return "{\"approvalCode\":\"OK196Z\",\"responseCode\":\"A\",\"gatewayInfo\":{\"gatewayTransactionIdentifier\":\"12345\"},\"transactionDateTime\":\"2019-08-24T14:15:22\",\"transactionAmount\":{\"balanceAmount\":500.0,\"requestedAmount\":898.07,\"authorizedAmount\":898.07,\"cumulativeAmount\":500.0,\"detailedAmount\":{\"amount\":500.0}},\"card\":{\"cardType\":\"MANUAL\",\"cardHolderName\":\"John\",\"isTokenized\":false},\"printDetails\":[{}]}";
 	}
 }

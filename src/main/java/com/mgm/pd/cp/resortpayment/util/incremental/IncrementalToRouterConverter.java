@@ -14,6 +14,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+import java.util.Objects;
+
 import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.*;
 
 @Component
@@ -23,15 +26,17 @@ public class IncrementalToRouterConverter implements Converter<CPPaymentIncremen
     private PaymentProcessingServiceHelper helper;
 
     @Override
-    public RouterRequest convert(CPPaymentIncrementalAuthRequest source) {
-        TransactionDetails transactionDetails = source.getTransactionDetails();
+    public RouterRequest convert(CPPaymentIncrementalAuthRequest request) {
+        BaseTransactionDetails baseTransactionDetails = helper.getBaseTransactionDetails(request);
+        TransactionDetails transactionDetails = request.getTransactionDetails();
         TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
         Customer customer = transactionDetails.getCustomer();
         Address billingAddress = customer.getBillingAddress();
         CurrencyConversion currencyConversion = transactionDetails.getCurrencyConversion();
         Card card = transactionDetails.getCard();
         Merchant merchant = transactionDetails.getMerchant();
-        String roomRate = helper.getValueFromSaleDetails(source, ROOM_RATE);
+        String roomRate = helper.getValueFromSaleDetails(baseTransactionDetails, ROOM_RATE);
+        String clerkIdentifier = merchant.getClerkIdentifier();
         IncrementalRouterRequestJson requestJson = IncrementalRouterRequestJson.builder()
                 .authorizationAmount(transactionAmount.getRequestedAmount())
                 .totalAuthAmount(transactionAmount.getCumulativeAmount())
@@ -50,37 +55,37 @@ public class IncrementalToRouterConverter implements Converter<CPPaymentIncremen
                 .cardNumber(card.getMaskedCardNumber())
                 .cardExpirationDate(card.getExpiryDate())
                 .cardPresent(BooleanValue.getEnumByString(transactionDetails.getIsCardPresent().toString()))
-                .cardType(String.valueOf(card.getCardType()))
+                .cardType(card.getCardType())
                 .cID(card.getCardIssuerIdentification())
                 .trackData(card.getTrack1())
-                //.trackLength(source.getTrackLength())
-                //.trackIndicator(source.getTrackIndicator())
+                //.trackLength(request.getTrackLength())
+                //.trackIndicator(request.getTrackIndicator())
                 .startDate(card.getStartDate())
                 .issueNumber(Integer.valueOf(card.getSequenceNumber()))
-                //.usageType(source.getUsageType())
+                //.usageType(request.getUsageType())
                 .merchantID(merchant.getMerchantIdentifier())
                 .version(merchant.getVersion())
                 .workstation(merchant.getTerminalIdentifier())
-                .propertyCode(helper.getValueFromSaleDetails(source, PROPERTY_IDENTIFIER))
-                .chainCode(helper.getValueFromSaleDetails(source, PROPERTY_CHAIN_IDENTIFIER))
-                .checkOutDate(helper.getValueFromSaleDetails(source, CHECK_OUT_DATE))
-                .checkInDate(helper.getValueFromSaleDetails(source, CHECK_IN_DATE))
-                .originDate(helper.getValueFromSaleDetails(source, ORIGIN_DATE))
-                .roomNum(helper.getValueFromSaleDetails(source, ROOM_NUMBER))
+                .propertyCode(helper.getValueFromSaleDetails(baseTransactionDetails, PROPERTY_IDENTIFIER))
+                .chainCode(helper.getValueFromSaleDetails(baseTransactionDetails, PROPERTY_CHAIN_IDENTIFIER))
+                .checkOutDate(helper.getValueFromSaleDetails(baseTransactionDetails, CHECK_OUT_DATE))
+                .checkInDate(helper.getValueFromSaleDetails(baseTransactionDetails, CHECK_IN_DATE))
+                .originDate(helper.getValueFromSaleDetails(baseTransactionDetails, ORIGIN_DATE))
+                .roomNum(helper.getValueFromSaleDetails(baseTransactionDetails, ROOM_NUMBER))
                 .roomRate(!roomRate.equals(NULL) ? Double.valueOf(roomRate) : null)
                 .resvNameID(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
-                .vendorTranID(source.getGatewayInfo().getGatewayTransactionIdentifier())
+                .vendorTranID(request.getGatewayInfo().getGatewayTransactionIdentifier())
                 .balance(transactionDetails.getTransactionAmount().getBalanceAmount())
-                .sequenceNumber(source.getTransactionIdentifier())
-                .originalAuthSequence(Long.valueOf(source.getOriginalTransactionIdentifier()))
-                .transDate(source.getTransactionDateTime())
-                .authType(source.getTransactionType())
-                //.aVSStatus(source.getAVSStatus())
-                .clientID(source.getClientID())
-                .corelationId(source.getCorelationId())
-                .incrementalAuthInvoiceId(source.getIncrementalAuthInvoiceId())
-                .dateTime(source.getDateTime())
-                .clerkId(source.getClerkId())
+                .sequenceNumber(request.getTransactionIdentifier())
+                .originalAuthSequence(Long.valueOf(request.getOriginalTransactionIdentifier()))
+                .transDate(request.getTransactionDateTime())
+                .authType(request.getTransactionType())
+                //.aVSStatus(request.getAVSStatus())
+                .clientID(request.getClientID())
+                .corelationId(request.getCorelationId())
+                .incrementalAuthInvoiceId(request.getAuthChainId())
+                .dateTime(String.valueOf(LocalDateTime.now()))
+                .clerkId(Objects.nonNull(clerkIdentifier) ? Long.valueOf(clerkIdentifier) : null)
                 .build();
 
         String requestJsonAsString;

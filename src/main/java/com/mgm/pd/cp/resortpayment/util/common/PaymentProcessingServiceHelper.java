@@ -2,7 +2,6 @@ package com.mgm.pd.cp.resortpayment.util.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mgm.pd.cp.payment.common.dto.CPRequestHeaders;
 import com.mgm.pd.cp.payment.common.dto.ErrorResponse;
@@ -53,8 +52,8 @@ public class PaymentProcessingServiceHelper {
         return INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE;
     }
 
-    public <T> String getValueFromSaleDetails(T request, String key) {
-        BaseTransactionDetails transactionDetails = getBaseTransactionDetails(request);
+    public <T> String getValueFromSaleDetails(BaseTransactionDetails transactionDetails, String key) {
+        //BaseTransactionDetails transactionDetails = getBaseTransactionDetails(request);
         if (Objects.nonNull(transactionDetails)) {
             SaleItem<?> saleItem = transactionDetails.getSaleItem();
             if (Objects.nonNull(saleItem)) {
@@ -93,16 +92,23 @@ public class PaymentProcessingServiceHelper {
      * @return Payment details from Payment DB
      */
     public <T> Optional<Payment> getInitialAuthPayment(T request) {
-        Long incrementalAuthInvoiceId;
+        Long authChainId;
         if (request.getClass().equals(CPPaymentCardVoidRequest.class)) {
-            incrementalAuthInvoiceId = ((CPPaymentCardVoidRequest) request).getIncrementalAuthInvoiceId();
+            authChainId = ((CPPaymentCardVoidRequest) request).getAuthChainId();
         } else {
-            incrementalAuthInvoiceId = ((CPPaymentProcessingRequest) request).getIncrementalAuthInvoiceId();
+            authChainId = ((CPPaymentProcessingRequest) request).getAuthChainId();
         }
-        return findPaymentService.getPaymentDetails(incrementalAuthInvoiceId);
+        Optional<List<Payment>> paymentDetails = findPaymentService.getPaymentDetails(authChainId);
+        if (paymentDetails.isPresent()) {
+            List<Payment> payments = paymentDetails.get();
+            if (!payments.isEmpty()) {
+                return Optional.ofNullable(payments.get(payments.size() - 1));
+            }
+        }
+        return Optional.empty();
     }
 
-    private static <T> BaseTransactionDetails getBaseTransactionDetails(T request) {
+    public <T> BaseTransactionDetails getBaseTransactionDetails(T request) {
         BaseTransactionDetails transactionDetails;
         if (request.getClass().equals(CPPaymentCardVoidRequest.class)) {
             transactionDetails = ((CPPaymentCardVoidRequest) request).getTransactionDetails();
@@ -129,11 +135,11 @@ public class PaymentProcessingServiceHelper {
         if (!missingHeaders.isEmpty()) {
             throw new MissingHeaderException(missingHeaders);
         }
-        CPRequestHeaders CPRequestHeaders = mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, false).convertValue(headers.toSingleValueMap(), CPRequestHeaders.class);
+        CPRequestHeaders cpRequestHeaders = mapper.convertValue(headers.toSingleValueMap(), CPRequestHeaders.class);
         if (request.getClass().equals(CPPaymentCardVoidRequest.class)) {
-            ((CPPaymentCardVoidRequest) request).setHeaders(CPRequestHeaders);
+            ((CPPaymentCardVoidRequest) request).setHeaders(cpRequestHeaders);
         } else {
-            ((CPPaymentProcessingRequest) request).setHeaders(CPRequestHeaders);
+            ((CPPaymentProcessingRequest) request).setHeaders(cpRequestHeaders);
         }
         headers.remove("Content-Length");
         return request;

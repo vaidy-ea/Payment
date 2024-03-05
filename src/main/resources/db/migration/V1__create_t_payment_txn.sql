@@ -1,4 +1,4 @@
-CREATE TABLE t_payment_txn (
+CREATE TABLE IF NOT EXISTS t_payment_txn (
   payment_id varchar(255) NOT NULL,
    reference_id varchar(50),
    group_id varchar(50),

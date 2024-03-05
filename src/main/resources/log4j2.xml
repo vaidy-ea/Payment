@@ -6,8 +6,9 @@
     </Appenders>
     <Loggers>
         <Logger name="com.mgm.pd.cp.resortpayment" level="DEBUG"/>
+
         <Root level="INFO">
-            <AppenderRef ref="RollingFile"/>
+            <appender-ref ref="Console" level="DEBUG"/>
         </Root>
     </Loggers>
 </Configuration>

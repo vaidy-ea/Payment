@@ -9,4 +9,4 @@ COPY agent/applicationinsights-agent-3.5.0.jar applicationinsights-agent-3.5.0.j
 COPY agent/applicationinsights.json applicationinsights.json
 
 EXPOSE 8899
-ENTRYPOINT["java", "-javaagent:applicationinsights-agent-3.5.0.jar", "-jar", "/cpPaymentProcessing.jar"]
+ENTRYPOINT ["java", "-javaagent:applicationinsights-agent-3.5.0.jar", "-jar", "/cpPaymentProcessing.jar"]

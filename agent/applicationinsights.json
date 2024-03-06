@@ -1,0 +1,6 @@
+{
+  "connectionString": "InstrumentationKey=c19e0871-f2df-4ac0-ba6a-7cba74e37141;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/",
+  "role": {
+	  "name": "pd-cp-paymentprocessing-service"
+  }
+}

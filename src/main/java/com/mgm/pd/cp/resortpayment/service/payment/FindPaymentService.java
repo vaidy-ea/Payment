@@ -8,5 +8,8 @@ import java.util.Optional;
 
 public interface FindPaymentService {
     @Transactional
+    Optional<List<Payment>> getPaymentDetails(Long authChainId, String transactionType);
+
+    @Transactional
     Optional<List<Payment>> getPaymentDetails(Long authChainId);
 }

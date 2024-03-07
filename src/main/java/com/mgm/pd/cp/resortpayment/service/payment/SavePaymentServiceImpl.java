@@ -173,7 +173,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                     .issuerType(Objects.nonNull(cardType) ? CardType.valueOf(cardType) : null)
                     .gatewayAuthCode(response.getApprovalCode())
                     .gatewayResponseCode(returnCode)
-                    .transactionStatus(returnCode.equals("Approved") ? "Success" : "Failure")
+                    .transactionStatus((returnCode.equals("Approved") || returnCode.equals("Declined")) ? "Success" : "Failure")
                     .updatedTimestamp(Objects.nonNull(transDate) ? convertToTimestamp(transDate) : null);
         }
         Payment payment = newPayment.build();

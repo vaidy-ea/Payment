@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.INITIAL_PAYMENT_IS_MISSING;
 import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE;
@@ -101,8 +102,12 @@ public class PaymentProcessingServiceHelper {
         Optional<List<Payment>> paymentDetails = findPaymentService.getPaymentDetails(authChainId);
         if (paymentDetails.isPresent()) {
             List<Payment> payments = paymentDetails.get();
-            if (!payments.isEmpty()) {
-                return Optional.ofNullable(payments.get(payments.size() - 1));
+            List<Payment> approvedPayments = payments.stream()
+                    .filter(ts -> (Objects.nonNull(ts.getTransactionStatus()) && ts.getTransactionStatus().equals("Success")))
+                    .filter(grc -> (Objects.nonNull(grc.getGatewayResponseCode()) && grc.getGatewayResponseCode().equals("Approved")))
+                    .collect(Collectors.toList());
+            if (!approvedPayments.isEmpty()) {
+                return Optional.ofNullable(approvedPayments.get(approvedPayments.size() - 1));
             }
         }
         return Optional.empty();

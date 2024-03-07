@@ -136,6 +136,6 @@ public class TestHelperUtil {
 	}
 
 	public static String getOperaResponseForIncrementalAuthOperation() {
-		return "{\"approvalCode\":\"OK196Z\",\"responseCode\":\"A\",\"gatewayInfo\":{\"gatewayTransactionIdentifier\":\"12345\"},\"transactionDateTime\":\"2019-08-24T14:15:22\",\"transactionAmount\":{\"balanceAmount\":500.0,\"requestedAmount\":898.07,\"authorizedAmount\":898.07,\"cumulativeAmount\":500.0,\"detailedAmount\":{\"amount\":500.0}},\"card\":{\"cardType\":\"MANUAL\",\"cardHolderName\":\"John\",\"isTokenized\":false},\"printDetails\":[{}]}";
+		return "{\"approvalCode\":\"OK196Z\",\"responseCode\":\"A\",\"gatewayInfo\":{\"gatewayTransactionIdentifier\":\"192029\"},\"transactionDateTime\":\"2019-08-24T14:15:22\",\"transactionAmount\":{\"balanceAmount\":500.0,\"requestedAmount\":898.07,\"authorizedAmount\":898.07,\"cumulativeAmount\":500.0,\"detailedAmount\":{\"amount\":500.0}},\"card\":{\"cardType\":\"MANUAL\",\"cardHolderName\":\"John\",\"isTokenized\":false},\"printDetails\":[{}]}";
 	}
 }

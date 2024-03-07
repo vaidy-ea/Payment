@@ -3,6 +3,7 @@ package com.mgm.pd.cp.resortpayment.util.common;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mgm.pd.cp.payment.common.constant.AuthType;
 import com.mgm.pd.cp.payment.common.dto.CPRequestHeaders;
 import com.mgm.pd.cp.payment.common.dto.ErrorResponse;
 import com.mgm.pd.cp.payment.common.dto.GenericResponse;
@@ -21,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import javax.validation.Valid;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -94,14 +96,14 @@ public class PaymentProcessingServiceHelper {
      */
     public <T> Optional<Payment> getInitialAuthPayment(T request) {
         Long authChainId;
-        String transactionType;
+        @Valid AuthType transactionType;
         Optional<List<Payment>> paymentDetails;
         if (request.getClass().equals(CPPaymentCardVoidRequest.class)) {
             authChainId = ((CPPaymentCardVoidRequest) request).getAuthChainId();
             paymentDetails = findPaymentService.getPaymentDetails(authChainId);
         } else {
             authChainId = ((CPPaymentProcessingRequest) request).getAuthChainId();
-            transactionType = ((CPPaymentProcessingRequest) request).getTransactionType().name();
+            transactionType = ((CPPaymentProcessingRequest) request).getTransactionType();
             paymentDetails = findPaymentService.getPaymentDetails(authChainId, transactionType);
         }
         if (paymentDetails.isPresent()) {

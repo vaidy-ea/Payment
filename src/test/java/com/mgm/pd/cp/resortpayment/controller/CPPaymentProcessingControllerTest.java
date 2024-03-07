@@ -2,6 +2,7 @@ package com.mgm.pd.cp.resortpayment.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
+import com.mgm.pd.cp.payment.common.constant.AuthType;
 import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
@@ -71,7 +72,7 @@ public class CPPaymentProcessingControllerTest {
     @Test
     void when_provided_valid_incremental_payment_payload_should_process_and_return_approval_code() throws Exception {
         //given
-        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
+        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong(), ArgumentMatchers.any(AuthType.class))).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentIncrementalAuthRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
         HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
         Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getIncrementalRouterResponseJson());
@@ -89,7 +90,7 @@ public class CPPaymentProcessingControllerTest {
     @Test
     void when_provided_valid_incremental_payment_payload_should_process_and_return_response_to_opera() throws Exception {
         //given
-        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
+        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong(), ArgumentMatchers.any(AuthType.class))).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentIncrementalAuthRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
         HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
         Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getIncrementalRouterResponseJson());
@@ -107,7 +108,7 @@ public class CPPaymentProcessingControllerTest {
     @Test
     void valid_incremental_intelligent_router_response_should_persist_in_payment_db() throws Exception {
         //given
-        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
+        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong(), ArgumentMatchers.any(AuthType.class))).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentIncrementalAuthRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
         HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
         Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getIncrementalRouterResponseJson());
@@ -124,7 +125,7 @@ public class CPPaymentProcessingControllerTest {
     @Test
     void when_provided_invalid_incremental_payment_payload_should_throw_validation_error_and_return_bad_request() throws Exception {
         //given
-        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
+        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong(), ArgumentMatchers.any(AuthType.class))).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentIncrementalAuthRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
         mockRequest.setTransactionIdentifier(null);
         mockRequest.setTransactionDateTime(null);
@@ -161,7 +162,7 @@ public class CPPaymentProcessingControllerTest {
     @Test
     void when_provided_valid_capture_payment_payload_should_process_and_return_approval_code() throws Exception {
         //given
-        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
+        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong(), ArgumentMatchers.any(AuthType.class))).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentCaptureRequest mockRequest = TestHelperUtil.getCapturePaymentRequest();
         HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
         Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getCaptureRouterResponseJson());
@@ -179,7 +180,7 @@ public class CPPaymentProcessingControllerTest {
     @Test
     void valid_capture_intelligent_router_response_should_persist_in_payment_db() throws Exception {
         //given
-        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
+        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong(), ArgumentMatchers.any(AuthType.class))).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentCaptureRequest mockRequest = TestHelperUtil.getCapturePaymentRequest();
         HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
         Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getCaptureRouterResponseJson());
@@ -196,7 +197,7 @@ public class CPPaymentProcessingControllerTest {
     @Test
     void when_provided_valid_capture_payment_payload_should_process_and_return_response_to_opera() throws Exception {
         //given
-        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
+        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong(), ArgumentMatchers.any(AuthType.class))).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentCaptureRequest mockRequest = TestHelperUtil.getCapturePaymentRequest();
         HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
         Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getCaptureRouterResponseJson());
@@ -214,7 +215,7 @@ public class CPPaymentProcessingControllerTest {
     @Test
     void when_provided_invalid_capture_payment_payload_should_throw_validation_error_and_return_bad_request() throws Exception {
         //given
-        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
+        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong(), ArgumentMatchers.any(AuthType.class))).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentCaptureRequest mockRequest = TestHelperUtil.getCapturePaymentRequest();
         mockRequest.setTransactionDateTime(null);
         mockRequest.setTransactionIdentifier(null);
@@ -342,7 +343,7 @@ public class CPPaymentProcessingControllerTest {
     @Test
     void when_provided_valid_refund_payment_payload_should_process_and_return_approval_code() throws Exception {
         //given
-        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
+        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong(), ArgumentMatchers.any(AuthType.class))).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentRefundRequest mockRequest = TestHelperUtil.getRefundPaymentRequest();
         HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
         Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getVoidRouterResponseJson());
@@ -360,7 +361,7 @@ public class CPPaymentProcessingControllerTest {
     @Test
     void when_provided_valid_refund_payment_payload_should_process_and_return_response_to_opera() throws Exception {
         //given
-        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
+        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong(), ArgumentMatchers.any(AuthType.class))).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentRefundRequest mockRequest = TestHelperUtil.getRefundPaymentRequest();
         HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
         Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getRefundRouterResponseJson());
@@ -378,7 +379,7 @@ public class CPPaymentProcessingControllerTest {
     @Test
     void valid_refund_intelligent_router_response_should_persist_in_payment_db() throws Exception {
         //given
-        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
+        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong(), ArgumentMatchers.any(AuthType.class))).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentRefundRequest mockRequest = TestHelperUtil.getRefundPaymentRequest();
         HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
         Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getRefundRouterResponseJson());
@@ -395,7 +396,7 @@ public class CPPaymentProcessingControllerTest {
     @Test
     void when_provided_invalid_refund_payment_payload_should_throw_validation_error_and_return_bad_request() throws Exception {
         //given
-        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong(), ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
+        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong(), ArgumentMatchers.any(AuthType.class))).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentRefundRequest mockRequest = TestHelperUtil.getRefundPaymentRequest();
         mockRequest.setTransactionIdentifier(null);
         mockRequest.setTransactionDateTime(null);

@@ -94,7 +94,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
             String transDate = response.getTransDate();
             String cardType = response.getCardType();
             String vendorTranID = response.getVendorTranID();
-            String returnCode = response.getReturnCode();
+            String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
             newPayment
                     .authorizedAmount(response.getTotalAuthAmount())
                     //.gatewayId()
@@ -164,7 +164,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         if (Objects.nonNull(response)) {
             String transDate = response.getTransDate();
             String cardType = response.getCardType();
-            String returnCode = response.getReturnCode();
+            String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
             newPayment
                     .gatewayChainId(String.valueOf(request.getAuthChainId()))
                     .authChainId(request.getAuthChainId())
@@ -239,7 +239,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         if (Objects.nonNull(response)) {
             String transDate = response.getTransDate();
             CardType cardType = response.getCardType();
-            String returnCode = response.getReturnCode();
+            String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
             newPayment
                     .authorizedAmount(response.getTotalAuthAmount())
                     //.gatewayId()
@@ -303,7 +303,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.authSubType(AuthType.valueOf(request.getTransactionType()));
         if (Objects.nonNull(response)) {
             String transDate = response.getTransDate();
-            String returnCode = response.getReturnCode();
+            String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
             newPayment
                     .authorizedAmount(response.getTotalAuthAmount())
                     //.gatewayId()
@@ -371,7 +371,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .tenderType(TenderType.valueOf(card.getCardType()));
         if (Objects.nonNull(response)) {
             String transDate = response.getTransDate();
-            String returnCode = response.getReturnCode();
+            String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
             newPayment
                     .authorizedAmount(response.getTotalAuthAmount())
                     .issuerType(response.getCardType())

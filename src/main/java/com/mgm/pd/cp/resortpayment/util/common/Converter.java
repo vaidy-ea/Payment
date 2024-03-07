@@ -63,7 +63,7 @@ public class Converter {
 
         return OperaResponse.builder()
                 .approvalCode(payment.getGatewayAuthCode())
-                .responseCode(payment.getTransactionStatus())
+                .responseCode(payment.getGatewayResponseCode())
                 .responseReason(payment.getGatewayReasonDescription())
                 .gatewayInfo(gatewayInfo)
                 .networkIdentifier(null)

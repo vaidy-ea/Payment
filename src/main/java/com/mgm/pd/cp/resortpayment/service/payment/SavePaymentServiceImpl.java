@@ -58,7 +58,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .referenceId(String.valueOf(request.getReferenceId()))
                 .groupId(null)
                 .gatewayRelationNumber(headers.getCorrelationId())
-                .gatewayChainId(String.valueOf(request.getAuthChainId()))
                 .clientReferenceNumber(request.getTransactionIdentifier())
                 .amount(detailedAmount.getAmount())
                 //TODO: check if it is coming in which request parameter
@@ -103,7 +102,8 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                     .gatewayResponseCode(returnCode)
                     .transactionStatus(returnCode.equals("Approved") ? "Success" : "Failure")
                     .updatedTimestamp(Objects.nonNull(transDate) ? convertToTimestamp(transDate) : null)
-                    .authChainId(Objects.nonNull(vendorTranID) ? Long.valueOf(vendorTranID) : null);
+                    .authChainId(Objects.nonNull(vendorTranID) ? Long.valueOf(vendorTranID) : null)
+                    .gatewayChainId(vendorTranID);
         }
         Payment payment = newPayment.build();
         logger.log(Level.INFO, "Transaction Type is: " + payment.getTransactionType());
@@ -127,7 +127,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .referenceId(null)
                 .groupId(null)
                 .gatewayRelationNumber(headers.getCorrelationId())
-                //.gatewayChainId(String.valueOf(request.getAuthChainId()))
                 .clientReferenceNumber(request.getTransactionIdentifier())
                 .amount(detailedAmount.getAmount())
                 //.authChainId(request.getAuthChainId())
@@ -165,9 +164,10 @@ public class SavePaymentServiceImpl implements SavePaymentService {
             String transDate = response.getTransDate();
             String cardType = response.getCardType();
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
+            String vendorTranID = response.getVendorTranID();
             newPayment
-                    .gatewayChainId(String.valueOf(request.getAuthChainId()))
-                    .authChainId(request.getAuthChainId())
+                    .gatewayChainId(vendorTranID)
+                    .authChainId(Objects.nonNull(vendorTranID) ? Long.valueOf(vendorTranID) : null)
                     .authorizedAmount(response.getTotalAuthAmount())
                     //.gatewayId()
                     .issuerType(Objects.nonNull(cardType) ? CardType.valueOf(cardType) : null)

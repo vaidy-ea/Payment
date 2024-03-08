@@ -74,7 +74,7 @@ public class IncrementalToRouterConverter implements Converter<CPPaymentIncremen
                 .roomNum(helper.getValueFromSaleDetails(baseTransactionDetails, ROOM_NUMBER))
                 .roomRate(!roomRate.equals(NULL) ? Double.valueOf(roomRate) : null)
                 .resvNameID(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
-                .vendorTranID(request.getGatewayInfo().getGatewayTransactionIdentifier())
+                .vendorTranID(String.valueOf(request.getAuthChainId()))
                 .balance(transactionDetails.getTransactionAmount().getBalanceAmount())
                 .sequenceNumber(request.getTransactionIdentifier())
                 .originalAuthSequence(Long.valueOf(request.getOriginalTransactionIdentifier()))
@@ -83,7 +83,7 @@ public class IncrementalToRouterConverter implements Converter<CPPaymentIncremen
                 //.aVSStatus(request.getAVSStatus())
                 .clientID(request.getClientID())
                 .corelationId(request.getCorelationId())
-                .incrementalAuthInvoiceId(request.getAuthChainId())
+                //.incrementalAuthInvoiceId(request.getAuthChainId())
                 .dateTime(String.valueOf(LocalDateTime.now()))
                 .clerkId(Objects.nonNull(clerkIdentifier) ? Long.valueOf(clerkIdentifier) : null)
                 .build();

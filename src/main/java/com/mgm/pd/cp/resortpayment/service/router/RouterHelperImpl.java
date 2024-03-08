@@ -59,7 +59,7 @@ public class RouterHelperImpl implements RouterHelper {
     @Retry(name = "incrementalAuthorizationMessage")
     public IncrementalAuthorizationRouterResponse sendIncrementalAuthorizationRequestToRouter(CPPaymentIncrementalAuthRequest request,
                                                                                               Payment initialPayment, HttpHeaders headers) throws JsonProcessingException {
-        request.setAuthChainId(initialPayment.getAuthChainId());
+        //request.setAuthChainId(initialPayment.getAuthChainId());
         request.setReferenceId(initialPayment.getPaymentId());
         //converting request to IR compatible
         RouterRequest routerRequest = incrementalToRouterConverter.convert(request);

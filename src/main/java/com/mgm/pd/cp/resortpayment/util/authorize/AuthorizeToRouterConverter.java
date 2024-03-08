@@ -76,8 +76,6 @@ public class AuthorizeToRouterConverter implements Converter<CPPaymentAuthorizat
                 .roomNum(helper.getValueFromSaleDetails(baseTransactionDetails, ROOM_NUMBER))
                 .roomRate(!roomRate.equals(NULL) ? Double.valueOf(roomRate) : null)
                 .resvNameID(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
-                //TODO: Remove once IR is generating InvoiceId
-                .vendorTranID(request.getGatewayInfo().getGatewayTransactionIdentifier())
                 .balance(transactionDetails.getTransactionAmount().getBalanceAmount())
                 .sequenceNumber(request.getTransactionIdentifier())
                 .originalAuthSequence(Long.valueOf(request.getOriginalTransactionIdentifier()))

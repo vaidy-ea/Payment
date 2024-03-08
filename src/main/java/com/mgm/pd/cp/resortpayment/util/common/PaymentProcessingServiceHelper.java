@@ -104,6 +104,9 @@ public class PaymentProcessingServiceHelper {
         } else {
             authChainId = ((CPPaymentProcessingRequest) request).getAuthChainId();
             transactionType = ((CPPaymentProcessingRequest) request).getTransactionType();
+            if (transactionType == AuthType.CHECKOUT) {
+                transactionType = AuthType.INIT;
+            }
             paymentDetails = findPaymentService.getPaymentDetails(authChainId, transactionType);
         }
         if (paymentDetails.isPresent()) {

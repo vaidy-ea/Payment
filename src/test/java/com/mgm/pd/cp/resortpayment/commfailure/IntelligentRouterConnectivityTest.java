@@ -2,7 +2,6 @@ package com.mgm.pd.cp.resortpayment.commfailure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
-import com.mgm.pd.cp.payment.common.constant.AuthType;
 import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
@@ -48,7 +47,7 @@ public class IntelligentRouterConnectivityTest {
 
     @Test
     void fail_when_intelligent_router_is_down_for_incremental_auth_request () throws Exception {
-        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong(), ArgumentMatchers.any(AuthType.class))).thenReturn(TestHelperUtil.getInitialPayment());
+        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentIncrementalAuthRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
         HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
         //when
@@ -81,7 +80,7 @@ public class IntelligentRouterConnectivityTest {
 
     @Test
     void fail_when_intelligent_router_is_down_for_capture_request () throws Exception {
-        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong(), ArgumentMatchers.any(AuthType.class))).thenReturn(TestHelperUtil.getInitialPayment());
+        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentCaptureRequest mockRequest = TestHelperUtil.getCapturePaymentRequest();
         HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
         //when
@@ -115,7 +114,7 @@ public class IntelligentRouterConnectivityTest {
 
     @Test
     void fail_when_intelligent_router_is_down_for_refund_request () throws Exception {
-        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong(), ArgumentMatchers.any(AuthType.class))).thenReturn(TestHelperUtil.getInitialPayment());
+        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyLong())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentRefundRequest mockRequest = TestHelperUtil.getRefundPaymentRequest();
         HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
         //when

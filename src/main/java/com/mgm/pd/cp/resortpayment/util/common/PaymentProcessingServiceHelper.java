@@ -96,18 +96,18 @@ public class PaymentProcessingServiceHelper {
      */
     public <T> Optional<Payment> getInitialAuthPayment(T request) {
         Long authChainId;
-        @Valid AuthType transactionType;
         Optional<List<Payment>> paymentDetails;
         if (request.getClass().equals(CPPaymentCardVoidRequest.class)) {
             authChainId = ((CPPaymentCardVoidRequest) request).getAuthChainId();
             paymentDetails = findPaymentService.getPaymentDetails(authChainId);
         } else {
             authChainId = ((CPPaymentProcessingRequest) request).getAuthChainId();
-            transactionType = ((CPPaymentProcessingRequest) request).getTransactionType();
-            if (transactionType == AuthType.CHECKOUT || transactionType == AuthType.SUPP) {
-                transactionType = AuthType.INIT;
+            @Valid AuthType transactionType = ((CPPaymentProcessingRequest) request).getTransactionType();
+            if (transactionType == AuthType.DEPOSIT) {
+                paymentDetails = findPaymentService.getPaymentDetails(authChainId, transactionType);
+            } else {
+                paymentDetails = findPaymentService.getPaymentDetails(authChainId);
             }
-            paymentDetails = findPaymentService.getPaymentDetails(authChainId, transactionType);
         }
         if (paymentDetails.isPresent()) {
             List<Payment> payments = paymentDetails.get();

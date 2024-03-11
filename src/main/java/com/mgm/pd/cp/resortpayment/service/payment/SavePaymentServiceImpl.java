@@ -208,7 +208,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .clientReferenceNumber(request.getTransactionIdentifier())
                 .amount(detailedAmount.getAmount())
                 .authChainId(request.getAuthChainId())
-                .clientId(request.getClientID())
+                .clientId(headers.getClientId())
                 .orderType(OrderType.Hotel)
                 .mgmId(null)
                 .mgmToken(card.getMaskedCardNumber())

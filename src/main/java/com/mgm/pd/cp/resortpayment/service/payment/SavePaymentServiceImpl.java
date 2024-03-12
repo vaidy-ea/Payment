@@ -57,6 +57,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         DetailedAmount detailedAmount = transactionAmount.getDetailedAmount();
         Address billingAddress = Objects.nonNull(customer.getBillingAddress()) ? customer.getBillingAddress() : new Address();
         CPRequestHeaders headers = request.getHeaders();
+        Long authChainId = request.getAuthChainId();
         newPayment
                 .paymentId(randomId)
                 .referenceId(String.valueOf(request.getReferenceId()))
@@ -64,6 +65,8 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.gatewayRelationNumber(headers.getCorrelationId())
                 .clientReferenceNumber(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
                 .amount(detailedAmount.getAmount())
+                .gatewayChainId(authChainId.toString().replaceFirst("^0+(?!$)", ""))
+                .authChainId(authChainId)
                 .clientId(headers.getClientId())
                 .orderType(OrderType.Hotel)
                 .mgmId(null)
@@ -95,7 +98,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         if (Objects.nonNull(response)) {
             String transDate = response.getTransDate();
             String cardType = response.getCardType();
-            String vendorTranID = response.getVendorTranID();
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
             newPayment
                     .authorizedAmount(response.getTotalAuthAmount())
@@ -104,9 +106,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                     .gatewayAuthCode(response.getApprovalCode())
                     .gatewayResponseCode(returnCode)
                     .transactionStatus((returnCode.equals(Approved.name()) || returnCode.equals(Declined.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE)
-                    .updatedTimestamp(Objects.nonNull(transDate) ? convertToTimestamp(transDate) : null)
-                    .authChainId(Objects.nonNull(vendorTranID) ? Long.valueOf(vendorTranID) : null)
-                    .gatewayChainId(vendorTranID);
+                    .updatedTimestamp(Objects.nonNull(transDate) ? convertToTimestamp(transDate) : null);
         }
         Payment payment = newPayment.build();
         logger.log(Level.INFO, "Transaction Type is: " + payment.getTransactionType());
@@ -167,8 +167,8 @@ public class SavePaymentServiceImpl implements SavePaymentService {
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
             String vendorTranID = response.getVendorTranID();
             newPayment
-                    .gatewayChainId(vendorTranID)
                     .authChainId(Objects.nonNull(vendorTranID) ? Long.valueOf(vendorTranID) : null)
+                    .gatewayChainId(vendorTranID.replaceFirst("^0+(?!$)", ""))
                     .authorizedAmount(response.getTotalAuthAmount())
                     //.gatewayId()
                     .issuerType(Objects.nonNull(cardType) ? CardType.valueOf(cardType) : null)
@@ -200,6 +200,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         DetailedAmount detailedAmount = transactionAmount.getDetailedAmount();
         Address billingAddress = Objects.nonNull(customer.getBillingAddress()) ? customer.getBillingAddress() : new Address();
         CPRequestHeaders headers = request.getHeaders();
+        Long authChainId = request.getAuthChainId();
         newPayment
                 .paymentId(string)
                 .referenceId(String.valueOf(request.getReferenceId()))
@@ -207,8 +208,8 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.gatewayRelationNumber(headers.getCorrelationId())
                 .clientReferenceNumber(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
                 .amount(detailedAmount.getAmount())
-                .authChainId(request.getAuthChainId())
-                .gatewayChainId(String.valueOf(request.getAuthChainId()))
+                .authChainId(authChainId)
+                .gatewayChainId(authChainId.toString().replaceFirst("^0+(?!$)", ""))
                 .clientId(headers.getClientId())
                 .orderType(OrderType.Hotel)
                 .mgmId(null)
@@ -265,15 +266,16 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         Payment.PaymentBuilder newPayment = Payment.builder();
         String string = UUID.randomUUID().toString();
         CPRequestHeaders headers = request.getHeaders();
+        Long authChainId = request.getAuthChainId();
         newPayment
                 .paymentId(string)
                 .referenceId(String.valueOf(request.getReferenceId()))
                 .groupId(null)
                 //.gatewayRelationNumber(headers.getCorrelationId())
-                .gatewayChainId(String.valueOf(request.getAuthChainId()))
+                .gatewayChainId(authChainId.toString().replaceFirst("^0+(?!$)", ""))
                 .clientReferenceNumber(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
                 //.amount(detailedAmount.getAmount())
-                .authChainId(request.getAuthChainId())
+                .authChainId(authChainId)
                 .clientId(headers.getClientId())
                 .orderType(OrderType.Hotel)
                 .mgmId(null)
@@ -331,15 +333,16 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         DetailedAmount detailedAmount = transactionAmount.getDetailedAmount();
         Address billingAddress = Objects.nonNull(customer.getBillingAddress()) ? customer.getBillingAddress() : new Address();
         CPRequestHeaders headers = request.getHeaders();
+        Long authChainId = request.getAuthChainId();
         newPayment
                 .paymentId(string)
                 .referenceId(String.valueOf(request.getReferenceId()))
                 .groupId(null)
                 //.gatewayRelationNumber(headers.getCorrelationId())
-                .gatewayChainId(String.valueOf(request.getAuthChainId()))
+                .gatewayChainId(authChainId.toString().replaceFirst("^0+(?!$)", ""))
                 .clientReferenceNumber(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
                 .amount(detailedAmount.getAmount())
-                .authChainId(request.getAuthChainId())
+                .authChainId(authChainId)
                 //.gatewayId()
                 .clientId(headers.getClientId())
                 .orderType(OrderType.Hotel)

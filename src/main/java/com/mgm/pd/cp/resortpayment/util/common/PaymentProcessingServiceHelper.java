@@ -56,7 +56,6 @@ public class PaymentProcessingServiceHelper {
     }
 
     public <T> String getValueFromSaleDetails(BaseTransactionDetails transactionDetails, String key) {
-        //BaseTransactionDetails transactionDetails = getBaseTransactionDetails(request);
         if (Objects.nonNull(transactionDetails)) {
             SaleItem<?> saleItem = transactionDetails.getSaleItem();
             if (Objects.nonNull(saleItem)) {

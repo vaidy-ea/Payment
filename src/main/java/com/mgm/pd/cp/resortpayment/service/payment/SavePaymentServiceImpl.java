@@ -32,6 +32,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.UUID;
 
+import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.FAILURE_MESSAGE;
+import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.SUCCESS_MESSAGE;
+import static com.mgm.pd.cp.payment.common.constant.ReturnCode.Approved;
+import static com.mgm.pd.cp.payment.common.constant.ReturnCode.Declined;
 import static com.mgm.pd.cp.payment.common.constant.TransactionType.REFUND;
 
 @Service
@@ -57,8 +61,8 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .paymentId(randomId)
                 .referenceId(String.valueOf(request.getReferenceId()))
                 .groupId(null)
-                .gatewayRelationNumber(headers.getCorrelationId())
-                .clientReferenceNumber(request.getTransactionIdentifier())
+                //.gatewayRelationNumber(headers.getCorrelationId())
+                .clientReferenceNumber(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
                 .amount(detailedAmount.getAmount())
                 //TODO: check if it is coming in which request parameter
                 .clientId(request.getClientID())
@@ -76,7 +80,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .billingZipCode(billingAddress.getPostCode())
                 .billingCountry(billingAddress.getCountry())
                 .clerkId(transactionDetails.getMerchant().getClerkIdentifier())
-                .transactionType(TransactionType.INCREMENTAL_AUTH)
+                .transactionType(TransactionType.AUTHORIZATION)
                 //.gatewayReasonCode().gatewayReasonDescription().gatewayAuthSource()
                 .deferredAuth(null)
                 .createdTimeStamp(convertToTimestamp(request.getTransactionDateTime()))
@@ -100,7 +104,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                     .issuerType(Objects.nonNull(cardType) ? CardType.valueOf(cardType) : null)
                     .gatewayAuthCode(response.getApprovalCode())
                     .gatewayResponseCode(returnCode)
-                    .transactionStatus(returnCode.equals("Approved") ? "Success" : "Failure")
+                    .transactionStatus((returnCode.equals(Approved.name()) || returnCode.equals(Declined.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE)
                     .updatedTimestamp(Objects.nonNull(transDate) ? convertToTimestamp(transDate) : null)
                     .authChainId(Objects.nonNull(vendorTranID) ? Long.valueOf(vendorTranID) : null)
                     .gatewayChainId(vendorTranID);
@@ -126,8 +130,8 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .paymentId(randomId)
                 .referenceId(null)
                 .groupId(null)
-                .gatewayRelationNumber(headers.getCorrelationId())
-                .clientReferenceNumber(request.getTransactionIdentifier())
+                //.gatewayRelationNumber(headers.getCorrelationId())
+                .clientReferenceNumber(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
                 .amount(detailedAmount.getAmount())
                 //.authChainId(request.getAuthChainId())
                 //TODO: check if it is coming in which request parameter
@@ -146,7 +150,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .billingZipCode(billingAddress.getPostCode())
                 .billingCountry(billingAddress.getCountry())
                 .clerkId(transactionDetails.getMerchant().getClerkIdentifier())
-                .transactionType(TransactionType.INIT_AUTH_CNP)
+                .transactionType(TransactionType.AUTHORIZATION)
                 //.gatewayReasonCode().gatewayReasonDescription()
                 //.gatewayAuthSource()
                 .deferredAuth(null)
@@ -173,7 +177,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                     .issuerType(Objects.nonNull(cardType) ? CardType.valueOf(cardType) : null)
                     .gatewayAuthCode(response.getApprovalCode())
                     .gatewayResponseCode(returnCode)
-                    .transactionStatus((returnCode.equals("Approved") || returnCode.equals("Declined")) ? "Success" : "Failure")
+                    .transactionStatus((returnCode.equals(Approved.name()) || returnCode.equals(Declined.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE)
                     .updatedTimestamp(Objects.nonNull(transDate) ? convertToTimestamp(transDate) : null);
         }
         Payment payment = newPayment.build();
@@ -203,9 +207,9 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .paymentId(string)
                 .referenceId(String.valueOf(request.getReferenceId()))
                 .groupId(null)
-                .gatewayRelationNumber(headers.getCorrelationId())
-                .gatewayChainId(String.valueOf(request.getAuthChainId()))
-                .clientReferenceNumber(request.getTransactionIdentifier())
+                //.gatewayRelationNumber(headers.getCorrelationId())
+                //.gatewayChainId(String.valueOf(request.getAuthChainId()))
+                .clientReferenceNumber(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
                 .amount(detailedAmount.getAmount())
                 .authChainId(request.getAuthChainId())
                 .clientId(headers.getClientId())
@@ -240,13 +244,15 @@ public class SavePaymentServiceImpl implements SavePaymentService {
             String transDate = response.getTransDate();
             CardType cardType = response.getCardType();
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
+            String vendorTranID = response.getVendorTranID();
             newPayment
+                    .gatewayChainId(vendorTranID)
                     .authorizedAmount(response.getTotalAuthAmount())
                     //.gatewayId()
                     .issuerType(Objects.nonNull(cardType) ? cardType : null)
                     .gatewayAuthCode(response.getApprovalCode())
                     .gatewayResponseCode(returnCode)
-                    .transactionStatus(returnCode.equals("Approved") ? "Success" : "Failure")
+                    .transactionStatus((returnCode.equals(Approved.name()) || returnCode.equals(Declined.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE)
                     .updatedTimestamp(Objects.nonNull(transDate) ? convertToTimestamp(transDate) : null);
         }
         Payment payment = newPayment.build();
@@ -268,9 +274,9 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .paymentId(string)
                 .referenceId(String.valueOf(request.getReferenceId()))
                 .groupId(null)
-                .gatewayRelationNumber(headers.getCorrelationId())
-                .gatewayChainId(String.valueOf(request.getAuthChainId()))
-                .clientReferenceNumber(request.getTransactionIdentifier())
+                //.gatewayRelationNumber(headers.getCorrelationId())
+                //.gatewayChainId(String.valueOf(request.getAuthChainId()))
+                .clientReferenceNumber(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
                 //.amount(detailedAmount.getAmount())
                 .authChainId(request.getAuthChainId())
                 .clientId(request.getClientID())
@@ -288,7 +294,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .billingZipCode(billingAddress.getPostCode())
                 .billingCountry(billingAddress.getCountry())*/
                 .clerkId(transactionDetails.getMerchant().getClerkIdentifier())
-                .transactionType(TransactionType.CARD_VOID)
+                .transactionType(TransactionType.VOID)
                 //.gatewayReasonCode().gatewayReasonDescription().gatewayAuthSource()
                 .deferredAuth(null)
                 .createdTimeStamp(convertToTimestamp(request.getTransactionDateTime()))
@@ -304,13 +310,15 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         if (Objects.nonNull(response)) {
             String transDate = response.getTransDate();
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
+            String vendorTranID = response.getVendorTranID();
             newPayment
+                    .gatewayChainId(vendorTranID)
                     .authorizedAmount(response.getTotalAuthAmount())
                     //.gatewayId()
                     .issuerType(response.getCardType())
                     .gatewayAuthCode(response.getApprovalCode())
                     .gatewayResponseCode(returnCode)
-                    .transactionStatus(returnCode.equals("Approved") ? "Success" : "Failure")
+                    .transactionStatus((returnCode.equals(Approved.name()) || returnCode.equals(Declined.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE)
                     .updatedTimestamp(Objects.nonNull(transDate) ? convertToTimestamp(transDate) : null);
         }
         Payment payment = newPayment.build();
@@ -334,9 +342,9 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .paymentId(string)
                 .referenceId(String.valueOf(request.getReferenceId()))
                 .groupId(null)
-                .gatewayRelationNumber(headers.getCorrelationId())
-                .gatewayChainId(String.valueOf(request.getAuthChainId()))
-                .clientReferenceNumber(request.getTransactionIdentifier())
+                //.gatewayRelationNumber(headers.getCorrelationId())
+                //.gatewayChainId(String.valueOf(request.getAuthChainId()))
+                .clientReferenceNumber(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
                 .amount(detailedAmount.getAmount())
                 .authChainId(request.getAuthChainId())
                 //TODO: check if it is coming in which request parameter
@@ -372,29 +380,18 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         if (Objects.nonNull(response)) {
             String transDate = response.getTransDate();
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
+            String vendorTranID = response.getVendorTranID();
             newPayment
+                    .gatewayChainId(vendorTranID)
                     .authorizedAmount(response.getTotalAuthAmount())
                     .issuerType(response.getCardType())
                     .gatewayAuthCode(response.getApprovalCode())
                     .gatewayResponseCode(returnCode)
-                    .transactionStatus(returnCode.equals("Approved") ? "Success" : "Failure")
+                    .transactionStatus((returnCode.equals(Approved.name()) || returnCode.equals(Declined.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE)
                     .updatedTimestamp(Objects.nonNull(transDate) ? convertToTimestamp(transDate) : null);
         }
         Payment payment = newPayment.build();
         logger.log(Level.INFO, "Transaction Type is: " + payment.getTransactionType());
         return this.paymentRepository.save(payment);
-    }
-
-    private TransactionType setCaptureTransactionType(Double initialAuthAmount, Double totalAuthAmount) {
-        TransactionType captureTransactionType = null;
-        if (Objects.nonNull(initialAuthAmount) && Objects.nonNull(totalAuthAmount)) {
-            if(totalAuthAmount > initialAuthAmount) {
-                captureTransactionType =  TransactionType.CAPTURE_ADDITIONAL_AUTH;
-            }
-            if (totalAuthAmount < initialAuthAmount) {
-                captureTransactionType = TransactionType.CAPTURE_PARTIAL_VOID;
-            }
-        }
-        return captureTransactionType;
     }
 }

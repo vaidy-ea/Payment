@@ -73,7 +73,7 @@ public class VoidToRouterConverter implements Converter<CPPaymentCardVoidRequest
                 //.installments(source.getInstallments())
                 .clientID(source.getClientID())
                 .corelationId(source.getCorelationId())
-                .incrementalAuthInvoiceId(source.getAuthChainId())
+                //.incrementalAuthInvoiceId(source.getAuthChainId())
                 .dateTime(String.valueOf(LocalDateTime.now()))
                 .clerkId(Objects.nonNull(clerkIdentifier) ? Long.valueOf(clerkIdentifier) : null)
                 .build();

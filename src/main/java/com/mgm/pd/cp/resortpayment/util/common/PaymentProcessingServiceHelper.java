@@ -97,10 +97,10 @@ public class PaymentProcessingServiceHelper {
         Long authChainId;
         Optional<List<Payment>> paymentDetails;
         if (request.getClass().equals(CPPaymentCardVoidRequest.class)) {
-            authChainId = ((CPPaymentCardVoidRequest) request).getAuthChainId();
+            authChainId = Long.valueOf(((CPPaymentCardVoidRequest) request).getAuthChainId());
             paymentDetails = findPaymentService.getPaymentDetails(authChainId);
         } else {
-            authChainId = ((CPPaymentProcessingRequest) request).getAuthChainId();
+            authChainId = Long.valueOf(((CPPaymentProcessingRequest) request).getAuthChainId());
             @Valid AuthType transactionType = ((CPPaymentProcessingRequest) request).getTransactionType();
             if (transactionType == AuthType.DEPOSIT) {
                 paymentDetails = findPaymentService.getPaymentDetails(authChainId, transactionType);

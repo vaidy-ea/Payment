@@ -104,7 +104,7 @@ public class RouterHelperImpl implements RouterHelper {
     @Override
     @Retry(name = "captureMessage")
     public CaptureRouterResponse sendCaptureRequestToRouter(CPPaymentCaptureRequest request, Payment initialPayment, HttpHeaders headers) throws JsonProcessingException {
-        request.setAuthChainId(initialPayment.getAuthChainId());
+        request.setAuthChainId(String.valueOf(initialPayment.getAuthChainId()));
         request.setReferenceId(initialPayment.getPaymentId());
         //converting request to IR compatible
         RouterRequest routerRequest = captureToRouterConverter.convert(request);
@@ -128,7 +128,7 @@ public class RouterHelperImpl implements RouterHelper {
     @Override
     @Retry(name = "cardVoidMessage")
     public CardVoidRouterResponse sendCardVoidRequestToRouter(CPPaymentCardVoidRequest request, Payment initialPayment, HttpHeaders headers) throws JsonProcessingException {
-        request.setAuthChainId(initialPayment.getAuthChainId());
+        request.setAuthChainId(String.valueOf(initialPayment.getAuthChainId()));
         request.setReferenceId(initialPayment.getPaymentId());
         //converting request to IR compatible
         RouterRequest routerRequest = voidToRouterConverter.convert(request);
@@ -152,7 +152,7 @@ public class RouterHelperImpl implements RouterHelper {
     @Override
     @Retry(name = "refundMessage")
     public RefundRouterResponse sendRefundRequestToRouter(CPPaymentRefundRequest request, Payment initialPayment, HttpHeaders headers) throws JsonProcessingException {
-        request.setAuthChainId(initialPayment.getAuthChainId());
+        request.setAuthChainId(String.valueOf(initialPayment.getAuthChainId()));
         request.setReferenceId(initialPayment.getPaymentId());
         //converting request to IR compatible
         RouterRequest routerRequest = refundToRouterConverter.convert(request);

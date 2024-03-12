@@ -35,7 +35,7 @@ public class BasePaymentProcessingRequest {
     //TODO: Missing in Payload sheet
     private String clientID;
     private String corelationId;
-    private Long authChainId;
+    private String authChainId;
     private String referenceId;
     private String dateTime;
     private Long clerkId;

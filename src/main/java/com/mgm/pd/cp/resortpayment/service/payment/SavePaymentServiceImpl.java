@@ -35,7 +35,6 @@ import java.util.UUID;
 import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.FAILURE_MESSAGE;
 import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.SUCCESS_MESSAGE;
 import static com.mgm.pd.cp.payment.common.constant.ReturnCode.Approved;
-import static com.mgm.pd.cp.payment.common.constant.ReturnCode.Declined;
 import static com.mgm.pd.cp.payment.common.constant.TransactionType.REFUND;
 
 @Service
@@ -105,7 +104,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                     .issuerType(Objects.nonNull(cardType) ? CardType.valueOf(cardType) : null)
                     .gatewayAuthCode(response.getApprovalCode())
                     .gatewayResponseCode(returnCode)
-                    .transactionStatus((returnCode.equals(Approved.name()) || returnCode.equals(Declined.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE)
+                    .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE)
                     .updatedTimestamp(Objects.nonNull(transDate) ? convertToTimestamp(transDate) : null);
         }
         Payment payment = newPayment.build();
@@ -174,7 +173,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                     .issuerType(Objects.nonNull(cardType) ? CardType.valueOf(cardType) : null)
                     .gatewayAuthCode(response.getApprovalCode())
                     .gatewayResponseCode(returnCode)
-                    .transactionStatus((returnCode.equals(Approved.name()) || returnCode.equals(Declined.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE)
+                    .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE)
                     .updatedTimestamp(Objects.nonNull(transDate) ? convertToTimestamp(transDate) : null);
         }
         Payment payment = newPayment.build();
@@ -248,7 +247,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                     .issuerType(Objects.nonNull(cardType) ? cardType : null)
                     .gatewayAuthCode(response.getApprovalCode())
                     .gatewayResponseCode(returnCode)
-                    .transactionStatus((returnCode.equals(Approved.name()) || returnCode.equals(Declined.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE)
+                    .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE)
                     .updatedTimestamp(Objects.nonNull(transDate) ? convertToTimestamp(transDate) : null);
         }
         Payment payment = newPayment.build();
@@ -313,7 +312,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                     .issuerType(response.getCardType())
                     .gatewayAuthCode(response.getApprovalCode())
                     .gatewayResponseCode(returnCode)
-                    .transactionStatus((returnCode.equals(Approved.name()) || returnCode.equals(Declined.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE)
+                    .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE)
                     .updatedTimestamp(Objects.nonNull(transDate) ? convertToTimestamp(transDate) : null);
         }
         Payment payment = newPayment.build();
@@ -380,7 +379,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                     .issuerType(response.getCardType())
                     .gatewayAuthCode(response.getApprovalCode())
                     .gatewayResponseCode(returnCode)
-                    .transactionStatus((returnCode.equals(Approved.name()) || returnCode.equals(Declined.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE)
+                    .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE)
                     .updatedTimestamp(Objects.nonNull(transDate) ? convertToTimestamp(transDate) : null);
         }
         Payment payment = newPayment.build();

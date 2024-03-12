@@ -208,7 +208,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .clientReferenceNumber(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
                 .amount(detailedAmount.getAmount())
                 .authChainId(request.getAuthChainId())
-                .gatewayChainId(String.valueOf(request.getAuthChainId()))
                 .clientId(headers.getClientId())
                 .orderType(OrderType.Hotel)
                 .mgmId(null)
@@ -241,7 +240,9 @@ public class SavePaymentServiceImpl implements SavePaymentService {
             String transDate = response.getTransDate();
             CardType cardType = response.getCardType();
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
+            String vendorTranID = response.getVendorTranID();
             newPayment
+                    .gatewayChainId(vendorTranID)
                     .authorizedAmount(response.getTotalAuthAmount())
                     //.gatewayId()
                     .issuerType(Objects.nonNull(cardType) ? cardType : null)
@@ -270,7 +271,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .referenceId(String.valueOf(request.getReferenceId()))
                 .groupId(null)
                 //.gatewayRelationNumber(headers.getCorrelationId())
-                .gatewayChainId(String.valueOf(request.getAuthChainId()))
                 .clientReferenceNumber(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
                 //.amount(detailedAmount.getAmount())
                 .authChainId(request.getAuthChainId())
@@ -305,7 +305,9 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         if (Objects.nonNull(response)) {
             String transDate = response.getTransDate();
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
+            String vendorTranID = response.getVendorTranID();
             newPayment
+                    .gatewayChainId(vendorTranID)
                     .authorizedAmount(response.getTotalAuthAmount())
                     //.gatewayId()
                     .issuerType(response.getCardType())
@@ -336,7 +338,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .referenceId(String.valueOf(request.getReferenceId()))
                 .groupId(null)
                 //.gatewayRelationNumber(headers.getCorrelationId())
-                .gatewayChainId(String.valueOf(request.getAuthChainId()))
                 .clientReferenceNumber(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
                 .amount(detailedAmount.getAmount())
                 .authChainId(request.getAuthChainId())
@@ -372,7 +373,9 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         if (Objects.nonNull(response)) {
             String transDate = response.getTransDate();
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
+            String vendorTranID = response.getVendorTranID();
             newPayment
+                    .gatewayChainId(vendorTranID)
                     .authorizedAmount(response.getTotalAuthAmount())
                     .issuerType(response.getCardType())
                     .gatewayAuthCode(response.getApprovalCode())

@@ -1,4 +1,4 @@
-package com.mgm.pd.cp.resortpayment.dto;
+package com.mgm.pd.cp.resortpayment.dto.common;
 
 import com.mgm.pd.cp.payment.common.dto.opera.Card;
 import lombok.AllArgsConstructor;
@@ -23,7 +23,7 @@ public class BaseTransactionDetails {
     private Merchant merchant;
 
     @Valid
-    private SaleItem saleItem;
+    private SaleItem<?> saleItem;
 
     @Valid
     private List<AdditionalData> additionalData;

@@ -30,17 +30,6 @@ public class RefundRouterResponse {
     private CardType cardType;
     @Size(max = 20, message = "MerchantID exceed the permissible length")
     private String merchantID;
-    private Double settleAmount;
-    private String message;
-    private String printInfo1;
-    private String printInfo2;
-    private String printInfo3;
-    private String printInfo4;
-    private String printInfo5;
-    private String printInfo6;
-    private String printInfo7;
-    private String printInfo8;
-    private String printInfo9;
     @NotBlank(message = "ResvNameID can't be empty or NULL")
     @Size(max = 20, message = "ResvNameID exceed the permissible length")
     private String resvNameID;
@@ -62,7 +51,6 @@ public class RefundRouterResponse {
     private String clientID;
     @NotBlank(message = "Corelation ID can't be empty or NULL")
     private String corelationId;
-    private String comments;
     private String dateTime;
     private String returnCode;
     private String approvalCode;

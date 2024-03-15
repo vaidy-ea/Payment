@@ -22,12 +22,12 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE;
+import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.INVALID_REQUEST_PARAMETERS;
 
 @RestControllerAdvice
 public class CPPaymentProcessingExceptionHandler {
 
-    public static final String INVALID_REQUEST_PARAMETERS = "Invalid Request Parameters";
-
+    //Used to handle exception from SpringBoot in case of missing attributes
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
         List<String> errors = ex.getBindingResult().getFieldErrors()
@@ -36,6 +36,7 @@ public class CPPaymentProcessingExceptionHandler {
                 .detail(INVALID_REQUEST_PARAMETERS).messages(errors).build(), HttpStatus.BAD_REQUEST);
     }
 
+    //Used to handle Date Parsing Exception for invalid dates
     @ExceptionHandler(DateTimeParseException.class)
     public ResponseEntity<ErrorResponse> handleDateValidationErrors(DateTimeParseException ex) {
         List<String> errors = Collections.singletonList("Invalid date - " + ex.getParsedString());
@@ -43,6 +44,7 @@ public class CPPaymentProcessingExceptionHandler {
                 .detail("Invalid Date Parameter/s").messages(errors).build(), HttpStatus.BAD_REQUEST);
     }
 
+    //Used to validate the Json
     @ExceptionHandler(JsonProcessingException.class)
     public ResponseEntity<ErrorResponse> handleJsonException(JsonProcessingException ex) {
         return new ResponseEntity<>(ErrorResponse.builder().status(HttpStatus.BAD_REQUEST.value()).title("Invalid Json")
@@ -68,6 +70,13 @@ public class CPPaymentProcessingExceptionHandler {
                         Arrays.toString(inavlidFormatEx.getTargetType().getEnumConstants()));
             }
         }
+        return new ResponseEntity<>(ErrorResponse.builder().status(HttpStatus.BAD_REQUEST.value()).title(INVALID_REQUEST_PARAMETERS)
+                .detail(INVALID_REQUEST_PARAMETERS).messages(Collections.singletonList(errorDetails)).build(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
+        String errorDetails = "Unacceptable JSON -" + ex.getMessage();
         return new ResponseEntity<>(ErrorResponse.builder().status(HttpStatus.BAD_REQUEST.value()).title(INVALID_REQUEST_PARAMETERS)
                 .detail(INVALID_REQUEST_PARAMETERS).messages(Collections.singletonList(errorDetails)).build(), HttpStatus.BAD_REQUEST);
     }

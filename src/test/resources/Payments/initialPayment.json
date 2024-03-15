@@ -27,7 +27,7 @@
   "billingCountry"  : "string",
   "gatewayAuthCode"  : "OK196Z",
   "clerkId"  : null,
-  "transactionType"  : "AUTHORIZATION",
+  "transactionType"  : "AUTHORIZE",
   "transactionStatus"  : "Success",
   "gatewayReasonCode"  : null,
   "gatewayReasonDescription"  : null,

@@ -22,14 +22,14 @@ class SavePaymentServiceTest {
     @Test
     void test_incremental_payment_with_payload() throws IOException {
         paymentRepository.deleteAll();
-        paymentService.saveIncrementalAuthorizationPayment(TestHelperUtil.getIncrementalAuthRequestWithHeaders(), TestHelperUtil.getIncrementalRouterResponse());
+        paymentService.saveIncrementalAuthorizationPayment(TestHelperUtil.getIncrementalAuthRequestWithHeaders(), TestHelperUtil.getIncrementalRouterResponse(), TestHelperUtil.getInitialPayment().get().get(0));
         Assertions.assertEquals(1, paymentRepository.findAll().size());
     }
 
     @Test
     void test_refund_payment_with_payload() throws IOException {
         paymentRepository.deleteAll();
-        paymentService.saveRefundPayment(TestHelperUtil.getRefundPaymentRequestWithHeaders(), TestHelperUtil.getRefundRouterResponse());
+        paymentService.saveRefundPayment(TestHelperUtil.getRefundPaymentRequestWithHeaders(), TestHelperUtil.getRefundRouterResponse(), TestHelperUtil.getInitialPayment().get().get(0));
         Assertions.assertEquals(1, paymentRepository.findAll().size());
     }
 

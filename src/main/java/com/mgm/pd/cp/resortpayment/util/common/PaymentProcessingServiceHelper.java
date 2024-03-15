@@ -1,22 +1,22 @@
 package com.mgm.pd.cp.resortpayment.util.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mgm.pd.cp.payment.common.constant.AuthType;
 import com.mgm.pd.cp.payment.common.dto.CPRequestHeaders;
-import com.mgm.pd.cp.payment.common.dto.ErrorResponse;
 import com.mgm.pd.cp.payment.common.dto.GenericResponse;
 import com.mgm.pd.cp.payment.common.dto.opera.OperaResponse;
 import com.mgm.pd.cp.payment.common.model.Payment;
-import com.mgm.pd.cp.resortpayment.dto.BaseTransactionDetails;
 import com.mgm.pd.cp.resortpayment.dto.CPPaymentProcessingRequest;
-import com.mgm.pd.cp.resortpayment.dto.SaleItem;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
+import com.mgm.pd.cp.resortpayment.dto.common.BaseTransactionDetails;
+import com.mgm.pd.cp.resortpayment.dto.common.SaleItem;
 import com.mgm.pd.cp.resortpayment.exception.MissingHeaderException;
 import com.mgm.pd.cp.resortpayment.service.payment.FindPaymentService;
-import feign.FeignException;
 import lombok.AllArgsConstructor;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,11 +24,9 @@ import org.springframework.stereotype.Component;
 
 import javax.validation.Valid;
 import java.lang.reflect.Field;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
-
-import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.INITIAL_PAYMENT_IS_MISSING;
-import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE;
 
 /**
  * Helper class for utility methods
@@ -36,32 +34,23 @@ import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.INTELLI
 @Component
 @AllArgsConstructor
 public class PaymentProcessingServiceHelper {
+    private static final Logger logger = LogManager.getLogger(PaymentProcessingServiceHelper.class);
     private FindPaymentService findPaymentService;
     private ObjectMapper mapper;
     private Converter converter;
 
     /**
+     * This method is helping to find the complete sale details object at once from the request
      *
-     * @param feignEx: taking exception from Intelligent Router
-     * returning details to add in comments column
+     * @param transactionDetails: to fetch SaleDetails Object
      */
-    public String getCommentsFromException(FeignException feignEx) throws JsonProcessingException {
-        String contentedUTF8 = feignEx.contentUTF8();
-        if (!contentedUTF8.isBlank()) {
-            ErrorResponse irEx = mapper.readValue(contentedUTF8, ErrorResponse.class);
-            //To get the error message from Router to save in comments column in Payment table
-            return irEx.getDetail();
-        }
-        return INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE;
-    }
-
-    public <T> String getValueFromSaleDetails(BaseTransactionDetails transactionDetails, String key) {
+    public LinkedHashMap<String, String> getSaleDetailsObject(BaseTransactionDetails transactionDetails) {
         if (Objects.nonNull(transactionDetails)) {
             SaleItem<?> saleItem = transactionDetails.getSaleItem();
             if (Objects.nonNull(saleItem)) {
                 Object saleDetails = saleItem.getSaleDetails();
                 if (Objects.nonNull(saleDetails) && saleDetails instanceof LinkedHashMap) {
-                    return String.valueOf(((LinkedHashMap<?, ?>) saleDetails).get(key));
+                    return (LinkedHashMap<String, String>) saleDetails;
                 }
             }
         }
@@ -76,16 +65,12 @@ public class PaymentProcessingServiceHelper {
         OperaResponse operaResponse;
         //converting the response from Payment DB for Opera
         operaResponse = converter.convert(payment);
-        return response(operaResponse, HttpStatus.OK);
+        return response(operaResponse);
     }
 
-    private <D> ResponseEntity<GenericResponse<?>> response(D data, HttpStatus status) {
-        return new ResponseEntity<>(GenericResponse.builder().data(data).build(), status);
-    }
-
-    public ResponseEntity<GenericResponse<?>> initialPaymentIsMissing() {
-        return response(new ErrorResponse(null, 422, INITIAL_PAYMENT_IS_MISSING,
-                INITIAL_PAYMENT_IS_MISSING, null, null, null), HttpStatus.UNPROCESSABLE_ENTITY);
+    //internal method to add complete data in the response payload
+    private <D> ResponseEntity<GenericResponse<?>> response(D data) {
+        return new ResponseEntity<>(GenericResponse.builder().data(data).build(), HttpStatus.OK);
     }
 
     /**
@@ -94,13 +79,13 @@ public class PaymentProcessingServiceHelper {
      * @return Payment details from Payment DB
      */
     public <T> Optional<Payment> getInitialAuthPayment(T request) {
-        Long authChainId;
+        long authChainId;
         Optional<List<Payment>> paymentDetails;
         if (request.getClass().equals(CPPaymentCardVoidRequest.class)) {
-            authChainId = Long.valueOf(((CPPaymentCardVoidRequest) request).getAuthChainId());
+            authChainId = Long.parseLong(((CPPaymentCardVoidRequest) request).getAuthChainId());
             paymentDetails = findPaymentService.getPaymentDetails(authChainId);
         } else {
-            authChainId = Long.valueOf(((CPPaymentProcessingRequest) request).getAuthChainId());
+            authChainId = Long.parseLong(((CPPaymentProcessingRequest) request).getAuthChainId());
             @Valid AuthType transactionType = ((CPPaymentProcessingRequest) request).getTransactionType();
             if (transactionType == AuthType.DEPOSIT) {
                 paymentDetails = findPaymentService.getPaymentDetails(authChainId, transactionType);
@@ -110,17 +95,19 @@ public class PaymentProcessingServiceHelper {
         }
         if (paymentDetails.isPresent()) {
             List<Payment> payments = paymentDetails.get();
-            List<Payment> approvedPayments = payments.stream()
-                    .filter(ts -> (Objects.nonNull(ts.getTransactionStatus()) && ts.getTransactionStatus().equals("Success")))
-                    .filter(grc -> (Objects.nonNull(grc.getGatewayResponseCode()) && grc.getGatewayResponseCode().equals("Approved")))
-                    .collect(Collectors.toList());
-            if (!approvedPayments.isEmpty()) {
-                return Optional.ofNullable(approvedPayments.get(approvedPayments.size() - 1));
+            if (!payments.isEmpty()) {
+                return Optional.ofNullable(payments.get(payments.size() - 1));
             }
         }
+        logger.log(Level.WARN, "Parent Payment transaction is missing in Payment DB for authChainId: " + authChainId);
         return Optional.empty();
     }
 
+    /**
+     * This method is helping to find the complete TransactionDetails object at once from the request
+     *
+     * @param request: generic for all types of request
+     */
     public <T> BaseTransactionDetails getBaseTransactionDetails(T request) {
         BaseTransactionDetails transactionDetails;
         if (request.getClass().equals(CPPaymentCardVoidRequest.class)) {
@@ -132,12 +119,34 @@ public class PaymentProcessingServiceHelper {
     }
 
     /**
-     * This method check for all required Headers in the
-     * request and maps it to the CustomHeader class
+     * This method checks for all required Headers in the
+     * request and maps it to the CPRequestHeaders class
      * @param request: all types of requests are accepted
      * @param headers: Request Headers
      */
     public <T> T mapHeadersInRequest(T request, HttpHeaders headers) {
+        headers.remove("Content-Length");
+        throwExceptionIfHeadersAreMissing(headers);
+        return addHeadersInRequest(request, headers);
+    }
+
+    /**
+     * This method is adding headers in the request
+     * @param request: request
+     * @param headers: headers in the payload
+     */
+    private <T> T addHeadersInRequest(T request, HttpHeaders headers) {
+        CPRequestHeaders cpRequestHeaders = mapper.convertValue(headers.toSingleValueMap(), CPRequestHeaders.class);
+        if (request.getClass().equals(CPPaymentCardVoidRequest.class)) {
+            ((CPPaymentCardVoidRequest) request).setHeaders(cpRequestHeaders);
+        } else {
+            ((CPPaymentProcessingRequest) request).setHeaders(cpRequestHeaders);
+        }
+        return request;
+    }
+
+    //method used to throw exception to the caller if Headers are missing
+    private static void throwExceptionIfHeadersAreMissing(HttpHeaders headers) {
         List<String> missingHeaders = new ArrayList<>();
         for (Field f: CPRequestHeaders.class.getDeclaredFields()) {
             String value = f.getAnnotation(JsonProperty.class).value();
@@ -148,13 +157,12 @@ public class PaymentProcessingServiceHelper {
         if (!missingHeaders.isEmpty()) {
             throw new MissingHeaderException(missingHeaders);
         }
-        CPRequestHeaders cpRequestHeaders = mapper.convertValue(headers.toSingleValueMap(), CPRequestHeaders.class);
-        if (request.getClass().equals(CPPaymentCardVoidRequest.class)) {
-            ((CPPaymentCardVoidRequest) request).setHeaders(cpRequestHeaders);
-        } else {
-            ((CPPaymentProcessingRequest) request).setHeaders(cpRequestHeaders);
-        }
-        headers.remove("Content-Length");
-        return request;
+    }
+
+    //used for converting to compatible date format
+    public LocalDateTime convertToTimestamp(String transactionDateTime) {
+        transactionDateTime = transactionDateTime.substring(0, 19);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd['T']HH:mm:ss['Z']");
+        return LocalDateTime.parse(transactionDateTime, formatter);
     }
 }

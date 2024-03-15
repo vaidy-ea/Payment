@@ -1,4 +1,4 @@
-package com.mgm.pd.cp.resortpayment.dto;
+package com.mgm.pd.cp.resortpayment.dto.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -14,17 +14,17 @@ import com.mgm.pd.cp.resortpayment.dto.refund.RefundRouterResponse;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Methods which can be utilised to save different type of requests
+ * Methods which can be utilised to save different type of requests in Payment DB
  */
 public interface SavePaymentService {
     @Transactional
-    Payment saveIncrementalAuthorizationPayment(CPPaymentIncrementalAuthRequest incrementalRequest, IncrementalAuthorizationRouterResponse irResponse);
+    Payment saveIncrementalAuthorizationPayment(CPPaymentIncrementalAuthRequest incrementalRequest, IncrementalAuthorizationRouterResponse irResponse, Payment initialPayment);
     @Transactional
     Payment saveAuthorizationPayment(CPPaymentAuthorizationRequest authRequest, AuthorizationRouterResponse irResponse);
     @Transactional
-    Payment saveCaptureAuthPayment(CPPaymentCaptureRequest captureRequest, CaptureRouterResponse crResponse, Payment authAmountRequested);
+    Payment saveCaptureAuthPayment(CPPaymentCaptureRequest captureRequest, CaptureRouterResponse crResponse, Payment initialPayment);
     @Transactional
-    Payment saveCardVoidAuthPayment(CPPaymentCardVoidRequest voidRequest, CardVoidRouterResponse vrResponse);
+    Payment saveCardVoidAuthPayment(CPPaymentCardVoidRequest voidRequest, CardVoidRouterResponse vrResponse, Payment initialPayment);
     @Transactional
-    Payment saveRefundPayment(CPPaymentRefundRequest request, RefundRouterResponse rrResponse);
+    Payment saveRefundPayment(CPPaymentRefundRequest request, RefundRouterResponse rrResponse, Payment initialPayment);
 }

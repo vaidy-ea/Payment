@@ -1,6 +1,7 @@
 package com.mgm.pd.cp.resortpayment.dto;
 
 import com.mgm.pd.cp.payment.common.constant.AuthType;
+import com.mgm.pd.cp.resortpayment.dto.common.TransactionDetails;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

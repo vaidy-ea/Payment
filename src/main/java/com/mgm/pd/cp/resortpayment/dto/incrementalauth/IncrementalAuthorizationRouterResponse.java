@@ -37,16 +37,5 @@ public class IncrementalAuthorizationRouterResponse {
     private Double authAmountRequested;
     private Integer cardNumberLast4Digits;
     private String returnCode;
-    private String message;
     private String approvalCode;
-    private String printInfo1;
-    private String printInfo2;
-    private String printInfo3;
-    private String printInfo4;
-    private String printInfo5;
-    private String printInfo6;
-    private String printInfo7;
-    private String printInfo8;
-    private String printInfo9;
-    private String comments;
 }

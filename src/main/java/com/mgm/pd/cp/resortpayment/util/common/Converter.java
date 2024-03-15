@@ -12,7 +12,6 @@ import java.util.Collections;
  */
 @Component
 public class Converter {
-    //TODO: Map null values to actual values
     public OperaResponse convert(Payment payment) {
         GatewayInfo gatewayInfo = GatewayInfo.builder()
                 .gatewayTransactionIdentifier(String.valueOf(payment.getAuthChainId()))

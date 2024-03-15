@@ -124,8 +124,6 @@ public class CardVoidRouterRequestJson {
     private String clientID;
     @NotBlank(message = "Corelation ID can't be empty or NULL")
     private String corelationId;
-    @NotNull(message = "incrementalAuthInvoiceId ID can't be empty or NULL")
-    private Long incrementalAuthInvoiceId;
     private String dateTime;
     private Long clerkId;
 }

@@ -56,7 +56,6 @@ public class IncrementalRouterRequestJson {
     private String corelationId;
 
     //TODO: Missing in Payload
-    private Long incrementalAuthInvoiceId;
     private String dateTime;
     private Long clerkId;
 }

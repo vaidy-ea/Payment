@@ -1,4 +1,4 @@
-package com.mgm.pd.cp.resortpayment.dto;
+package com.mgm.pd.cp.resortpayment.dto.common;
 
 import com.mgm.pd.cp.payment.common.dto.opera.TransactionAmount;
 import lombok.AllArgsConstructor;

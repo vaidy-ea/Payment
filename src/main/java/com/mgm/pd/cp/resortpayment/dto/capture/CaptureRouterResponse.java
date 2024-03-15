@@ -31,17 +31,6 @@ public class CaptureRouterResponse {
     private CardType cardType;
     @Size(max = 20, message = "MerchantID exceed the permissible length")
     private String merchantID;
-    private Double settleAmount;
-    private String message;
-    private String printInfo1;
-    private String printInfo2;
-    private String printInfo3;
-    private String printInfo4;
-    private String printInfo5;
-    private String printInfo6;
-    private String printInfo7;
-    private String printInfo8;
-    private String printInfo9;
     @NotBlank(message = "ResvNameID can't be empty or NULL")
     @Size(max = 20, message = "ResvNameID exceed the permissible length")
     private String resvNameID;
@@ -53,7 +42,6 @@ public class CaptureRouterResponse {
     @NotBlank(message = "TransDate can't be empty or NULL")
     @Size(min = 16, max = 16, message = "please enter TransDate in YYYYMMDDHH:MM:SS format")
     private String transDate;
-    private String transReference;
     @Size(max = 30, message = "UniqueID exceed the permissible length")
     private String uniqueID;
     @JsonProperty("vendorTranId")
@@ -66,5 +54,4 @@ public class CaptureRouterResponse {
     private String dateTime;
     private Double totalAuthAmount;
     private String approvalCode;
-    private String comments;
 }

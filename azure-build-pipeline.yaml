@@ -45,7 +45,7 @@ steps:
     scannerMode: 'CLI'
     configMode: 'manual'
     cliProjectKey: 'CPPaymentProcessing'
-    cliSources: '.'
+    cliSources: 'src'
     extraProperties: |
       sonar.java.binaries=.
 - task: Bash@3

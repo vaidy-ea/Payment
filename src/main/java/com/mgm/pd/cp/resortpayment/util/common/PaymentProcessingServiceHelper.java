@@ -62,6 +62,8 @@ public class PaymentProcessingServiceHelper {
      * @param payment: data from Payment DB
      */
     public ResponseEntity<GenericResponse<?>> response(Payment payment) {
+        logger.log(Level.INFO, "Client Id is: "+ payment.getClientId());
+        logger.log(Level.INFO, "Response Code is: "+ payment.getGatewayResponseCode());
         OperaResponse operaResponse;
         //converting the response from Payment DB for Opera
         operaResponse = converter.convert(payment);

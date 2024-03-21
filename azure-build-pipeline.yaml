@@ -37,7 +37,31 @@ steps:
     mavenAuthenticateFeed: true
     effectivePomSkip: false
     sonarQubeRunAnalysis: false
+
  
+- task: SonarQubePrepare@5
+  inputs:
+    SonarQube: 'SonarQuebe'
+    scannerMode: 'CLI'
+    configMode: 'manual'
+    cliProjectKey: 'CPPaymentProcessing'
+    cliSources: '.'
+    extraProperties: |
+      sonar.java.binaries=.
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      FILTERED_PARAMS=$(echo $SONARQUBE_SCANNER_PARAMS | sed 's/"sonar.branch.name":"[^"]*"\,//g')
+          echo "##vso[task.setvariable variable=SONARQUBE_SCANNER_PARAMS]$FILTERED_PARAMS"
+- task: SonarQubeAnalyze@5
+  inputs:
+    jdkversion: 'JAVA_HOME_11_X64'
+
+- task: SonarQubePublish@5
+  inputs:
+    pollingTimeoutSec: '300'
+
 - task: CopyFiles@2
   inputs:
     contents: '**/*.jar'

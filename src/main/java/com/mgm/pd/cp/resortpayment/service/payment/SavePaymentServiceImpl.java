@@ -48,6 +48,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
         Customer customer = transactionDetails.getCustomer();
         CurrencyConversion currencyConversion = transactionDetails.getCurrencyConversion();
+        CurrencyConversion cc = Objects.nonNull(currencyConversion) ? currencyConversion : new CurrencyConversion();
         Card card = transactionDetails.getCard();
         Payment.PaymentBuilder newPayment = Payment.builder();
         String randomId = UUID.randomUUID().toString();
@@ -74,7 +75,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .mgmToken(card.getMaskedCardNumber())
                 .cardHolderName(card.getCardHolderName())
                 .tenderCategory(null)
-                .currencyCode(currencyConversion.getBinCurrencyCode())
+                .currencyCode(cc.getBinCurrencyCode())
                 //.last4DigitsOfCard()
                 .billingAddress1(billingAddress.getAddressLine())
                 .billingAddress2(billingAddress.getStreetName())
@@ -119,6 +120,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
         Customer customer = transactionDetails.getCustomer();
         CurrencyConversion currencyConversion = transactionDetails.getCurrencyConversion();
+        CurrencyConversion cc = Objects.nonNull(currencyConversion) ? currencyConversion : new CurrencyConversion();
         Card card = transactionDetails.getCard();
         Payment.PaymentBuilder newPayment = Payment.builder();
         String randomId = UUID.randomUUID().toString();
@@ -141,7 +143,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .mgmToken(card.getMaskedCardNumber())
                 .cardHolderName(card.getCardHolderName())
                 .tenderCategory(null)
-                .currencyCode(currencyConversion.getBinCurrencyCode())
+                .currencyCode(cc.getBinCurrencyCode())
                 //.last4DigitsOfCard()
                 .billingAddress1(billingAddress.getAddressLine())
                 .billingAddress2(billingAddress.getStreetName())
@@ -190,6 +192,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
         Customer customer = transactionDetails.getCustomer();
         CurrencyConversion currencyConversion = transactionDetails.getCurrencyConversion();
+        CurrencyConversion cc = Objects.nonNull(currencyConversion) ? currencyConversion : new CurrencyConversion();
         Card card = transactionDetails.getCard();
         Payment.PaymentBuilder newPayment = Payment.builder();
         String string = UUID.randomUUID().toString();
@@ -216,7 +219,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .mgmToken(card.getMaskedCardNumber())
                 .cardHolderName(card.getCardHolderName())
                 .tenderCategory(null)
-                .currencyCode(currencyConversion.getBinCurrencyCode())
+                .currencyCode(cc.getBinCurrencyCode())
                 //.last4DigitsOfCard()
                 .billingAddress1(billingAddress.getAddressLine())
                 .billingAddress2(billingAddress.getStreetName())
@@ -323,6 +326,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         TransactionDetails transactionDetails = request.getTransactionDetails();
         TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
         CurrencyConversion currencyConversion = transactionDetails.getCurrencyConversion();
+        CurrencyConversion cc = Objects.nonNull(currencyConversion) ? currencyConversion : new CurrencyConversion();
         Card card = transactionDetails.getCard();
         Customer customer = transactionDetails.getCustomer();
         String string = UUID.randomUUID().toString();
@@ -348,7 +352,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .mgmToken(card.getMaskedCardNumber())
                 .cardHolderName(card.getCardHolderName())
                 .tenderCategory(null)
-                .currencyCode(currencyConversion.getBinCurrencyCode())
+                .currencyCode(cc.getBinCurrencyCode())
                 //.last4DigitsOfCard()
                 .billingAddress1(billingAddress.getAddressLine())
                 .billingAddress2(billingAddress.getStreetName())

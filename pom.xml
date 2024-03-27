@@ -21,7 +21,7 @@
 		<dependency>
 			<groupId>com.mgm.pd.cp.common</groupId>
 			<artifactId>common-lib</artifactId>
-			<version>0.94</version>
+			<version>1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.flywaydb</groupId>

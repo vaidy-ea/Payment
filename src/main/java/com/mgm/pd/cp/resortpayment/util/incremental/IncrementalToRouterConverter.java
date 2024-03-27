@@ -44,6 +44,7 @@ public class IncrementalToRouterConverter implements Converter<CPPaymentIncremen
         Merchant merchant = transactionDetails.getMerchant();
         String clerkIdentifier = merchant.getClerkIdentifier();
         CPRequestHeaders headers = request.getHeaders();
+        String originalTransactionIdentifier = request.getOriginalTransactionIdentifier();
         IncrementalRouterRequestJson requestJson = IncrementalRouterRequestJson.builder()
                 .dateTime(String.valueOf(LocalDateTime.now()))
                 .totalAuthAmount(transactionAmount.getCumulativeAmount())
@@ -61,7 +62,7 @@ public class IncrementalToRouterConverter implements Converter<CPPaymentIncremen
                 .roomNum(saleType.equals(OrderType.Hotel.name()) ? valueFromSaleDetails.get(ROOM_NUMBER) : valueFromSaleDetails.get(TICKET_NUMBER))
                 .resvNameID(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
                 .sequenceNumber(request.getTransactionIdentifier())
-                .originalAuthSequence(Long.valueOf(request.getOriginalTransactionIdentifier()))
+                .originalAuthSequence(Objects.nonNull(originalTransactionIdentifier) ? Long.valueOf(originalTransactionIdentifier) : null)
                 .transDate(request.getTransactionDateTime())
                 .authType(request.getTransactionType())
                 .clerkId(Objects.nonNull(clerkIdentifier) ? Long.valueOf(clerkIdentifier) : null)

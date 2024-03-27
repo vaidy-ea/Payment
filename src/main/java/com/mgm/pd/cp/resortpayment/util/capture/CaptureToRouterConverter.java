@@ -46,6 +46,7 @@ public class CaptureToRouterConverter implements Converter<CPPaymentCaptureReque
         Merchant merchant = transactionDetails.getMerchant();
         String clerkIdentifier = merchant.getClerkIdentifier();
         CPRequestHeaders headers = source.getHeaders();
+        String originalTransactionIdentifier = source.getOriginalTransactionIdentifier();
         CaptureRouterRequestJson requestJson = CaptureRouterRequestJson.builder()
                 .dateTime(String.valueOf(LocalDateTime.now()))
                 .amount(detailedAmount.getAmount())
@@ -63,7 +64,7 @@ public class CaptureToRouterConverter implements Converter<CPPaymentCaptureReque
                 .roomNum(saleType.equals(OrderType.Hotel.name()) ? valueFromSaleDetails.get(ROOM_NUMBER) : valueFromSaleDetails.get(TICKET_NUMBER))
                 .vendorTranID(source.getAuthChainId())
                 .sequenceNumber(source.getTransactionIdentifier())
-                .originalAuthSequence(Long.valueOf(source.getOriginalTransactionIdentifier()))
+                .originalAuthSequence(Objects.nonNull(originalTransactionIdentifier) ? Long.valueOf(originalTransactionIdentifier) : null)
                 .transDate(source.getTransactionDateTime())
                 .clerkId(Objects.nonNull(clerkIdentifier) ? Long.valueOf(clerkIdentifier) : null)
                 .clientID(headers.getClientId())

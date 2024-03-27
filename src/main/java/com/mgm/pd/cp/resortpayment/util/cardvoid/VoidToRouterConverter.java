@@ -40,6 +40,7 @@ public class VoidToRouterConverter implements Converter<CPPaymentCardVoidRequest
         Merchant merchant = transactionDetails.getMerchant();
         String clerkIdentifier = merchant.getClerkIdentifier();
         CPRequestHeaders headers = source.getHeaders();
+        String originalTransactionIdentifier = source.getOriginalTransactionIdentifier();
         CardVoidRouterRequestJson requestJson = CardVoidRouterRequestJson.builder()
                 .dateTime(String.valueOf(LocalDateTime.now()))
                 .departureDate(valueFromSaleDetails.get(CHECK_OUT_DATE))
@@ -51,7 +52,7 @@ public class VoidToRouterConverter implements Converter<CPPaymentCardVoidRequest
                 .roomNum(saleType.equals(OrderType.Hotel.name()) ? valueFromSaleDetails.get(ROOM_NUMBER) : valueFromSaleDetails.get(TICKET_NUMBER))
                 .vendorTranID(source.getAuthChainId())
                 .sequenceNumber(source.getTransactionIdentifier())
-                .originalAuthSequence(Long.valueOf(source.getOriginalTransactionIdentifier()))
+                .originalAuthSequence(Objects.nonNull(originalTransactionIdentifier) ? Long.valueOf(originalTransactionIdentifier) : null)
                 .transDate(source.getTransactionDateTime())
                 .clerkId(Objects.nonNull(clerkIdentifier) ? Long.valueOf(clerkIdentifier) : null)
                 .clientID(headers.getClientId())

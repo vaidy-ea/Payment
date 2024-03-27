@@ -46,6 +46,7 @@ public class AuthorizeToRouterConverter implements Converter<CPPaymentAuthorizat
         /*String roomRate = valueFromSaleDetails.get(ROOM_RATE);*/
         CPRequestHeaders headers = request.getHeaders();
         String clerkIdentifier = merchant.getClerkIdentifier();
+        String originalTransactionIdentifier = request.getOriginalTransactionIdentifier();
         AuthorizationRouterRequestJson requestJson = AuthorizationRouterRequestJson.builder()
                 .dateTime(String.valueOf(LocalDateTime.now()))
                 .totalAuthAmount(transactionAmount.getCumulativeAmount())
@@ -63,7 +64,7 @@ public class AuthorizeToRouterConverter implements Converter<CPPaymentAuthorizat
                 .roomNum(saleType.equals(OrderType.Hotel.name()) ? valueFromSaleDetails.get(ROOM_NUMBER) : valueFromSaleDetails.get(TICKET_NUMBER))
                 .resvNameID(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
                 .sequenceNumber(request.getTransactionIdentifier())
-                .originalAuthSequence(Long.valueOf(request.getOriginalTransactionIdentifier()))
+                .originalAuthSequence(Objects.nonNull(originalTransactionIdentifier) ? Long.valueOf(originalTransactionIdentifier) : null)
                 .transDate(request.getTransactionDateTime())
                 .authType(request.getTransactionType())
                 .clerkId(Objects.nonNull(clerkIdentifier) ? Long.valueOf(clerkIdentifier) : null)

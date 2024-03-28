@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.mgm.pd.cp.payment.common.dto.ErrorResponse;
+import com.mgm.pd.cp.payment.common.exception.CommonException;
+import com.mgm.pd.cp.payment.common.util.MGMErrorCode;
 import feign.FeignException;
 import feign.RetryableException;
 import org.springframework.http.HttpStatus;
@@ -13,6 +15,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.time.format.DateTimeParseException;
 import java.util.Arrays;
@@ -21,64 +25,77 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE;
-import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.INVALID_REQUEST_PARAMETERS;
+import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.*;
 
 @RestControllerAdvice
-public class CPPaymentProcessingExceptionHandler {
+public class CPPaymentProcessingExceptionHandler extends CommonException {
 
     //Used to handle exception from SpringBoot in case of missing attributes
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex, WebRequest request) {
         List<String> errors = ex.getBindingResult().getFieldErrors()
                 .stream().map(FieldError::getDefaultMessage).collect(Collectors.toList());
-        return new ResponseEntity<>(ErrorResponse.builder().status(HttpStatus.BAD_REQUEST.value()).title(INVALID_REQUEST_PARAMETERS)
-                .detail(INVALID_REQUEST_PARAMETERS).messages(errors).build(), HttpStatus.BAD_REQUEST);
+        String uri = request.getDescription(false);
+        return new ResponseEntity<>(ErrorResponse.builder()
+                .type(HttpStatus.BAD_REQUEST.toString())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .title(INVALID_REQUEST_PARAMETERS)
+                .detail(INVALID_REQUEST_PARAMETERS)
+                .instance(uri)
+                .errorCode(MGMErrorCode.getMgmErrorCode(MGMErrorCode.getServiceCodeByMethodURI(uri), HttpStatus.BAD_REQUEST.value(), false))
+                .messages(errors).build(), HttpStatus.BAD_REQUEST);
     }
 
     //Used to handle Date Parsing Exception for invalid dates
     @ExceptionHandler(DateTimeParseException.class)
-    public ResponseEntity<ErrorResponse> handleDateValidationErrors(DateTimeParseException ex) {
+    public ResponseEntity<ErrorResponse> handleDateValidationErrors(DateTimeParseException ex, WebRequest request) {
         List<String> errors = Collections.singletonList("Invalid date - " + ex.getParsedString());
-        return new ResponseEntity<>(ErrorResponse.builder().status(HttpStatus.BAD_REQUEST.value()).title("Invalid Date Parameter/s")
-                .detail("Invalid Date Parameter/s").messages(errors).build(), HttpStatus.BAD_REQUEST);
+        String uri = request.getDescription(false);
+        return new ResponseEntity<>(ErrorResponse.builder()
+                .type(HttpStatus.BAD_REQUEST.toString()).status(HttpStatus.BAD_REQUEST.value()).title(INVALID_DATE_PARAMETERS)
+                .detail(INVALID_DATE_PARAMETERS).instance(uri)
+                .errorCode(MGMErrorCode.getMgmErrorCode(MGMErrorCode.getServiceCodeByMethodURI(uri), HttpStatus.BAD_REQUEST.value(), false))
+                .messages(errors).build(), HttpStatus.BAD_REQUEST);
     }
 
     //Used to validate the Json
     @ExceptionHandler(JsonProcessingException.class)
-    public ResponseEntity<ErrorResponse> handleJsonException(JsonProcessingException ex) {
-        return new ResponseEntity<>(ErrorResponse.builder().status(HttpStatus.BAD_REQUEST.value()).title("Invalid Json")
-                .detail("Invalid Json").messages(Collections.singletonList(ex.getMessage())).build(), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ErrorResponse> handleJsonException(JsonProcessingException ex, WebRequest request) {
+        String uri = request.getDescription(false);
+        return new ResponseEntity<>(ErrorResponse.builder().type(HttpStatus.BAD_GATEWAY.toString()).status(HttpStatus.BAD_REQUEST.value())
+                .title(INVALID_JSON).detail(INVALID_JSON).instance(uri)
+                .errorCode(MGMErrorCode.getMgmErrorCode(MGMErrorCode.getServiceCodeByMethodURI(uri), HttpStatus.BAD_REQUEST.value(), false))
+                .messages(Collections.singletonList(ex.getMessage())).build(), HttpStatus.BAD_REQUEST);
     }
 
     //Used when PPS is unable to connect to Intelligent Router
     @ExceptionHandler(RetryableException.class)
-    public ResponseEntity<ErrorResponse> handleConnectionException(RetryableException ex) {
-        return new ResponseEntity<>(ErrorResponse.builder().status(HttpStatus.SERVICE_UNAVAILABLE.value()).title(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE)
-                .detail(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE).build(), HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<ErrorResponse> handleConnectionException(RetryableException ex, WebRequest request) {
+        String uri = request.getDescription(false);
+        return new ResponseEntity<>(ErrorResponse.builder().type(HttpStatus.INTERNAL_SERVER_ERROR.toString()).status(HttpStatus.SERVICE_UNAVAILABLE.value())
+                .title(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE).detail(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE).instance(uri)
+                .errorCode(MGMErrorCode.getMgmErrorCode(MGMErrorCode.getServiceCodeByMethodURI(uri), HttpStatus.BAD_REQUEST.value(), true))
+                .messages(Collections.singletonList(ex.getMessage())).build(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     //Used for Validation of Enum Values
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
-        String errorDetails = "Unacceptable JSON " + ex.getMessage();
-        if (ex.getCause() instanceof InvalidFormatException) {
-            InvalidFormatException inavlidFormatEx = (InvalidFormatException) ex.getCause();
-            if (inavlidFormatEx.getTargetType() != null && inavlidFormatEx.getTargetType().isEnum()) {
-                errorDetails = String.format("Invalid enum value: '%s' for the field: '%s'. The value must be one of: %s.",
-                        inavlidFormatEx.getValue(), inavlidFormatEx.getPath().get(inavlidFormatEx.getPath().size() - 1).getFieldName(),
-                        Arrays.toString(inavlidFormatEx.getTargetType().getEnumConstants()));
-            }
-        }
-        return new ResponseEntity<>(ErrorResponse.builder().status(HttpStatus.BAD_REQUEST.value()).title(INVALID_REQUEST_PARAMETERS)
-                .detail(INVALID_REQUEST_PARAMETERS).messages(Collections.singletonList(errorDetails)).build(), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, WebRequest request) {
+        String uri = request.getDescription(false);
+        return new ResponseEntity<>(ErrorResponse.builder().type(HttpStatus.BAD_REQUEST.toString()).status(HttpStatus.BAD_REQUEST.value())
+                .title(INVALID_REQUEST_PARAMETERS).detail(INVALID_REQUEST_PARAMETERS).instance(uri)
+                .errorCode(MGMErrorCode.getMgmErrorCode(MGMErrorCode.getServiceCodeByMethodURI(uri), HttpStatus.BAD_REQUEST.value(), false))
+                .messages(Collections.singletonList(getErrorDetails(ex))).build(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
+        String uri = request.getDescription(false);
         String errorDetails = "Unacceptable JSON -" + ex.getMessage();
-        return new ResponseEntity<>(ErrorResponse.builder().status(HttpStatus.BAD_REQUEST.value()).title(INVALID_REQUEST_PARAMETERS)
-                .detail(INVALID_REQUEST_PARAMETERS).messages(Collections.singletonList(errorDetails)).build(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ErrorResponse.builder().type(HttpStatus.BAD_REQUEST.toString()).status(HttpStatus.BAD_REQUEST.value())
+                .title(INVALID_REQUEST_PARAMETERS).detail(INVALID_REQUEST_PARAMETERS).instance(uri)
+                .errorCode(MGMErrorCode.getMgmErrorCode(MGMErrorCode.getServiceCodeByMethodURI(uri), HttpStatus.BAD_REQUEST.value(), false))
+                .messages(Collections.singletonList(errorDetails)).build(), HttpStatus.BAD_REQUEST);
     }
 
     //Used to catch exception/errors from Intelligent Router
@@ -90,8 +107,34 @@ public class CPPaymentProcessingExceptionHandler {
 
     //Used to catch exception in case headers are not present in request
     @ExceptionHandler(MissingHeaderException.class)
-    public ResponseEntity<ErrorResponse> handleMissingHeaderException(MissingHeaderException ex) {
-        return new ResponseEntity<>(ErrorResponse.builder().status(HttpStatus.BAD_REQUEST.value()).title(INVALID_REQUEST_PARAMETERS)
-                .detail(INVALID_REQUEST_PARAMETERS).messages(Collections.singletonList("Missing request Headers is/are: " + ex.getMessage())).build(), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ErrorResponse> handleMissingHeaderException(MissingHeaderException ex, WebRequest request) {
+        String uri = request.getDescription(false);
+        return new ResponseEntity<>(ErrorResponse.builder().type(HttpStatus.BAD_REQUEST.toString()).status(HttpStatus.BAD_REQUEST.value())
+                .title(INVALID_REQUEST_PARAMETERS).detail(INVALID_REQUEST_PARAMETERS).instance(uri)
+                .errorCode(MGMErrorCode.getMgmErrorCode(MGMErrorCode.getServiceCodeByMethodURI(uri), HttpStatus.BAD_REQUEST.value(), false))
+                .messages(Collections.singletonList(MISSING_HEADERS_PREFIX + ex.getMessage())).build(), HttpStatus.BAD_REQUEST);
+    }
+
+    //used to catch exception when Request URL is not found
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFoundError(NoHandlerFoundException ex, WebRequest request) {
+        String uri = request.getDescription(false);
+        return new ResponseEntity<>(ErrorResponse.builder().type(HttpStatus.NOT_FOUND.toString()).status(HttpStatus.NOT_FOUND.value())
+                .title(HttpStatus.NOT_FOUND.getReasonPhrase()).detail(HttpStatus.NOT_FOUND.getReasonPhrase()).instance(ex.getRequestURL())
+                .errorCode(MGMErrorCode.getMgmErrorCode(MGMErrorCode.getServiceCodeByMethodURI(uri), HttpStatus.BAD_REQUEST.value(), false))
+                .messages(Collections.singletonList(RESOURCE_NOT_FOUND)).build(), HttpStatus.NOT_FOUND);
+    }
+
+    private static String getErrorDetails(HttpMessageNotReadableException ex) {
+        String errorDetails = "Unacceptable JSON " + ex.getMessage();
+        if (ex.getCause() instanceof InvalidFormatException) {
+            InvalidFormatException inavlidFormatEx = (InvalidFormatException) ex.getCause();
+            if (inavlidFormatEx.getTargetType() != null && inavlidFormatEx.getTargetType().isEnum()) {
+                errorDetails = String.format("Invalid enum value: '%s' for the field: '%s'. The value must be one of: %s.",
+                        inavlidFormatEx.getValue(), inavlidFormatEx.getPath().get(inavlidFormatEx.getPath().size() - 1).getFieldName(),
+                        Arrays.toString(inavlidFormatEx.getTargetType().getEnumConstants()));
+            }
+        }
+        return errorDetails;
     }
 }

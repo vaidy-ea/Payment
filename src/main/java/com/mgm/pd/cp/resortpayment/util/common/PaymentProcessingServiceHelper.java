@@ -28,6 +28,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.MGM_JOURNEY_ID;
+
 /**
  * Helper class for utility methods
  */
@@ -151,7 +153,7 @@ public class PaymentProcessingServiceHelper {
         List<String> missingHeaders = new ArrayList<>();
         for (Field f: CPRequestHeaders.class.getDeclaredFields()) {
             String value = f.getAnnotation(JsonProperty.class).value();
-            if (!headers.containsKey(value)) {
+            if (!value.equals(MGM_JOURNEY_ID) && !headers.containsKey(value)) {
                 missingHeaders.add(value);
             }
         }

@@ -1,10 +1,14 @@
 package com.mgm.pd.cp.resortpayment.dto.common;
 
+import com.mgm.pd.cp.payment.common.constant.BooleanValue;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.validation.Valid;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 @Data
@@ -12,18 +16,18 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CurrencyConversion implements Serializable {
-    @Size(max = 70, message = "amount exceeds the permissible length of 70")
-    private String amount;
 
-    @Size(max = 70, message = "conversionIdentifier exceeds the permissible length of 70")
+    private Double amount;
+
+    @Size(max = 20, message = "conversionIdentifier exceeds the permissible length of 20")
     private String conversionIdentifier;
 
-    @Size(max = 70, message = "conversionFlag exceeds the permissible length of 70")
-    private String conversionFlag;
+    @Valid @Enumerated(EnumType.STRING)
+    private BooleanValue conversionFlag;
 
-    @Size(max = 70, message = "binCurrencyCode exceeds the permissible length of 70")
+    @Size(max = 3, message = "binCurrencyCode exceeds the permissible length of 3")
     private String binCurrencyCode;
 
-    @Size(max = 70, message = "binCurrencyRate exceeds the permissible length of 70")
+    @Size(max = 14, message = "binCurrencyRate exceeds the permissible length of 14")
     private String binCurrencyRate;
 }

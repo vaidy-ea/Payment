@@ -15,8 +15,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TransactionDetails extends BaseTransactionDetails implements Serializable {
-    @NotNull(message = "isCardPresent cannot be empty or null")
-    private Boolean isCardPresent;
+    private Boolean isCardPresent = true;
 
     @Valid @NotNull(message = "transactionAmount cannot be empty or null")
     private TransactionAmount transactionAmount;

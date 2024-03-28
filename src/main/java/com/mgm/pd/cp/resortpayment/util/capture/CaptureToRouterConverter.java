@@ -38,6 +38,7 @@ public class CaptureToRouterConverter implements Converter<CPPaymentCaptureReque
     public RouterRequest convert(CPPaymentCaptureRequest source) {
         TransactionDetails transactionDetails = source.getTransactionDetails();
         String saleType = transactionDetails.getSaleItem().getSaleType();
+        saleType = Objects.nonNull(saleType) ? saleType: "";
         BaseTransactionDetails baseTransactionDetails = helper.getBaseTransactionDetails(source);
         HashMap<String, String> valueFromSaleDetails = helper.getSaleDetailsObject(baseTransactionDetails);
         TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
@@ -47,6 +48,7 @@ public class CaptureToRouterConverter implements Converter<CPPaymentCaptureReque
         String clerkIdentifier = merchant.getClerkIdentifier();
         CPRequestHeaders headers = source.getHeaders();
         String originalTransactionIdentifier = source.getOriginalTransactionIdentifier();
+        Boolean isCardPresent = transactionDetails.getIsCardPresent();
         CaptureRouterRequestJson requestJson = CaptureRouterRequestJson.builder()
                 .dateTime(String.valueOf(LocalDateTime.now()))
                 .amount(detailedAmount.getAmount())
@@ -56,9 +58,9 @@ public class CaptureToRouterConverter implements Converter<CPPaymentCaptureReque
                 .arrivalDate(valueFromSaleDetails.get(CHECK_IN_DATE))
                 .messageType(String.valueOf(source.getTransactionType()))
                 .guestName(transactionDetails.getCustomer().getFullName())
-                .cardNumber(card.getMaskedCardNumber())
+                .cardNumber(card.getTokenValue())
                 .cardExpirationDate(card.getExpiryDate())
-                .cardPresent(BooleanValue.getEnumByString(transactionDetails.getIsCardPresent().toString()))
+                .cardPresent(BooleanValue.getEnumByString(isCardPresent.toString()))
                 .workstation(merchant.getTerminalIdentifier())
                 .resvNameID(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
                 .roomNum(saleType.equals(OrderType.Hotel.name()) ? valueFromSaleDetails.get(ROOM_NUMBER) : valueFromSaleDetails.get(TICKET_NUMBER))

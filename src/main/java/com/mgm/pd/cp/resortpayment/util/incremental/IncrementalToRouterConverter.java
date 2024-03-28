@@ -35,6 +35,7 @@ public class IncrementalToRouterConverter implements Converter<CPPaymentIncremen
     public RouterRequest convert(CPPaymentIncrementalAuthRequest request) {
         BaseTransactionDetails baseTransactionDetails = helper.getBaseTransactionDetails(request);
         String saleType = baseTransactionDetails.getSaleItem().getSaleType();
+        saleType = Objects.nonNull(saleType) ? saleType: "";
         HashMap<String, String> valueFromSaleDetails = helper.getSaleDetailsObject(baseTransactionDetails);
         TransactionDetails transactionDetails = request.getTransactionDetails();
         TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
@@ -45,6 +46,7 @@ public class IncrementalToRouterConverter implements Converter<CPPaymentIncremen
         String clerkIdentifier = merchant.getClerkIdentifier();
         CPRequestHeaders headers = request.getHeaders();
         String originalTransactionIdentifier = request.getOriginalTransactionIdentifier();
+        Boolean isCardPresent = transactionDetails.getIsCardPresent();
         IncrementalRouterRequestJson requestJson = IncrementalRouterRequestJson.builder()
                 .dateTime(String.valueOf(LocalDateTime.now()))
                 .totalAuthAmount(transactionAmount.getCumulativeAmount())
@@ -53,9 +55,9 @@ public class IncrementalToRouterConverter implements Converter<CPPaymentIncremen
                 .billingAddress1(billingAddress.getStreetName())
                 .billingAddress2(billingAddress.getAddressLine())
                 .billingZIP(billingAddress.getPostCode())
-                .cardNumber(card.getMaskedCardNumber())
+                .cardNumber(card.getTokenValue())
                 .cardExpirationDate(card.getExpiryDate())
-                .cardPresent(BooleanValue.getEnumByString(transactionDetails.getIsCardPresent().toString()))
+                .cardPresent(BooleanValue.getEnumByString(isCardPresent.toString()))
                 .workstation(merchant.getTerminalIdentifier())
                 .checkOutDate(valueFromSaleDetails.get(CHECK_OUT_DATE))
                 .checkInDate(valueFromSaleDetails.get(CHECK_IN_DATE))

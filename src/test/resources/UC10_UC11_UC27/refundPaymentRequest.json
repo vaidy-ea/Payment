@@ -3,7 +3,7 @@
   "transactionIdentifier": "1234",
   "originalTransactionIdentifier": "192029",
   "transactionDateTime": "2019-08-24T14:15:22Z",
-  "transactionLOB": "string",
+  "transactionLOB": "Parking",
   "transactionType": "INIT",
   "transactionDetails": {
     "isCardPresent": true,
@@ -37,7 +37,7 @@
       "track2": "string",
       "track3": "string",
       "isTokenized": true,
-      "tokenType": "string",
+      "tokenType": "MGM",
       "tokenValue": "string"
     },
     "customer": {
@@ -57,7 +57,7 @@
     "currencyConversion": {
       "amount": "23.20",
       "conversionIdentifier": "2323",
-      "conversionFlag": "string",
+      "conversionFlag": "Y",
       "binCurrencyCode": "USD",
       "binCurrencyRate": "89.23"
     },

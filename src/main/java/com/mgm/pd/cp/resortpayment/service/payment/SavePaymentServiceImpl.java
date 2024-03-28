@@ -52,7 +52,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         Card card = transactionDetails.getCard();
         Payment.PaymentBuilder newPayment = Payment.builder();
         String randomId = UUID.randomUUID().toString();
-        DetailedAmount detailedAmount = transactionAmount.getDetailedAmount();
+        DetailedAmount detailedAmount = Objects.nonNull(transactionAmount.getDetailedAmount()) ? transactionAmount.getDetailedAmount() : new DetailedAmount();
         Address billingAddress = Objects.nonNull(customer.getBillingAddress()) ? customer.getBillingAddress() : new Address();
         CPRequestHeaders headers = request.getHeaders();
         String authChainId = request.getAuthChainId();
@@ -72,7 +72,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .clientId(headers.getClientId())
                 .orderType(Objects.nonNull(saleType) ? OrderType.valueOf(saleType) : null)
                 .mgmId(null)
-                .mgmToken(card.getMaskedCardNumber())
+                .mgmToken(card.getTokenValue())
                 .cardHolderName(card.getCardHolderName())
                 .tenderCategory(null)
                 .currencyCode(cc.getBinCurrencyCode())
@@ -96,7 +96,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
                 .authSubType(request.getTransactionType())
-                .tenderType(TenderType.valueOf(card.getCardType()))
+                .tenderType(Objects.nonNull(card.getCardType()) ? TenderType.valueOf(card.getCardType()) : null)
                 .updatedTimestamp(LocalDateTime.now());
         if (Objects.nonNull(response)) {
             String transDate = response.getTransDate();
@@ -124,7 +124,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         Card card = transactionDetails.getCard();
         Payment.PaymentBuilder newPayment = Payment.builder();
         String randomId = UUID.randomUUID().toString();
-        DetailedAmount detailedAmount = transactionAmount.getDetailedAmount();
+        DetailedAmount detailedAmount = Objects.nonNull(transactionAmount.getDetailedAmount()) ? transactionAmount.getDetailedAmount() : new DetailedAmount();
         Address billingAddress = Objects.nonNull(customer.getBillingAddress()) ? customer.getBillingAddress() : new Address();
         CPRequestHeaders headers = request.getHeaders();
         SaleItem<?> saleItem = transactionDetails.getSaleItem();
@@ -140,7 +140,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .clientId(headers.getClientId())
                 .orderType(Objects.nonNull(saleType) ? OrderType.valueOf(saleType) : null)
                 .mgmId(null)
-                .mgmToken(card.getMaskedCardNumber())
+                .mgmToken(card.getTokenValue())
                 .cardHolderName(card.getCardHolderName())
                 .tenderCategory(null)
                 .currencyCode(cc.getBinCurrencyCode())
@@ -165,7 +165,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
                 .authSubType(request.getTransactionType())
-                .tenderType(TenderType.valueOf(card.getCardType()))
+                .tenderType(Objects.nonNull(card.getCardType()) ? TenderType.valueOf(card.getCardType()) : null)
                 .updatedTimestamp(LocalDateTime.now());
         if (Objects.nonNull(response)) {
             String transDate = response.getTransDate();
@@ -196,7 +196,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         Card card = transactionDetails.getCard();
         Payment.PaymentBuilder newPayment = Payment.builder();
         String string = UUID.randomUUID().toString();
-        DetailedAmount detailedAmount = transactionAmount.getDetailedAmount();
+        DetailedAmount detailedAmount = Objects.nonNull(transactionAmount.getDetailedAmount()) ? transactionAmount.getDetailedAmount() : new DetailedAmount();
         Address billingAddress = Objects.nonNull(customer.getBillingAddress()) ? customer.getBillingAddress() : new Address();
         CPRequestHeaders headers = request.getHeaders();
         String authChainId = request.getAuthChainId();
@@ -216,7 +216,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .clientId(headers.getClientId())
                 .orderType(Objects.nonNull(saleType) ? OrderType.valueOf(saleType) : null)
                 .mgmId(null)
-                .mgmToken(card.getMaskedCardNumber())
+                .mgmToken(card.getTokenValue())
                 .cardHolderName(card.getCardHolderName())
                 .tenderCategory(null)
                 .currencyCode(cc.getBinCurrencyCode())
@@ -240,7 +240,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
                 .authSubType(request.getTransactionType())
-                .tenderType(TenderType.valueOf(card.getCardType()))
+                .tenderType(Objects.nonNull(card.getCardType()) ? TenderType.valueOf(card.getCardType()) : null)
                 .updatedTimestamp(LocalDateTime.now());
         if (Objects.nonNull(response)) {
             String transDate = response.getTransDate();
@@ -285,7 +285,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .clientId(headers.getClientId())
                 .orderType(Objects.nonNull(saleType) ? OrderType.valueOf(saleType) : null)
                 .mgmId(null)
-                .mgmToken(card.getMaskedCardNumber())
+                .mgmToken(card.getTokenValue())
                 .cardHolderName(card.getCardHolderName())
                 .tenderCategory(null)
                 //.currencyCode(currencyConversion.getBinCurrencyCode())
@@ -300,7 +300,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .journeyId(headers.getJourneyId())
                 .transactionSessionId(headers.getTransactionId())
                 .cardEntryMode(card.getCardEntryMode())
-                .tenderType(TenderType.valueOf(card.getCardType()))
+                .tenderType(Objects.nonNull(card.getCardType()) ? TenderType.valueOf(card.getCardType()) : null)
                 .updatedTimestamp(LocalDateTime.now());
                 //.avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
@@ -330,12 +330,13 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         Card card = transactionDetails.getCard();
         Customer customer = transactionDetails.getCustomer();
         String string = UUID.randomUUID().toString();
-        DetailedAmount detailedAmount = transactionAmount.getDetailedAmount();
+        DetailedAmount detailedAmount = Objects.nonNull(transactionAmount.getDetailedAmount()) ? transactionAmount.getDetailedAmount() : new DetailedAmount();
         Address billingAddress = Objects.nonNull(customer.getBillingAddress()) ? customer.getBillingAddress() : new Address();
         CPRequestHeaders headers = request.getHeaders();
         String authChainId = request.getAuthChainId();
         Gateway gatewayId = (Objects.nonNull(initialPayment) && Objects.nonNull(initialPayment.getGatewayId())) ? initialPayment.getGatewayId() : null;
         SaleItem<?> saleItem = transactionDetails.getSaleItem();
+        String saleType = saleItem.getSaleType();
         newPayment
                 .paymentId(string)
                 .referenceId(String.valueOf(request.getReferenceId()))
@@ -347,9 +348,9 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .authChainId(Objects.nonNull(authChainId) ? Long.valueOf(authChainId) : null)
                 .gatewayId(gatewayId)
                 .clientId(headers.getClientId())
-                .orderType(OrderType.valueOf(saleItem.getSaleType()))
+                .orderType(Objects.nonNull(saleType) ? OrderType.valueOf(saleType) : null)
                 .mgmId(null)
-                .mgmToken(card.getMaskedCardNumber())
+                .mgmToken(card.getTokenValue())
                 .cardHolderName(card.getCardHolderName())
                 .tenderCategory(null)
                 .currencyCode(cc.getBinCurrencyCode())
@@ -373,7 +374,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
                 .authSubType(request.getTransactionType())
-                .tenderType(TenderType.valueOf(card.getCardType()))
+                .tenderType(Objects.nonNull(card.getCardType()) ? TenderType.valueOf(card.getCardType()) : null)
                 .updatedTimestamp(LocalDateTime.now());
         if (Objects.nonNull(response)) {
             String transDate = response.getTransDate();

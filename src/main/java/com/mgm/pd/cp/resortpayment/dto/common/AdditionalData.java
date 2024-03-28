@@ -16,6 +16,6 @@ public class AdditionalData implements Serializable {
     @Size(max = 50, message = "name exceeds the permissible length of 50")
     private String name;
 
-    @Size(max = 100, message = "value exceeds the permissible length of 1000")
+    @Size(max = 100, message = "value exceeds the permissible length of 100")
     private String value;
 }

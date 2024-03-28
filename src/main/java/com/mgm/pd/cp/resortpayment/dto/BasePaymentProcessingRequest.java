@@ -1,5 +1,6 @@
 package com.mgm.pd.cp.resortpayment.dto;
 
+import com.mgm.pd.cp.payment.common.constant.TransactionLOB;
 import com.mgm.pd.cp.payment.common.dto.CPRequestHeaders;
 import com.mgm.pd.cp.payment.common.dto.opera.GatewayInfo;
 import com.mgm.pd.cp.payment.common.validation.possibledatetime.PossibleDateTime;
@@ -8,6 +9,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
@@ -27,8 +31,8 @@ public class BasePaymentProcessingRequest {
     @NotBlank(message = "transactionDateTime can't be empty or NULL")
     private String transactionDateTime;
 
-    @Size(max = 40, message = "transactionLOB exceed the permissible length")
-    private String transactionLOB;
+    @Valid @Enumerated(EnumType.STRING)
+    private TransactionLOB transactionLOB;
 
     private GatewayInfo gatewayInfo;
 

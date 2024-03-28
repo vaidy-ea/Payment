@@ -1,6 +1,7 @@
 package com.mgm.pd.cp.resortpayment.util.common;
 
 
+import com.mgm.pd.cp.payment.common.constant.TokenType;
 import com.mgm.pd.cp.payment.common.dto.opera.*;
 import com.mgm.pd.cp.payment.common.model.Payment;
 import org.springframework.stereotype.Component;
@@ -29,12 +30,12 @@ public class Converter {
                 .build();
 
         TransactionAmount transactionAmount = TransactionAmount.builder()
-                .balanceAmount(payment.getAmount())
-                .requestedAmount(payment.getAuthorizedAmount())
+                //.balanceAmount(payment.getAmount())
+                //.requestedAmount(payment.getAuthorizedAmount())
                 .authorizedAmount(payment.getAuthorizedAmount())
-                .cumulativeAmount(payment.getAmount())
+                //.cumulativeAmount(payment.getAmount())
                 .currencyIndicator(null)
-                .detailedAmount(detailedAmount)
+                //.detailedAmount(detailedAmount)
                 .build();
 
         Card card = Card.builder()
@@ -49,9 +50,9 @@ public class Converter {
                 .track1(null)
                 .track2(null)
                 .track3(null)
-                .isTokenized(false)
-                .tokenType(null)
-                .tokenValue(null)
+                //.isTokenized(false)
+                .tokenType(TokenType.MGM)
+                .tokenValue(payment.getMgmToken())
                 .build();
 
         PrintDetails printDetails = PrintDetails.builder()

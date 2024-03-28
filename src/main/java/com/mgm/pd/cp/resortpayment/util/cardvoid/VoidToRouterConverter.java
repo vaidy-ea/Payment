@@ -34,6 +34,7 @@ public class VoidToRouterConverter implements Converter<CPPaymentCardVoidRequest
     public RouterRequest convert(CPPaymentCardVoidRequest source) {
         BaseTransactionDetails baseTransactionDetails = helper.getBaseTransactionDetails(source);
         String saleType = baseTransactionDetails.getSaleItem().getSaleType();
+        saleType = Objects.nonNull(saleType) ? saleType: "";
         HashMap<String, String> valueFromSaleDetails = helper.getSaleDetailsObject(baseTransactionDetails);
         BaseTransactionDetails transactionDetails = source.getTransactionDetails();
         Card card = transactionDetails.getCard();
@@ -45,7 +46,7 @@ public class VoidToRouterConverter implements Converter<CPPaymentCardVoidRequest
                 .dateTime(String.valueOf(LocalDateTime.now()))
                 .departureDate(valueFromSaleDetails.get(CHECK_OUT_DATE))
                 .arrivalDate(valueFromSaleDetails.get(CHECK_IN_DATE))
-                .cardNumber(card.getMaskedCardNumber())
+                .cardNumber(card.getTokenValue())
                 .cardExpirationDate(card.getExpiryDate())
                 .workstation(merchant.getTerminalIdentifier())
                 .resvNameID(transactionDetails.getSaleItem().getSaleReferenceIdentifier())

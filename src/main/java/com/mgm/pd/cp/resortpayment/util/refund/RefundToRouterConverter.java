@@ -41,6 +41,7 @@ public class RefundToRouterConverter implements Converter<CPPaymentRefundRequest
         HashMap<String, String> valueFromSaleDetails = helper.getSaleDetailsObject(baseTransactionDetails);
         TransactionDetails transactionDetails = request.getTransactionDetails();
         String saleType = baseTransactionDetails.getSaleItem().getSaleType();
+        saleType = Objects.nonNull(saleType) ? saleType: "";
         TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
         Card card = transactionDetails.getCard();
         Merchant merchant = transactionDetails.getMerchant();
@@ -48,15 +49,16 @@ public class RefundToRouterConverter implements Converter<CPPaymentRefundRequest
         String clerkIdentifier = merchant.getClerkIdentifier();
         CPRequestHeaders headers = request.getHeaders();
         String originalTransactionIdentifier = request.getOriginalTransactionIdentifier();
+        Boolean isCardPresent = transactionDetails.getIsCardPresent();
         Optional<RefundRouterRequestJson> requestJson= Optional.ofNullable(RefundRouterRequestJson.builder()
                 .dateTime(String.valueOf(LocalDateTime.now()))
                 .totalAuthAmount(transactionAmount.getCumulativeAmount())
                 .currencyIndicator(transactionAmount.getCurrencyIndicator())
                 .guestName(customer.getFullName())
                 .billingZIP(customer.getBillingAddress().getPostCode())
-                .cardNumber(card.getMaskedCardNumber())
+                .cardNumber(card.getTokenValue())
                 .cardExpirationDate(card.getExpiryDate())
-                .cardPresent(BooleanValue.getEnumByString(transactionDetails.getIsCardPresent().toString()))
+                .cardPresent(BooleanValue.getEnumByString(isCardPresent.toString()))
                 .workstation(merchant.getTerminalIdentifier())
                 .resvNameID(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
                 .roomNum(saleType.equals(OrderType.Hotel.name()) ? valueFromSaleDetails.get(ROOM_NUMBER) : valueFromSaleDetails.get(TICKET_NUMBER))

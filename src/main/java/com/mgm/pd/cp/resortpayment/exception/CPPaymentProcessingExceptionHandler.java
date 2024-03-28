@@ -8,6 +8,9 @@ import com.mgm.pd.cp.payment.common.exception.CommonException;
 import com.mgm.pd.cp.payment.common.util.MGMErrorCode;
 import feign.FeignException;
 import feign.RetryableException;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -29,10 +32,12 @@ import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.*;
 
 @RestControllerAdvice
 public class CPPaymentProcessingExceptionHandler extends CommonException {
+    private static final Logger logger = LogManager.getLogger(CPPaymentProcessingExceptionHandler.class);
 
     //Used to handle exception from SpringBoot in case of missing attributes
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex, WebRequest request) {
+        logger.log(Level.ERROR, EXCEPTION_PREFIX + ex);
         List<String> errors = ex.getBindingResult().getFieldErrors()
                 .stream().map(FieldError::getDefaultMessage).collect(Collectors.toList());
         String uri = request.getDescription(false);
@@ -49,6 +54,7 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
     //Used to handle Date Parsing Exception for invalid dates
     @ExceptionHandler(DateTimeParseException.class)
     public ResponseEntity<ErrorResponse> handleDateValidationErrors(DateTimeParseException ex, WebRequest request) {
+        logger.log(Level.ERROR, EXCEPTION_PREFIX + ex);
         List<String> errors = Collections.singletonList("Invalid date - " + ex.getParsedString());
         String uri = request.getDescription(false);
         return new ResponseEntity<>(ErrorResponse.builder()
@@ -61,6 +67,7 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
     //Used to validate the Json
     @ExceptionHandler(JsonProcessingException.class)
     public ResponseEntity<ErrorResponse> handleJsonException(JsonProcessingException ex, WebRequest request) {
+        logger.log(Level.ERROR, EXCEPTION_PREFIX + ex);
         String uri = request.getDescription(false);
         return new ResponseEntity<>(ErrorResponse.builder().type(HttpStatus.BAD_GATEWAY.toString()).status(HttpStatus.BAD_REQUEST.value())
                 .title(INVALID_JSON).detail(INVALID_JSON).instance(uri)
@@ -71,6 +78,7 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
     //Used when PPS is unable to connect to Intelligent Router
     @ExceptionHandler(RetryableException.class)
     public ResponseEntity<ErrorResponse> handleConnectionException(RetryableException ex, WebRequest request) {
+        logger.log(Level.ERROR, EXCEPTION_PREFIX + ex);
         String uri = request.getDescription(false);
         return new ResponseEntity<>(ErrorResponse.builder().type(HttpStatus.INTERNAL_SERVER_ERROR.toString()).status(HttpStatus.SERVICE_UNAVAILABLE.value())
                 .title(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE).detail(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE).instance(uri)
@@ -81,6 +89,7 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
     //Used for Validation of Enum Values
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, WebRequest request) {
+        logger.log(Level.ERROR, EXCEPTION_PREFIX + ex);
         String uri = request.getDescription(false);
         return new ResponseEntity<>(ErrorResponse.builder().type(HttpStatus.BAD_REQUEST.toString()).status(HttpStatus.BAD_REQUEST.value())
                 .title(INVALID_REQUEST_PARAMETERS).detail(INVALID_REQUEST_PARAMETERS).instance(uri)
@@ -90,6 +99,7 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
+        logger.log(Level.ERROR, EXCEPTION_PREFIX + ex);
         String uri = request.getDescription(false);
         String errorDetails = "Unacceptable JSON -" + ex.getMessage();
         return new ResponseEntity<>(ErrorResponse.builder().type(HttpStatus.BAD_REQUEST.toString()).status(HttpStatus.BAD_REQUEST.value())
@@ -101,6 +111,7 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
     //Used to catch exception/errors from Intelligent Router
     @ExceptionHandler(FeignException.class)
     public ResponseEntity<ErrorResponse> handleIntelligentRouterExceptions(FeignException ex) throws JsonProcessingException {
+        logger.log(Level.ERROR, EXCEPTION_PREFIX + ex);
         ErrorResponse irEx = new ObjectMapper().readValue(ex.contentUTF8(), ErrorResponse.class);
         return new ResponseEntity<>(irEx, Objects.requireNonNull(HttpStatus.resolve(ex.status())));
     }
@@ -108,6 +119,7 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
     //Used to catch exception in case headers are not present in request
     @ExceptionHandler(MissingHeaderException.class)
     public ResponseEntity<ErrorResponse> handleMissingHeaderException(MissingHeaderException ex, WebRequest request) {
+        logger.log(Level.ERROR, EXCEPTION_PREFIX + ex);
         String uri = request.getDescription(false);
         return new ResponseEntity<>(ErrorResponse.builder().type(HttpStatus.BAD_REQUEST.toString()).status(HttpStatus.BAD_REQUEST.value())
                 .title(INVALID_REQUEST_PARAMETERS).detail(INVALID_REQUEST_PARAMETERS).instance(uri)
@@ -118,6 +130,7 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
     //used to catch exception when Request URL is not found
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFoundError(NoHandlerFoundException ex, WebRequest request) {
+        logger.log(Level.ERROR, EXCEPTION_PREFIX + ex);
         String uri = request.getDescription(false);
         return new ResponseEntity<>(ErrorResponse.builder().type(HttpStatus.NOT_FOUND.toString()).status(HttpStatus.NOT_FOUND.value())
                 .title(HttpStatus.NOT_FOUND.getReasonPhrase()).detail(HttpStatus.NOT_FOUND.getReasonPhrase()).instance(ex.getRequestURL())

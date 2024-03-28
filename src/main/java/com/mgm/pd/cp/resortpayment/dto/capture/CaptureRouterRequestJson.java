@@ -1,5 +1,6 @@
 package com.mgm.pd.cp.resortpayment.dto.capture;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mgm.pd.cp.payment.common.validation.ValidDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,6 +11,7 @@ import javax.validation.constraints.*;
 @Data
 @Builder
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CaptureRouterRequestJson {
     @NotNull(message = "Amount can't be empty or NULL")
     @Min(value = 0L, message = "Amount can't be negative")

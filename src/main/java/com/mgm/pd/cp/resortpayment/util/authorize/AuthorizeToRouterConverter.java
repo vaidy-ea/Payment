@@ -35,6 +35,7 @@ public class AuthorizeToRouterConverter implements Converter<CPPaymentAuthorizat
     public RouterRequest convert(CPPaymentAuthorizationRequest request) {
         BaseTransactionDetails baseTransactionDetails = helper.getBaseTransactionDetails(request);
         String saleType = baseTransactionDetails.getSaleItem().getSaleType();
+        saleType = Objects.nonNull(saleType) ? saleType: "";
         HashMap<String, String> valueFromSaleDetails = helper.getSaleDetailsObject(baseTransactionDetails);
         TransactionDetails transactionDetails = request.getTransactionDetails();
         TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
@@ -47,17 +48,18 @@ public class AuthorizeToRouterConverter implements Converter<CPPaymentAuthorizat
         CPRequestHeaders headers = request.getHeaders();
         String clerkIdentifier = merchant.getClerkIdentifier();
         String originalTransactionIdentifier = request.getOriginalTransactionIdentifier();
+        Boolean isCardPresent = transactionDetails.getIsCardPresent();
         AuthorizationRouterRequestJson requestJson = AuthorizationRouterRequestJson.builder()
                 .dateTime(String.valueOf(LocalDateTime.now()))
-                .totalAuthAmount(transactionAmount.getCumulativeAmount())
+                .totalAuthAmount(transactionAmount.getRequestedAmount())
                 .currencyIndicator(transactionAmount.getCurrencyIndicator())
                 .guestName(customer.getFullName())
                 .billingAddress1(billingAddress.getStreetName())
                 .billingAddress2(billingAddress.getAddressLine())
                 .billingZIP(billingAddress.getPostCode())
-                .cardNumber(card.getMaskedCardNumber())
+                .cardNumber(card.getTokenValue())
                 .cardExpirationDate(card.getExpiryDate())
-                .cardPresent(BooleanValue.getEnumByString(transactionDetails.getIsCardPresent().toString()))
+                .cardPresent(BooleanValue.getEnumByString(isCardPresent.toString()))
                 .workstation(merchant.getTerminalIdentifier())
                 .checkOutDate(valueFromSaleDetails.get(CHECK_OUT_DATE))
                 .checkInDate(valueFromSaleDetails.get(CHECK_IN_DATE))
@@ -71,32 +73,6 @@ public class AuthorizeToRouterConverter implements Converter<CPPaymentAuthorizat
                 .clientID(headers.getClientId())
                 .corelationId(headers.getCorrelationId())
                 .build();
-
-                /*.authorizationAmount(transactionAmount.getRequestedAmount())
-                .billingCity(billingAddress.getTownName())
-                .billingState(billingAddress.getCountrySubDivision())
-                .dccAmount(Double.valueOf(currencyConversion.getAmount()))
-                .dCCFlag(currencyConversion.getConversionIdentifier())
-                .binCurrencyCode(currencyConversion.getBinCurrencyCode())
-                .binRate(currencyConversion.getBinCurrencyRate())
-                .uniqueID(card.getTokenValue())
-                .cardType(card.getCardType())
-                .cID(card.getCardIssuerIdentification())
-                .trackData(card.getTrack1())
-                //.trackLength(request.getTrackLength())
-                //.trackIndicator(request.getTrackIndicator())
-                .startDate(card.getStartDate())
-                .issueNumber(Integer.valueOf(card.getSequenceNumber()))
-                //.usageType(request.getUsageType())
-                .merchantID(merchant.getMerchantIdentifier())
-                .version(merchant.getVersion())
-                .propertyCode(valueFromSaleDetails.get(PROPERTY_IDENTIFIER))
-                .chainCode(valueFromSaleDetails.get(PROPERTY_CHAIN_IDENTIFIER))
-                .originDate(valueFromSaleDetails.get(ORIGIN_DATE))
-                .roomRate(!roomRate.equals(NULL) ? Double.valueOf(roomRate) : null)
-                .balance(transactionDetails.getTransactionAmount().getBalanceAmount())
-                //.aVSStatus(request.getAVSStatus())
-                .build();*/
         String requestJsonAsString;
         try {
             requestJsonAsString = mapper.writeValueAsString(requestJson);

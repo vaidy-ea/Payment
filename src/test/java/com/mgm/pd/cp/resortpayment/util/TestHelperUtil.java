@@ -64,7 +64,7 @@ public class TestHelperUtil {
 	}
 
 	public static String getOperaResponse() {
-		return "{\"approvalCode\":\"OK196Z\",\"responseCode\":\"A\",\"gatewayInfo\":{\"gatewayTransactionIdentifier\":\"192029\"},\"transactionDateTime\":\"2019-08-24T14:15:22\",\"transactionAmount\":{\"balanceAmount\":500.0,\"requestedAmount\":898.07,\"authorizedAmount\":898.07,\"cumulativeAmount\":500.0,\"detailedAmount\":{\"amount\":500.0}},\"card\":{\"cardType\":\"MANUAL\",\"cardHolderName\":\"John\",\"isTokenized\":false},\"printDetails\":[{}]}";
+		return "{\"approvalCode\":\"OK196Z\",\"responseCode\":\"A\",\"gatewayInfo\":{\"gatewayTransactionIdentifier\":\"192029\"},\"transactionDateTime\":\"2019-08-24T14:15:22\",\"transactionAmount\":{\"authorizedAmount\":898.07},\"card\":{\"cardType\":\"MANUAL\",\"cardHolderName\":\"John\",\"tokenType\":\"MGM\",\"tokenValue\":\"string\"},\"printDetails\":[{}]}";
 	}
 
 	public static Optional<List<Payment>> getInitialPayment() throws IOException {
@@ -73,7 +73,7 @@ public class TestHelperUtil {
     }
 
 	public static String getOperaResponseForCaptureOperation() {
-		return "{\"approvalCode\":\"OK684Z\",\"responseCode\":\"A\",\"gatewayInfo\":{\"gatewayTransactionIdentifier\":\"192029\"},\"transactionDateTime\":\"2019-08-24T14:15:22\",\"transactionAmount\":{\"balanceAmount\":500.0,\"requestedAmount\":898.07,\"authorizedAmount\":898.07,\"cumulativeAmount\":500.0,\"detailedAmount\":{\"amount\":500.0}},\"card\":{\"cardType\":\"MANUAL\",\"cardHolderName\":\"John\",\"isTokenized\":false},\"printDetails\":[{}]}";
+		return "{\"approvalCode\":\"OK684Z\",\"responseCode\":\"A\",\"gatewayInfo\":{\"gatewayTransactionIdentifier\":\"192029\"},\"transactionDateTime\":\"2019-08-24T14:15:22\",\"transactionAmount\":{\"authorizedAmount\":898.07},\"card\":{\"cardType\":\"MANUAL\",\"cardHolderName\":\"John\",\"tokenType\":\"MGM\",\"tokenValue\":\"string\"},\"printDetails\":[{}]}";
 	}
 
 	public static CPPaymentRefundRequest getRefundPaymentRequest() throws IOException {
@@ -89,7 +89,7 @@ public class TestHelperUtil {
 	}
 
 	public static String getOperaResponseForRefundOperation() {
-		return "{\"approvalCode\":\"OK846Z\",\"responseCode\":\"Approved\",\"gatewayInfo\":{\"gatewayTransactionIdentifier\":\"192029\"},\"transactionDateTime\":\"2019-08-24T14:15:22\",\"transactionAmount\":{\"balanceAmount\":500.0,\"requestedAmount\":100.0,\"authorizedAmount\":100.0,\"cumulativeAmount\":500.0,\"detailedAmount\":{\"amount\":500.0}},\"card\":{\"cardType\":\"MANUAL\",\"cardHolderName\":\"John\",\"isTokenized\":false},\"printDetails\":[{}]}";
+		return "{\"approvalCode\":\"OK846Z\",\"responseCode\":\"Approved\",\"gatewayInfo\":{\"gatewayTransactionIdentifier\":\"192029\"},\"transactionDateTime\":\"2019-08-24T14:15:22\",\"transactionAmount\":{\"authorizedAmount\":100.0},\"card\":{\"cardType\":\"MANUAL\",\"cardHolderName\":\"John\",\"tokenType\":\"MGM\",\"tokenValue\":\"string\"},\"printDetails\":[{}]}";
 	}
 
 	public static CPPaymentAuthorizationRequest getAuthorizationRequest() throws IOException {
@@ -132,11 +132,11 @@ public class TestHelperUtil {
 	}
 
 	public static String getOperaResponseForCardVoidOperation() {
-		return "{\"approvalCode\":\"OK196Z\",\"responseCode\":\"A\",\"gatewayInfo\":{\"gatewayTransactionIdentifier\":\"12345\"},\"transactionDateTime\":\"2019-08-24T14:15:22\",\"transactionAmount\":{\"requestedAmount\":898.07,\"authorizedAmount\":898.07,\"detailedAmount\":{}},\"card\":{\"cardType\":\"MANUAL\",\"cardHolderName\":\"John\",\"isTokenized\":false},\"printDetails\":[{}]}";
+		return "{\"approvalCode\":\"OK196Z\",\"responseCode\":\"A\",\"gatewayInfo\":{\"gatewayTransactionIdentifier\":\"12345\"},\"transactionDateTime\":\"2019-08-24T14:15:22\",\"transactionAmount\":{\"authorizedAmount\":898.07},\"card\":{\"cardType\":\"MANUAL\",\"cardHolderName\":\"John\",\"tokenType\":\"MGM\",\"tokenValue\":\"string\"},\"printDetails\":[{}]}";
 	}
 
 	public static String getOperaResponseForIncrementalAuthOperation() {
-		return "{\"approvalCode\":\"OK196Z\",\"responseCode\":\"A\",\"gatewayInfo\":{\"gatewayTransactionIdentifier\":\"192029\"},\"transactionDateTime\":\"2019-08-24T14:15:22\",\"transactionAmount\":{\"balanceAmount\":500.0,\"requestedAmount\":898.07,\"authorizedAmount\":898.07,\"cumulativeAmount\":500.0,\"detailedAmount\":{\"amount\":500.0}},\"card\":{\"cardType\":\"MANUAL\",\"cardHolderName\":\"John\",\"isTokenized\":false},\"printDetails\":[{}]}";
+		return "{\"approvalCode\":\"OK196Z\",\"responseCode\":\"A\",\"gatewayInfo\":{\"gatewayTransactionIdentifier\":\"192029\"},\"transactionDateTime\":\"2019-08-24T14:15:22\",\"transactionAmount\":{\"authorizedAmount\":898.07},\"card\":{\"cardType\":\"MANUAL\",\"cardHolderName\":\"John\",\"tokenType\":\"MGM\",\"tokenValue\":\"string\"},\"printDetails\":[{}]}";
 	}
 
 	public static String getContentUTF8FromFeignException() {

@@ -3,7 +3,7 @@
   "transactionIdentifier": "1234",
   "originalTransactionIdentifier": "192029",
   "transactionDateTime": "2019-08-24T14:15:22Z",
-  "transactionLOB": "string",
+  "transactionLOB": "Parking",
   "transactionDetails": {
     "card": {
       "cardType": "DEBIT",
@@ -19,7 +19,7 @@
       "track2": "string",
       "track3": "string",
       "isTokenized": true,
-      "tokenType": "string",
+      "tokenType": "MGM",
       "tokenValue": "string"
     },
     "merchant": {

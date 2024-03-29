@@ -97,7 +97,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
                 .authSubType(request.getTransactionType())
                 .tenderType(TenderType.CREDIT)
-                .issuerType(Objects.nonNull(cardType) ? CardType.valueOf(cardType.replaceAll("\\s+", "_")) : null)
+                .issuerType(Objects.nonNull(cardType) ? CardType.valueOf(CardType.getEnumByString(cardType.replaceAll("\\s+", "_"))) : null)
                 .updatedTimestamp(LocalDateTime.now());
         if (Objects.nonNull(response)) {
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
@@ -165,7 +165,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
                 .authSubType(request.getTransactionType())
                 .tenderType(TenderType.CREDIT)
-                .issuerType(Objects.nonNull(cardType) ? CardType.valueOf(cardType.replaceAll("\\s+", "_")) : null)
+                .issuerType(Objects.nonNull(cardType) ? CardType.valueOf(CardType.getEnumByString(cardType.replaceAll("\\s+", "_"))) : null)
                 .updatedTimestamp(LocalDateTime.now());
         if (Objects.nonNull(response)) {
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
@@ -239,7 +239,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
                 .authSubType(request.getTransactionType())
                 .tenderType(TenderType.CREDIT)
-                .issuerType(Objects.nonNull(cardType) ? CardType.valueOf(cardType.replaceAll("\\s+", "_")) : null)
+                .issuerType(Objects.nonNull(cardType) ? CardType.valueOf(CardType.getEnumByString(cardType.replaceAll("\\s+", "_"))) : null)
                 .updatedTimestamp(LocalDateTime.now());
         if (Objects.nonNull(response)) {
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
@@ -298,7 +298,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .transactionSessionId(headers.getTransactionId())
                 .cardEntryMode(card.getCardEntryMode())
                 .tenderType(TenderType.CREDIT)
-                .issuerType(Objects.nonNull(cardType) ? CardType.valueOf(cardType.replaceAll("\\s+", "_")) : null)
+                .issuerType(Objects.nonNull(cardType) ? CardType.valueOf(CardType.getEnumByString(cardType.replaceAll("\\s+", "_"))) : null)
                 .updatedTimestamp(LocalDateTime.now());
                 //.avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
@@ -373,7 +373,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
                 .authSubType(request.getTransactionType())
                 .tenderType(TenderType.CREDIT)
-                .issuerType(Objects.nonNull(cardType) ? CardType.valueOf(cardType.replaceAll("\\s+", "_")) : null)
+                .issuerType(Objects.nonNull(cardType) ? CardType.valueOf(CardType.getEnumByString(cardType.replaceAll("\\s+", "_"))) : null)
                 .updatedTimestamp(LocalDateTime.now());
         if (Objects.nonNull(response)) {
             String transDate = response.getTransDate();

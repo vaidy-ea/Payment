@@ -1,6 +1,8 @@
 package com.mgm.pd.cp.resortpayment.dto.common;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mgm.pd.cp.payment.common.dto.opera.TransactionAmount;
+import com.mgm.pd.cp.payment.common.validation.BooleanValidator;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,7 +17,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TransactionDetails extends BaseTransactionDetails implements Serializable {
-    private Boolean isCardPresent = true;
+    @JsonDeserialize(using = BooleanValidator.class)
+    private Boolean isCardPresent;
 
     @Valid @NotNull(message = "transactionAmount cannot be empty or null")
     private TransactionAmount transactionAmount;

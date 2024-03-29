@@ -48,7 +48,7 @@ public class AuthorizeToRouterConverter implements Converter<CPPaymentAuthorizat
         CPRequestHeaders headers = request.getHeaders();
         String clerkIdentifier = merchant.getClerkIdentifier();
         String originalTransactionIdentifier = request.getOriginalTransactionIdentifier();
-        Boolean isCardPresent = transactionDetails.getIsCardPresent();
+        Boolean isCardPresent = Objects.nonNull(transactionDetails.getIsCardPresent()) ? transactionDetails.getIsCardPresent() : Boolean.TRUE;
         AuthorizationRouterRequestJson requestJson = AuthorizationRouterRequestJson.builder()
                 .dateTime(String.valueOf(LocalDateTime.now()))
                 .totalAuthAmount(transactionAmount.getRequestedAmount())

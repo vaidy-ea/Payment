@@ -46,7 +46,7 @@ public class IncrementalToRouterConverter implements Converter<CPPaymentIncremen
         String clerkIdentifier = merchant.getClerkIdentifier();
         CPRequestHeaders headers = request.getHeaders();
         String originalTransactionIdentifier = request.getOriginalTransactionIdentifier();
-        Boolean isCardPresent = transactionDetails.getIsCardPresent();
+        Boolean isCardPresent = Objects.nonNull(transactionDetails.getIsCardPresent()) ? transactionDetails.getIsCardPresent() : Boolean.TRUE;
         IncrementalRouterRequestJson requestJson = IncrementalRouterRequestJson.builder()
                 .dateTime(String.valueOf(LocalDateTime.now()))
                 .totalAuthAmount(transactionAmount.getCumulativeAmount())

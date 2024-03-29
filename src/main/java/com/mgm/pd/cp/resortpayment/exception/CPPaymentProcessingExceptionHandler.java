@@ -1,6 +1,7 @@
 package com.mgm.pd.cp.resortpayment.exception;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.mgm.pd.cp.payment.common.dto.ErrorResponse;
@@ -140,13 +141,19 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
 
     private static String getErrorDetails(HttpMessageNotReadableException ex) {
         String errorDetails = "Unacceptable JSON " + ex.getMessage();
-        if (ex.getCause() instanceof InvalidFormatException) {
-            InvalidFormatException inavlidFormatEx = (InvalidFormatException) ex.getCause();
-            if (inavlidFormatEx.getTargetType() != null && inavlidFormatEx.getTargetType().isEnum()) {
+        Throwable cause = ex.getCause();
+        if (cause instanceof InvalidFormatException) {
+            InvalidFormatException invalidFormatException = (InvalidFormatException) cause;
+            if (invalidFormatException.getTargetType() != null && invalidFormatException.getTargetType().isEnum()) {
                 errorDetails = String.format("Invalid enum value: '%s' for the field: '%s'. The value must be one of: %s.",
-                        inavlidFormatEx.getValue(), inavlidFormatEx.getPath().get(inavlidFormatEx.getPath().size() - 1).getFieldName(),
-                        Arrays.toString(inavlidFormatEx.getTargetType().getEnumConstants()));
+                        invalidFormatException.getValue(), invalidFormatException.getPath().get(invalidFormatException.getPath().size() - 1).getFieldName(),
+                        Arrays.toString(invalidFormatException.getTargetType().getEnumConstants()));
             }
+        }
+        if (cause instanceof JsonMappingException) {
+            JsonMappingException invalidBooleanInJson = (JsonMappingException) cause;
+            String errorFields = invalidBooleanInJson.getPath().stream().map(JsonMappingException.Reference::getFieldName).collect(Collectors.joining("."));
+            errorDetails = invalidBooleanInJson.getOriginalMessage() + " for attribute -> " + errorFields;
         }
         return errorDetails;
     }

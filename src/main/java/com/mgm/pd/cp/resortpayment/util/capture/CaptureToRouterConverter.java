@@ -48,7 +48,7 @@ public class CaptureToRouterConverter implements Converter<CPPaymentCaptureReque
         String clerkIdentifier = merchant.getClerkIdentifier();
         CPRequestHeaders headers = source.getHeaders();
         String originalTransactionIdentifier = source.getOriginalTransactionIdentifier();
-        Boolean isCardPresent = transactionDetails.getIsCardPresent();
+        Boolean isCardPresent = Objects.nonNull(transactionDetails.getIsCardPresent()) ? transactionDetails.getIsCardPresent() : Boolean.TRUE;
         CaptureRouterRequestJson requestJson = CaptureRouterRequestJson.builder()
                 .dateTime(String.valueOf(LocalDateTime.now()))
                 .amount(detailedAmount.getAmount())

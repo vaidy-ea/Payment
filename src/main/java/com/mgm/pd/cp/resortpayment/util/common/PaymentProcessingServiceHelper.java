@@ -2,7 +2,9 @@ package com.mgm.pd.cp.resortpayment.util.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.mgm.pd.cp.payment.common.constant.AuthType;
+import com.mgm.pd.cp.payment.common.constant.CardType;
 import com.mgm.pd.cp.payment.common.dto.CPRequestHeaders;
 import com.mgm.pd.cp.payment.common.dto.GenericResponse;
 import com.mgm.pd.cp.payment.common.dto.opera.OperaResponse;
@@ -167,5 +169,18 @@ public class PaymentProcessingServiceHelper {
         transactionDateTime = transactionDateTime.substring(0, 19);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd['T']HH:mm:ss['Z']");
         return LocalDateTime.parse(transactionDateTime, formatter);
+    }
+
+    //Used to convert cardType received from Request to valid enum value for Intelligent Router and Payment DB
+    public String getEnumValueOfCardType(String cardType) throws InvalidFormatException {
+        String enumByString = null;
+        if (Objects.nonNull(cardType)){
+            enumByString = CardType.getEnumByString(cardType.replaceAll("\\s+", "_")
+                    .replaceAll("’", "\\$").replaceAll("'", "\\$"));
+            if (Objects.isNull(enumByString)) {
+                throw new InvalidFormatException("Invalid Value for CardType ", cardType, CardType.class);
+            }
+        }
+        return enumByString;
     }
 }

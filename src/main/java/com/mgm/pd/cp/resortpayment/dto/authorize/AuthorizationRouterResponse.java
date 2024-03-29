@@ -2,10 +2,14 @@ package com.mgm.pd.cp.resortpayment.dto.authorize;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.mgm.pd.cp.payment.common.constant.IssuerType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 
 @Data
 @Builder
@@ -20,7 +24,8 @@ public class AuthorizationRouterResponse {
     private Long dCCAmount;
     private String cardExpirationDate;
     private Integer cardNumber;
-    private String cardType;
+    @Enumerated(EnumType.STRING)
+    private IssuerType cardType;
     private Integer issueNumber;
     @JsonProperty("resvNameId")
     private String resvNameID;

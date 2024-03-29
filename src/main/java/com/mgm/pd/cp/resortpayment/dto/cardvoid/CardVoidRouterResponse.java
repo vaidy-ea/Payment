@@ -2,7 +2,7 @@ package com.mgm.pd.cp.resortpayment.dto.cardvoid;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mgm.pd.cp.payment.common.constant.CardType;
+import com.mgm.pd.cp.payment.common.constant.IssuerType;
 import com.mgm.pd.cp.payment.common.validation.ValidDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,7 +28,7 @@ public class CardVoidRouterResponse {
     @Size(max = 30, message = "CardNumber exceed the permissible length")
     private String cardNumber;
     @Enumerated(EnumType.STRING)
-    private CardType cardType;
+    private IssuerType cardType;
     @Size(max = 20, message = "MerchantID exceed the permissible length")
     private String merchantID;
     @NotBlank(message = "ResvNameID can't be empty or NULL")

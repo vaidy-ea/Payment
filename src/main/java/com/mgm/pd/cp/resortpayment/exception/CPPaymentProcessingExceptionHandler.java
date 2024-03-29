@@ -70,7 +70,7 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
     public ResponseEntity<ErrorResponse> handleJsonException(JsonProcessingException ex, WebRequest request) {
         logger.log(Level.ERROR, EXCEPTION_PREFIX + ex);
         String uri = request.getDescription(false);
-        return new ResponseEntity<>(ErrorResponse.builder().type(HttpStatus.BAD_GATEWAY.toString()).status(HttpStatus.BAD_REQUEST.value())
+        return new ResponseEntity<>(ErrorResponse.builder().type(HttpStatus.BAD_REQUEST.toString()).status(HttpStatus.BAD_REQUEST.value())
                 .title(INVALID_JSON).detail(INVALID_JSON).instance(uri)
                 .errorCode(MGMErrorCode.getMgmErrorCode(MGMErrorCode.getServiceCodeByMethodURI(uri), HttpStatus.BAD_REQUEST.value(), false))
                 .messages(Collections.singletonList(ex.getMessage())).build(), HttpStatus.BAD_REQUEST);
@@ -150,7 +150,7 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
                         Arrays.toString(invalidFormatException.getTargetType().getEnumConstants()));
             }
         }
-        if (cause instanceof JsonMappingException) {
+        if (cause instanceof JsonMappingException && !(cause instanceof InvalidFormatException)) {
             JsonMappingException invalidBooleanInJson = (JsonMappingException) cause;
             String errorFields = invalidBooleanInJson.getPath().stream().map(JsonMappingException.Reference::getFieldName).collect(Collectors.joining("."));
             errorDetails = invalidBooleanInJson.getOriginalMessage() + " for attribute -> " + errorFields;

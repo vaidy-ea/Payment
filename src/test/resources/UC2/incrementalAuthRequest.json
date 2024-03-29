@@ -24,7 +24,7 @@
       }
     },
     "card": {
-      "cardType": "DEBIT",
+      "cardType": "Visa",
       "cardEntryMode": "MANUAL",
       "maskedCardNumber": "8048994003381119",
       "cardHolderName": "John",

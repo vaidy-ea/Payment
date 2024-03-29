@@ -1,5 +1,6 @@
 package com.mgm.pd.cp.resortpayment.service.payment;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.mgm.pd.cp.payment.common.constant.*;
 import com.mgm.pd.cp.payment.common.dto.CPRequestHeaders;
 import com.mgm.pd.cp.payment.common.dto.opera.Card;
@@ -43,7 +44,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
     private PaymentProcessingServiceHelper helper;
 
     @Override
-    public Payment saveIncrementalAuthorizationPayment(CPPaymentIncrementalAuthRequest request, IncrementalAuthorizationRouterResponse response, Payment initialPayment) {
+    public Payment saveIncrementalAuthorizationPayment(CPPaymentIncrementalAuthRequest request, IncrementalAuthorizationRouterResponse response, Payment initialPayment) throws InvalidFormatException {
         TransactionDetails transactionDetails = request.getTransactionDetails();
         TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
         Customer customer = transactionDetails.getCustomer();
@@ -59,7 +60,8 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         Gateway gatewayId = (Objects.nonNull(initialPayment) && Objects.nonNull(initialPayment.getGatewayId())) ? initialPayment.getGatewayId() : null;
         SaleItem<?> saleItem = transactionDetails.getSaleItem();
         String saleType = saleItem.getSaleType();
-        String cardType = card.getCardType();
+        String cardType = Objects.nonNull(card.getCardType()) ? card.getCardType() : null;
+        String enumByString = helper.getEnumValueOfCardType(cardType);
         newPayment
                 .paymentId(randomId)
                 .referenceId(String.valueOf(request.getReferenceId()))
@@ -97,7 +99,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
                 .authSubType(request.getTransactionType())
                 .tenderType(TenderType.CREDIT)
-                .issuerType(Objects.nonNull(cardType) ? CardType.valueOf(CardType.getEnumByString(cardType.replaceAll("\\s+", "_"))) : null)
+                .issuerType(Objects.nonNull(enumByString) ? IssuerType.valueOf(enumByString) : null)
                 .updatedTimestamp(LocalDateTime.now());
         if (Objects.nonNull(response)) {
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
@@ -113,7 +115,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
     }
 
     @Override
-    public Payment saveAuthorizationPayment(CPPaymentAuthorizationRequest request, AuthorizationRouterResponse response) {
+    public Payment saveAuthorizationPayment(CPPaymentAuthorizationRequest request, AuthorizationRouterResponse response) throws InvalidFormatException {
         TransactionDetails transactionDetails = request.getTransactionDetails();
         TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
         Customer customer = transactionDetails.getCustomer();
@@ -127,7 +129,8 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         CPRequestHeaders headers = request.getHeaders();
         SaleItem<?> saleItem = transactionDetails.getSaleItem();
         String saleType = saleItem.getSaleType();
-        String cardType = card.getCardType();
+        String cardType = Objects.nonNull(card.getCardType()) ? card.getCardType() : null;
+        String enumByString = helper.getEnumValueOfCardType(cardType);
         newPayment
                 .paymentId(randomId)
                 .referenceId(null)
@@ -165,7 +168,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
                 .authSubType(request.getTransactionType())
                 .tenderType(TenderType.CREDIT)
-                .issuerType(Objects.nonNull(cardType) ? CardType.valueOf(CardType.getEnumByString(cardType.replaceAll("\\s+", "_"))) : null)
+                .issuerType(Objects.nonNull(enumByString) ? IssuerType.valueOf(enumByString) : null)
                 .updatedTimestamp(LocalDateTime.now());
         if (Objects.nonNull(response)) {
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
@@ -184,7 +187,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
     }
 
     @Override
-    public Payment saveCaptureAuthPayment(CPPaymentCaptureRequest request, CaptureRouterResponse response, Payment initialPayment) {
+    public Payment saveCaptureAuthPayment(CPPaymentCaptureRequest request, CaptureRouterResponse response, Payment initialPayment) throws InvalidFormatException {
         TransactionDetails transactionDetails = request.getTransactionDetails();
         TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
         Customer customer = transactionDetails.getCustomer();
@@ -200,7 +203,8 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         Gateway gatewayId = (Objects.nonNull(initialPayment) && Objects.nonNull(initialPayment.getGatewayId())) ? initialPayment.getGatewayId() : null;
         SaleItem<?> saleItem = transactionDetails.getSaleItem();
         String saleType = saleItem.getSaleType();
-        String cardType = card.getCardType();
+        String cardType = Objects.nonNull(card.getCardType()) ? card.getCardType() : null;
+        String enumByString = helper.getEnumValueOfCardType(cardType);
         newPayment
                 .paymentId(string)
                 .referenceId(String.valueOf(request.getReferenceId()))
@@ -239,7 +243,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
                 .authSubType(request.getTransactionType())
                 .tenderType(TenderType.CREDIT)
-                .issuerType(Objects.nonNull(cardType) ? CardType.valueOf(CardType.getEnumByString(cardType.replaceAll("\\s+", "_"))) : null)
+                .issuerType(Objects.nonNull(enumByString) ? IssuerType.valueOf(enumByString) : null)
                 .updatedTimestamp(LocalDateTime.now());
         if (Objects.nonNull(response)) {
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
@@ -255,7 +259,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
     }
 
     @Override
-    public Payment saveCardVoidAuthPayment(CPPaymentCardVoidRequest request, CardVoidRouterResponse response, Payment initialPayment) {
+    public Payment saveCardVoidAuthPayment(CPPaymentCardVoidRequest request, CardVoidRouterResponse response, Payment initialPayment) throws InvalidFormatException {
         BaseTransactionDetails transactionDetails = request.getTransactionDetails();
         Card card = new Card();
         if (Objects.nonNull(transactionDetails)) {
@@ -268,7 +272,8 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         Gateway gatewayId = (Objects.nonNull(initialPayment) && Objects.nonNull(initialPayment.getGatewayId())) ? initialPayment.getGatewayId() : null;
         SaleItem<?> saleItem = transactionDetails.getSaleItem();
         String saleType = saleItem.getSaleType();
-        String cardType = card.getCardType();
+        String cardType = Objects.nonNull(card.getCardType()) ? card.getCardType() : null;
+        String enumByString = helper.getEnumValueOfCardType(cardType);
         newPayment
                 .paymentId(string)
                 .referenceId(String.valueOf(request.getReferenceId()))
@@ -298,7 +303,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .transactionSessionId(headers.getTransactionId())
                 .cardEntryMode(card.getCardEntryMode())
                 .tenderType(TenderType.CREDIT)
-                .issuerType(Objects.nonNull(cardType) ? CardType.valueOf(CardType.getEnumByString(cardType.replaceAll("\\s+", "_"))) : null)
+                .issuerType(Objects.nonNull(enumByString) ? IssuerType.valueOf(enumByString) : null)
                 .updatedTimestamp(LocalDateTime.now());
                 //.avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
@@ -318,7 +323,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
     }
 
     @Override
-    public Payment saveRefundPayment(CPPaymentRefundRequest request, RefundRouterResponse response, Payment initialPayment) {
+    public Payment saveRefundPayment(CPPaymentRefundRequest request, RefundRouterResponse response, Payment initialPayment) throws InvalidFormatException {
         Payment.PaymentBuilder newPayment = Payment.builder();
         TransactionDetails transactionDetails = request.getTransactionDetails();
         TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
@@ -334,7 +339,8 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         Gateway gatewayId = (Objects.nonNull(initialPayment) && Objects.nonNull(initialPayment.getGatewayId())) ? initialPayment.getGatewayId() : null;
         SaleItem<?> saleItem = transactionDetails.getSaleItem();
         String saleType = saleItem.getSaleType();
-        String cardType = card.getCardType();
+        String cardType = Objects.nonNull(card.getCardType()) ? card.getCardType() : null;
+        String enumByString = helper.getEnumValueOfCardType(cardType);
         newPayment
                 .paymentId(string)
                 .referenceId(String.valueOf(request.getReferenceId()))
@@ -373,10 +379,9 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
                 .authSubType(request.getTransactionType())
                 .tenderType(TenderType.CREDIT)
-                .issuerType(Objects.nonNull(cardType) ? CardType.valueOf(CardType.getEnumByString(cardType.replaceAll("\\s+", "_"))) : null)
+                .issuerType(Objects.nonNull(enumByString) ? IssuerType.valueOf(enumByString) : null)
                 .updatedTimestamp(LocalDateTime.now());
         if (Objects.nonNull(response)) {
-            String transDate = response.getTransDate();
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
             newPayment
                     .authorizedAmount(response.getTotalAuthAmount())

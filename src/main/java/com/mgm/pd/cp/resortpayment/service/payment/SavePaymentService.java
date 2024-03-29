@@ -1,5 +1,6 @@
 package com.mgm.pd.cp.resortpayment.service.payment;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.mgm.pd.cp.payment.common.model.Payment;
 import com.mgm.pd.cp.resortpayment.dto.authorize.AuthorizationRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
@@ -18,13 +19,13 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public interface SavePaymentService {
     @Transactional
-    Payment saveIncrementalAuthorizationPayment(CPPaymentIncrementalAuthRequest incrementalRequest, IncrementalAuthorizationRouterResponse irResponse, Payment initialPayment);
+    Payment saveIncrementalAuthorizationPayment(CPPaymentIncrementalAuthRequest incrementalRequest, IncrementalAuthorizationRouterResponse irResponse, Payment initialPayment) throws InvalidFormatException;
     @Transactional
-    Payment saveAuthorizationPayment(CPPaymentAuthorizationRequest authRequest, AuthorizationRouterResponse irResponse);
+    Payment saveAuthorizationPayment(CPPaymentAuthorizationRequest authRequest, AuthorizationRouterResponse irResponse) throws InvalidFormatException;
     @Transactional
-    Payment saveCaptureAuthPayment(CPPaymentCaptureRequest captureRequest, CaptureRouterResponse crResponse, Payment initialPayment);
+    Payment saveCaptureAuthPayment(CPPaymentCaptureRequest captureRequest, CaptureRouterResponse crResponse, Payment initialPayment) throws InvalidFormatException;
     @Transactional
-    Payment saveCardVoidAuthPayment(CPPaymentCardVoidRequest voidRequest, CardVoidRouterResponse vrResponse, Payment initialPayment);
+    Payment saveCardVoidAuthPayment(CPPaymentCardVoidRequest voidRequest, CardVoidRouterResponse vrResponse, Payment initialPayment) throws InvalidFormatException;
     @Transactional
-    Payment saveRefundPayment(CPPaymentRefundRequest request, RefundRouterResponse rrResponse, Payment initialPayment);
+    Payment saveRefundPayment(CPPaymentRefundRequest request, RefundRouterResponse rrResponse, Payment initialPayment) throws InvalidFormatException;
 }

@@ -41,7 +41,7 @@ public class Converter {
         Card card = Card.builder()
                 .cardType(String.valueOf(payment.getCardEntryMode()))
                 .maskedCardNumber(payment.getLast4DigitsOfCard())
-                .cardHolderName(payment.getCardHolderName())
+                //.cardHolderName(payment.getCardHolderName())
                 .startDate(null)
                 .expiryDate(null)
                 .cardIssuerName(null)

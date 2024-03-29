@@ -53,7 +53,7 @@ public class CaptureToRouterConverter implements Converter<CPPaymentCaptureReque
                 .dateTime(String.valueOf(LocalDateTime.now()))
                 .amount(detailedAmount.getAmount())
                 .taxAmount(detailedAmount.getVat())
-                .totalAuthAmount(transactionAmount.getCumulativeAmount())
+                .totalAuthAmount(transactionAmount.getRequestedAmount())
                 .departureDate(valueFromSaleDetails.get(CHECK_OUT_DATE))
                 .arrivalDate(valueFromSaleDetails.get(CHECK_IN_DATE))
                 .messageType(String.valueOf(source.getTransactionType()))

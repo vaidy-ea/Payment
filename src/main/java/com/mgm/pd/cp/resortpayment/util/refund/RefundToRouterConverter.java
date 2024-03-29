@@ -52,7 +52,7 @@ public class RefundToRouterConverter implements Converter<CPPaymentRefundRequest
         Boolean isCardPresent = transactionDetails.getIsCardPresent();
         Optional<RefundRouterRequestJson> requestJson= Optional.ofNullable(RefundRouterRequestJson.builder()
                 .dateTime(String.valueOf(LocalDateTime.now()))
-                .totalAuthAmount(transactionAmount.getCumulativeAmount())
+                .totalAuthAmount(transactionAmount.getRequestedAmount())
                 .currencyIndicator(transactionAmount.getCurrencyIndicator())
                 .guestName(customer.getFullName())
                 .billingZIP(customer.getBillingAddress().getPostCode())

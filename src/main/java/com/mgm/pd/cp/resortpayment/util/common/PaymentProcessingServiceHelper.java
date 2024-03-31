@@ -1,6 +1,5 @@
 package com.mgm.pd.cp.resortpayment.util.common;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.mgm.pd.cp.payment.common.constant.AuthType;
@@ -13,7 +12,6 @@ import com.mgm.pd.cp.resortpayment.dto.CPPaymentProcessingRequest;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
 import com.mgm.pd.cp.resortpayment.dto.common.BaseTransactionDetails;
 import com.mgm.pd.cp.resortpayment.dto.common.SaleItem;
-import com.mgm.pd.cp.resortpayment.exception.MissingHeaderException;
 import com.mgm.pd.cp.resortpayment.service.payment.FindPaymentService;
 import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.Level;
@@ -25,12 +23,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import javax.validation.Valid;
-import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
-import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.MGM_JOURNEY_ID;
+import static com.mgm.pd.cp.payment.common.util.CommonService.throwExceptionIfRequiredHeadersAreMissing;
 
 /**
  * Helper class for utility methods
@@ -131,7 +131,7 @@ public class PaymentProcessingServiceHelper {
      */
     public <T> T mapHeadersInRequest(T request, HttpHeaders headers) {
         headers.remove("Content-Length");
-        throwExceptionIfHeadersAreMissing(headers);
+        throwExceptionIfRequiredHeadersAreMissing(headers);
         return addHeadersInRequest(request, headers);
     }
 
@@ -148,20 +148,6 @@ public class PaymentProcessingServiceHelper {
             ((CPPaymentProcessingRequest) request).setHeaders(cpRequestHeaders);
         }
         return request;
-    }
-
-    //method used to throw exception to the caller if Headers are missing
-    private static void throwExceptionIfHeadersAreMissing(HttpHeaders headers) {
-        List<String> missingHeaders = new ArrayList<>();
-        for (Field f: CPRequestHeaders.class.getDeclaredFields()) {
-            String value = f.getAnnotation(JsonProperty.class).value();
-            if (!value.equals(MGM_JOURNEY_ID) && !headers.containsKey(value)) {
-                missingHeaders.add(value);
-            }
-        }
-        if (!missingHeaders.isEmpty()) {
-            throw new MissingHeaderException(missingHeaders);
-        }
     }
 
     //used for converting to compatible date format

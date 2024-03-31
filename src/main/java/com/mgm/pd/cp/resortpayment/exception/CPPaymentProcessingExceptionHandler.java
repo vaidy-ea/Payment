@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.mgm.pd.cp.payment.common.dto.ErrorResponse;
 import com.mgm.pd.cp.payment.common.exception.CommonException;
+import com.mgm.pd.cp.payment.common.exception.MissingHeaderException;
 import com.mgm.pd.cp.payment.common.util.MGMErrorCode;
 import feign.FeignException;
 import feign.RetryableException;

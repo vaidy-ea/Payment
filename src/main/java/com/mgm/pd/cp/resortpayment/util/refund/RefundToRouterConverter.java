@@ -61,7 +61,7 @@ public class RefundToRouterConverter implements Converter<CPPaymentRefundRequest
                 .workstation(merchant.getTerminalIdentifier())
                 .resvNameID(saleItem.getSaleReferenceIdentifier())
                 .roomNum(saleType.equals(OrderType.Hotel.name()) ? valueFromSaleDetails.get(ROOM_NUMBER) : valueFromSaleDetails.get(TICKET_NUMBER))
-                .vendorTranID(request.getAuthChainId())
+                .vendorTranID(request.getTransactionAuthChainId())
                 .sequenceNumber(request.getTransactionIdentifier())
                 .originalAuthSequence(Objects.nonNull(originalTransactionIdentifier) ? Long.valueOf(originalTransactionIdentifier) : null)
                 .transDate(request.getTransactionDateTime())

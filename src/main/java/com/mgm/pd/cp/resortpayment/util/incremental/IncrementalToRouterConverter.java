@@ -71,7 +71,7 @@ public class IncrementalToRouterConverter implements Converter<CPPaymentIncremen
                 .clerkId(Objects.nonNull(clerkIdentifier) ? Long.valueOf(clerkIdentifier) : null)
                 .clientID(headers.getClientId())
                 .corelationId(headers.getCorrelationId())
-                .vendorTranID(request.getAuthChainId())
+                .vendorTranID(request.getTransactionAuthChainId())
                 .build();
         String requestJsonAsString;
         try {

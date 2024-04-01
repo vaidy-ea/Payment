@@ -64,7 +64,7 @@ public class CaptureToRouterConverter implements Converter<CPPaymentCaptureReque
                 .workstation(merchant.getTerminalIdentifier())
                 .resvNameID(saleItem.getSaleReferenceIdentifier())
                 .roomNum(saleType.equals(OrderType.Hotel.name()) ? valueFromSaleDetails.get(ROOM_NUMBER) : valueFromSaleDetails.get(TICKET_NUMBER))
-                .vendorTranID(source.getAuthChainId())
+                .vendorTranID(source.getTransactionAuthChainId())
                 .sequenceNumber(source.getTransactionIdentifier())
                 .originalAuthSequence(Objects.nonNull(originalTransactionIdentifier) ? Long.valueOf(originalTransactionIdentifier) : null)
                 .transDate(source.getTransactionDateTime())

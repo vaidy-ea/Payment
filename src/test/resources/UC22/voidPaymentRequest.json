@@ -1,5 +1,5 @@
 {
-  "authChainId": "12345",
+  "transactionAuthChainId": "12345",
   "transactionIdentifier": "1234",
   "originalTransactionIdentifier": "192029",
   "transactionDateTime": "2019-08-24T14:15:22Z",

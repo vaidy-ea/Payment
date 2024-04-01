@@ -33,8 +33,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.mgm.pd.cp.payment.common.constant.OrderType.Hotel;
-import static com.mgm.pd.cp.payment.common.constant.OrderType.Ticket;
 import static com.mgm.pd.cp.payment.common.util.CommonService.throwExceptionIfRequiredHeadersAreMissing;
 
 /**
@@ -99,10 +97,10 @@ public class PaymentProcessingServiceHelper {
         long authChainId;
         Optional<List<Payment>> paymentDetails;
         if (request.getClass().equals(CPPaymentCardVoidRequest.class)) {
-            authChainId = Long.parseLong(((CPPaymentCardVoidRequest) request).getAuthChainId());
+            authChainId = Long.parseLong(((CPPaymentCardVoidRequest) request).getTransactionAuthChainId());
             paymentDetails = findPaymentService.getPaymentDetails(authChainId);
         } else {
-            authChainId = Long.parseLong(((CPPaymentProcessingRequest) request).getAuthChainId());
+            authChainId = Long.parseLong(((CPPaymentProcessingRequest) request).getTransactionAuthChainId());
             @Valid AuthType transactionType = ((CPPaymentProcessingRequest) request).getTransactionType();
             if (transactionType == AuthType.DEPOSIT) {
                 paymentDetails = findPaymentService.getPaymentDetails(authChainId, transactionType);

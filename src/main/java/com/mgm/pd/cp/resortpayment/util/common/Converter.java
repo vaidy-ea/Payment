@@ -2,7 +2,10 @@ package com.mgm.pd.cp.resortpayment.util.common;
 
 
 import com.mgm.pd.cp.payment.common.constant.TokenType;
-import com.mgm.pd.cp.payment.common.dto.opera.*;
+import com.mgm.pd.cp.payment.common.dto.opera.Card;
+import com.mgm.pd.cp.payment.common.dto.opera.OperaResponse;
+import com.mgm.pd.cp.payment.common.dto.opera.PrintDetails;
+import com.mgm.pd.cp.payment.common.dto.opera.TransactionAmount;
 import com.mgm.pd.cp.payment.common.model.Payment;
 import org.springframework.stereotype.Component;
 

@@ -56,7 +56,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         DetailedAmount detailedAmount = Objects.nonNull(transactionAmount.getDetailedAmount()) ? transactionAmount.getDetailedAmount() : new DetailedAmount();
         Address billingAddress = Objects.nonNull(customer.getBillingAddress()) ? customer.getBillingAddress() : new Address();
         CPRequestHeaders headers = request.getHeaders();
-        String authChainId = request.getAuthChainId();
+        String authChainId = request.getTransactionAuthChainId();
         Gateway gatewayId = (Objects.nonNull(initialPayment) && Objects.nonNull(initialPayment.getGatewayId())) ? initialPayment.getGatewayId() : null;
         SaleItem saleItem = transactionDetails.getSaleItem();
         String saleType = saleItem.getSaleType();
@@ -201,7 +201,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         DetailedAmount detailedAmount = Objects.nonNull(transactionAmount.getDetailedAmount()) ? transactionAmount.getDetailedAmount() : new DetailedAmount();
         Address billingAddress = Objects.nonNull(customer.getBillingAddress()) ? customer.getBillingAddress() : new Address();
         CPRequestHeaders headers = request.getHeaders();
-        String authChainId = request.getAuthChainId();
+        String authChainId = request.getTransactionAuthChainId();
         Gateway gatewayId = (Objects.nonNull(initialPayment) && Objects.nonNull(initialPayment.getGatewayId())) ? initialPayment.getGatewayId() : null;
         SaleItem saleItem = transactionDetails.getSaleItem();
         String saleType = saleItem.getSaleType();
@@ -271,7 +271,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         Payment.PaymentBuilder newPayment = Payment.builder();
         String string = UUID.randomUUID().toString();
         CPRequestHeaders headers = request.getHeaders();
-        String authChainId = request.getAuthChainId();
+        String authChainId = request.getTransactionAuthChainId();
         Gateway gatewayId = (Objects.nonNull(initialPayment) && Objects.nonNull(initialPayment.getGatewayId())) ? initialPayment.getGatewayId() : null;
         SaleItem saleItem = transactionDetails.getSaleItem();
         String saleType = saleItem.getSaleType();
@@ -339,7 +339,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         DetailedAmount detailedAmount = Objects.nonNull(transactionAmount.getDetailedAmount()) ? transactionAmount.getDetailedAmount() : new DetailedAmount();
         Address billingAddress = Objects.nonNull(customer.getBillingAddress()) ? customer.getBillingAddress() : new Address();
         CPRequestHeaders headers = request.getHeaders();
-        String authChainId = request.getAuthChainId();
+        String authChainId = request.getTransactionAuthChainId();
         Gateway gatewayId = (Objects.nonNull(initialPayment) && Objects.nonNull(initialPayment.getGatewayId())) ? initialPayment.getGatewayId() : null;
         SaleItem saleItem = transactionDetails.getSaleItem();
         String saleType = saleItem.getSaleType();

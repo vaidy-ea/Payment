@@ -37,7 +37,7 @@ public class BasePaymentProcessingRequest {
     private GatewayInfo gatewayInfo;
 
     //TODO: Missing in Payload sheet
-    private String authChainId;
+    private String transactionAuthChainId;
     private String referenceId;
     private CPRequestHeaders headers;
 }

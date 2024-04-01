@@ -14,21 +14,6 @@ import java.util.Collections;
 @Component
 public class Converter {
     public OperaResponse convert(Payment payment) {
-        GatewayInfo gatewayInfo = GatewayInfo.builder()
-                .gatewayTransactionIdentifier(String.valueOf(payment.getAuthChainId()))
-                .gatewayIdentifier(null)
-                .build();
-
-        DetailedAmount detailedAmount = DetailedAmount.builder()
-                .amount(payment.getAmount())
-                .cashBack(null)
-                .gratuity(null)
-                .fees(null)
-                .rebate(null)
-                .vat(null)
-                .surcharge(null)
-                .build();
-
         TransactionAmount transactionAmount = TransactionAmount.builder()
                 //.balanceAmount(payment.getAmount())
                 //.requestedAmount(payment.getAuthorizedAmount())
@@ -65,7 +50,7 @@ public class Converter {
                 .approvalCode(payment.getGatewayAuthCode())
                 .responseCode(payment.getGatewayResponseCode())
                 .responseReason(payment.getGatewayReasonDescription())
-                .gatewayInfo(gatewayInfo)
+                .transactionAuthChainId(String.valueOf(payment.getAuthChainId()))
                 .networkIdentifier(null)
                 .originalTransactionIdentifier(null)
                 .transactionDateTime(String.valueOf(payment.getCreatedTimeStamp()))

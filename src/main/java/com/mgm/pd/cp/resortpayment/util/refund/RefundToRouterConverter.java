@@ -7,10 +7,7 @@ import com.mgm.pd.cp.payment.common.constant.OrderType;
 import com.mgm.pd.cp.payment.common.dto.CPRequestHeaders;
 import com.mgm.pd.cp.payment.common.dto.opera.Card;
 import com.mgm.pd.cp.payment.common.dto.opera.TransactionAmount;
-import com.mgm.pd.cp.resortpayment.dto.common.BaseTransactionDetails;
-import com.mgm.pd.cp.resortpayment.dto.common.Customer;
-import com.mgm.pd.cp.resortpayment.dto.common.Merchant;
-import com.mgm.pd.cp.resortpayment.dto.common.TransactionDetails;
+import com.mgm.pd.cp.resortpayment.dto.common.*;
 import com.mgm.pd.cp.resortpayment.dto.refund.CPPaymentRefundRequest;
 import com.mgm.pd.cp.resortpayment.dto.refund.RefundRouterRequestJson;
 import com.mgm.pd.cp.resortpayment.dto.router.RouterRequest;
@@ -38,14 +35,16 @@ public class RefundToRouterConverter implements Converter<CPPaymentRefundRequest
     @Override
     public RouterRequest convert(CPPaymentRefundRequest request) {
         BaseTransactionDetails baseTransactionDetails = helper.getBaseTransactionDetails(request);
-        HashMap<String, String> valueFromSaleDetails = helper.getSaleDetailsObject(baseTransactionDetails);
+        HashMap<String, String> valueFromSaleDetails = Objects.nonNull(helper.getSaleDetailsObject(baseTransactionDetails)) ? helper.getSaleDetailsObject(baseTransactionDetails) : new HashMap<>();
         TransactionDetails transactionDetails = request.getTransactionDetails();
-        String saleType = baseTransactionDetails.getSaleItem().getSaleType();
+        SaleItem saleItem = Objects.nonNull(baseTransactionDetails.getSaleItem()) ? baseTransactionDetails.getSaleItem() : new SaleItem();
+        String saleType = saleItem.getSaleType();
         saleType = Objects.nonNull(saleType) ? saleType: "";
         TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
         Card card = transactionDetails.getCard();
-        Merchant merchant = transactionDetails.getMerchant();
-        Customer customer = transactionDetails.getCustomer();
+        Merchant merchant = Objects.nonNull(transactionDetails.getMerchant()) ? transactionDetails.getMerchant() : new Merchant();
+        Customer customer = Objects.nonNull(transactionDetails.getCustomer()) ? transactionDetails.getCustomer() : new Customer();
+        Address billingAddress = Objects.nonNull(customer.getBillingAddress()) ? customer.getBillingAddress() : new Address();
         String clerkIdentifier = merchant.getClerkIdentifier();
         CPRequestHeaders headers = request.getHeaders();
         String originalTransactionIdentifier = request.getOriginalTransactionIdentifier();
@@ -55,12 +54,12 @@ public class RefundToRouterConverter implements Converter<CPPaymentRefundRequest
                 .totalAuthAmount(transactionAmount.getRequestedAmount())
                 .currencyIndicator(transactionAmount.getCurrencyIndicator())
                 .guestName(customer.getFullName())
-                .billingZIP(customer.getBillingAddress().getPostCode())
+                .billingZIP(billingAddress.getPostCode())
                 .cardNumber(card.getTokenValue())
                 .cardExpirationDate(card.getExpiryDate())
                 .cardPresent(BooleanValue.getEnumByString(isCardPresent.toString()))
                 .workstation(merchant.getTerminalIdentifier())
-                .resvNameID(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
+                .resvNameID(saleItem.getSaleReferenceIdentifier())
                 .roomNum(saleType.equals(OrderType.Hotel.name()) ? valueFromSaleDetails.get(ROOM_NUMBER) : valueFromSaleDetails.get(TICKET_NUMBER))
                 .vendorTranID(request.getAuthChainId())
                 .sequenceNumber(request.getTransactionIdentifier())

@@ -34,16 +34,17 @@ public class AuthorizeToRouterConverter implements Converter<CPPaymentAuthorizat
     @Override
     public RouterRequest convert(CPPaymentAuthorizationRequest request) {
         BaseTransactionDetails baseTransactionDetails = helper.getBaseTransactionDetails(request);
-        String saleType = baseTransactionDetails.getSaleItem().getSaleType();
+        SaleItem saleItem = Objects.nonNull(baseTransactionDetails.getSaleItem()) ? baseTransactionDetails.getSaleItem() : new SaleItem();
+        String saleType = saleItem.getSaleType();
         saleType = Objects.nonNull(saleType) ? saleType: "";
-        HashMap<String, String> valueFromSaleDetails = helper.getSaleDetailsObject(baseTransactionDetails);
+        HashMap<String, String> valueFromSaleDetails = Objects.nonNull(helper.getSaleDetailsObject(baseTransactionDetails)) ? helper.getSaleDetailsObject(baseTransactionDetails) : new HashMap<>();
         TransactionDetails transactionDetails = request.getTransactionDetails();
         TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
-        Customer customer = transactionDetails.getCustomer();
-        Address billingAddress = customer.getBillingAddress();
+        Customer customer = Objects.nonNull(transactionDetails.getCustomer()) ? transactionDetails.getCustomer() : new Customer();
+        Address billingAddress = Objects.nonNull(customer.getBillingAddress()) ? customer.getBillingAddress() : new Address();
         /*CurrencyConversion currencyConversion = transactionDetails.getCurrencyConversion();*/
         Card card = transactionDetails.getCard();
-        Merchant merchant = transactionDetails.getMerchant();
+        Merchant merchant = Objects.nonNull(transactionDetails.getMerchant()) ? transactionDetails.getMerchant() : new Merchant();
         /*String roomRate = valueFromSaleDetails.get(ROOM_RATE);*/
         CPRequestHeaders headers = request.getHeaders();
         String clerkIdentifier = merchant.getClerkIdentifier();
@@ -64,7 +65,7 @@ public class AuthorizeToRouterConverter implements Converter<CPPaymentAuthorizat
                 .checkOutDate(valueFromSaleDetails.get(CHECK_OUT_DATE))
                 .checkInDate(valueFromSaleDetails.get(CHECK_IN_DATE))
                 .roomNum(saleType.equals(OrderType.Hotel.name()) ? valueFromSaleDetails.get(ROOM_NUMBER) : valueFromSaleDetails.get(TICKET_NUMBER))
-                .resvNameID(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
+                .resvNameID(saleItem.getSaleReferenceIdentifier())
                 .sequenceNumber(request.getTransactionIdentifier())
                 .originalAuthSequence(Objects.nonNull(originalTransactionIdentifier) ? Long.valueOf(originalTransactionIdentifier) : null)
                 .transDate(request.getTransactionDateTime())

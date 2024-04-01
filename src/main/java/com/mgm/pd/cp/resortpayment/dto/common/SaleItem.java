@@ -14,7 +14,7 @@ import java.io.Serializable;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SaleItem<T> implements Serializable {
+public class SaleItem implements Serializable {
     @Size(max = 70, message = "saleType exceeds the permissible length of 70")
     private String saleType;
 
@@ -25,5 +25,5 @@ public class SaleItem<T> implements Serializable {
     private String saleReferenceIdentifier;
 
     @Valid
-    private T saleDetails;
+    private SaleDetails saleDetails;
 }

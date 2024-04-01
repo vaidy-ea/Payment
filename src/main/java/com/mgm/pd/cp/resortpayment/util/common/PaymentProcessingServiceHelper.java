@@ -1,9 +1,11 @@
 package com.mgm.pd.cp.resortpayment.util.common;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.mgm.pd.cp.payment.common.constant.AuthType;
 import com.mgm.pd.cp.payment.common.constant.CardType;
+import com.mgm.pd.cp.payment.common.constant.OrderType;
 import com.mgm.pd.cp.payment.common.dto.CPRequestHeaders;
 import com.mgm.pd.cp.payment.common.dto.GenericResponse;
 import com.mgm.pd.cp.payment.common.dto.opera.OperaResponse;
@@ -11,6 +13,7 @@ import com.mgm.pd.cp.payment.common.model.Payment;
 import com.mgm.pd.cp.resortpayment.dto.CPPaymentProcessingRequest;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
 import com.mgm.pd.cp.resortpayment.dto.common.BaseTransactionDetails;
+import com.mgm.pd.cp.resortpayment.dto.common.SaleDetails;
 import com.mgm.pd.cp.resortpayment.dto.common.SaleItem;
 import com.mgm.pd.cp.resortpayment.service.payment.FindPaymentService;
 import lombok.AllArgsConstructor;
@@ -30,6 +33,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.mgm.pd.cp.payment.common.constant.OrderType.Hotel;
+import static com.mgm.pd.cp.payment.common.constant.OrderType.Ticket;
 import static com.mgm.pd.cp.payment.common.util.CommonService.throwExceptionIfRequiredHeadersAreMissing;
 
 /**
@@ -50,11 +55,18 @@ public class PaymentProcessingServiceHelper {
      */
     public LinkedHashMap<String, String> getSaleDetailsObject(BaseTransactionDetails transactionDetails) {
         if (Objects.nonNull(transactionDetails)) {
-            SaleItem<?> saleItem = transactionDetails.getSaleItem();
+            SaleItem saleItem = transactionDetails.getSaleItem();
             if (Objects.nonNull(saleItem)) {
-                Object saleDetails = saleItem.getSaleDetails();
-                if (Objects.nonNull(saleDetails) && saleDetails instanceof LinkedHashMap) {
-                    return (LinkedHashMap<String, String>) saleDetails;
+                String saleType = saleItem.getSaleType();
+                SaleDetails saleDetails = saleItem.getSaleDetails();
+                if (Objects.nonNull(saleType) && Objects.nonNull(saleDetails)) {
+                    OrderType orderType = OrderType.valueOf(saleType);
+                    LinkedHashMap<String, String> map = null;
+                    switch (orderType) {
+                        case Hotel : map = mapper.convertValue(saleDetails.getHotel(), new TypeReference<>() {}); break;
+                        case Ticket : map = mapper.convertValue(saleDetails.getTicket(), new TypeReference<>() {}); break;
+                    }
+                    if (!map.isEmpty()) return map;
                 }
             }
         }

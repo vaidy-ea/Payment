@@ -47,7 +47,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
     public Payment saveIncrementalAuthorizationPayment(CPPaymentIncrementalAuthRequest request, IncrementalAuthorizationRouterResponse response, Payment initialPayment) throws InvalidFormatException {
         TransactionDetails transactionDetails = request.getTransactionDetails();
         TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
-        Customer customer = transactionDetails.getCustomer();
+        Customer customer = Objects.nonNull(transactionDetails.getCustomer()) ? transactionDetails.getCustomer() : new Customer();
         CurrencyConversion currencyConversion = transactionDetails.getCurrencyConversion();
         CurrencyConversion cc = Objects.nonNull(currencyConversion) ? currencyConversion : new CurrencyConversion();
         Card card = Objects.nonNull(transactionDetails.getCard()) ? transactionDetails.getCard(): new Card();
@@ -58,10 +58,11 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         CPRequestHeaders headers = request.getHeaders();
         String authChainId = request.getAuthChainId();
         Gateway gatewayId = (Objects.nonNull(initialPayment) && Objects.nonNull(initialPayment.getGatewayId())) ? initialPayment.getGatewayId() : null;
-        SaleItem<?> saleItem = transactionDetails.getSaleItem();
+        SaleItem saleItem = transactionDetails.getSaleItem();
         String saleType = saleItem.getSaleType();
         String cardType = Objects.nonNull(card.getCardType()) ? card.getCardType() : null;
         String enumByString = helper.getEnumValueOfCardType(cardType);
+        Merchant merchant = Objects.nonNull(transactionDetails.getMerchant()) ? transactionDetails.getMerchant() : new Merchant();
         newPayment
                 .paymentId(randomId)
                 .referenceId(String.valueOf(request.getReferenceId()))
@@ -86,7 +87,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .billingState(billingAddress.getTownName())
                 .billingZipCode(billingAddress.getPostCode())
                 .billingCountry(billingAddress.getCountry())
-                .clerkId(transactionDetails.getMerchant().getClerkIdentifier())
+                .clerkId(merchant.getClerkIdentifier())
                 .transactionType(TransactionType.AUTHORIZE)
                 //.gatewayReasonCode().gatewayReasonDescription().gatewayAuthSource()
                 .deferredAuth(null)
@@ -118,7 +119,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
     public Payment saveAuthorizationPayment(CPPaymentAuthorizationRequest request, AuthorizationRouterResponse response) throws InvalidFormatException {
         TransactionDetails transactionDetails = request.getTransactionDetails();
         TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
-        Customer customer = transactionDetails.getCustomer();
+        Customer customer = Objects.nonNull(transactionDetails.getCustomer()) ? transactionDetails.getCustomer() : new Customer();
         CurrencyConversion currencyConversion = transactionDetails.getCurrencyConversion();
         CurrencyConversion cc = Objects.nonNull(currencyConversion) ? currencyConversion : new CurrencyConversion();
         Card card = Objects.nonNull(transactionDetails.getCard()) ? transactionDetails.getCard(): new Card();
@@ -127,10 +128,11 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         DetailedAmount detailedAmount = Objects.nonNull(transactionAmount.getDetailedAmount()) ? transactionAmount.getDetailedAmount() : new DetailedAmount();
         Address billingAddress = Objects.nonNull(customer.getBillingAddress()) ? customer.getBillingAddress() : new Address();
         CPRequestHeaders headers = request.getHeaders();
-        SaleItem<?> saleItem = transactionDetails.getSaleItem();
+        SaleItem saleItem = Objects.nonNull(transactionDetails.getSaleItem()) ? transactionDetails.getSaleItem() : new SaleItem();
         String saleType = saleItem.getSaleType();
         String cardType = Objects.nonNull(card.getCardType()) ? card.getCardType() : null;
         String enumByString = helper.getEnumValueOfCardType(cardType);
+        Merchant merchant = Objects.nonNull(transactionDetails.getMerchant()) ? transactionDetails.getMerchant() : new Merchant();
         newPayment
                 .paymentId(randomId)
                 .referenceId(null)
@@ -153,7 +155,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .billingState(billingAddress.getTownName())
                 .billingZipCode(billingAddress.getPostCode())
                 .billingCountry(billingAddress.getCountry())
-                .clerkId(transactionDetails.getMerchant().getClerkIdentifier())
+                .clerkId(merchant.getClerkIdentifier())
                 .transactionType(TransactionType.AUTHORIZE)
                 //.gatewayReasonCode().gatewayReasonDescription()
                 //.gatewayAuthSource()
@@ -190,7 +192,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
     public Payment saveCaptureAuthPayment(CPPaymentCaptureRequest request, CaptureRouterResponse response, Payment initialPayment) throws InvalidFormatException {
         TransactionDetails transactionDetails = request.getTransactionDetails();
         TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
-        Customer customer = transactionDetails.getCustomer();
+        Customer customer = Objects.nonNull(transactionDetails.getCustomer()) ? transactionDetails.getCustomer() : new Customer();
         CurrencyConversion currencyConversion = transactionDetails.getCurrencyConversion();
         CurrencyConversion cc = Objects.nonNull(currencyConversion) ? currencyConversion : new CurrencyConversion();
         Card card = Objects.nonNull(transactionDetails.getCard()) ? transactionDetails.getCard(): new Card();
@@ -201,10 +203,11 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         CPRequestHeaders headers = request.getHeaders();
         String authChainId = request.getAuthChainId();
         Gateway gatewayId = (Objects.nonNull(initialPayment) && Objects.nonNull(initialPayment.getGatewayId())) ? initialPayment.getGatewayId() : null;
-        SaleItem<?> saleItem = transactionDetails.getSaleItem();
+        SaleItem saleItem = transactionDetails.getSaleItem();
         String saleType = saleItem.getSaleType();
         String cardType = Objects.nonNull(card.getCardType()) ? card.getCardType() : null;
         String enumByString = helper.getEnumValueOfCardType(cardType);
+        Merchant merchant = Objects.nonNull(transactionDetails.getMerchant()) ? transactionDetails.getMerchant() : new Merchant();
         newPayment
                 .paymentId(string)
                 .referenceId(String.valueOf(request.getReferenceId()))
@@ -229,7 +232,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .billingState(billingAddress.getTownName())
                 .billingZipCode(billingAddress.getPostCode())
                 .billingCountry(billingAddress.getCountry())
-                .clerkId(transactionDetails.getMerchant().getClerkIdentifier())
+                .clerkId(merchant.getClerkIdentifier())
                 .transactionType(TransactionType.CAPTURE)
                 //.gatewayReasonCode().gatewayReasonDescription().gatewayAuthSource()
                 .deferredAuth(null)
@@ -270,10 +273,11 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         CPRequestHeaders headers = request.getHeaders();
         String authChainId = request.getAuthChainId();
         Gateway gatewayId = (Objects.nonNull(initialPayment) && Objects.nonNull(initialPayment.getGatewayId())) ? initialPayment.getGatewayId() : null;
-        SaleItem<?> saleItem = transactionDetails.getSaleItem();
+        SaleItem saleItem = transactionDetails.getSaleItem();
         String saleType = saleItem.getSaleType();
         String cardType = Objects.nonNull(card.getCardType()) ? card.getCardType() : null;
         String enumByString = helper.getEnumValueOfCardType(cardType);
+        Merchant merchant = Objects.nonNull(transactionDetails.getMerchant()) ? transactionDetails.getMerchant() : new Merchant();
         newPayment
                 .paymentId(string)
                 .referenceId(String.valueOf(request.getReferenceId()))
@@ -292,7 +296,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .tenderCategory(null)
                 //.currencyCode(currencyConversion.getBinCurrencyCode())
                 //.last4DigitsOfCard()
-                .clerkId(transactionDetails.getMerchant().getClerkIdentifier())
+                .clerkId(merchant.getClerkIdentifier())
                 .transactionType(TransactionType.VOID)
                 //.gatewayReasonCode().gatewayReasonDescription().gatewayAuthSource()
                 .deferredAuth(null)
@@ -330,17 +334,18 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         CurrencyConversion currencyConversion = transactionDetails.getCurrencyConversion();
         CurrencyConversion cc = Objects.nonNull(currencyConversion) ? currencyConversion : new CurrencyConversion();
         Card card = Objects.nonNull(transactionDetails.getCard()) ? transactionDetails.getCard(): new Card();
-        Customer customer = transactionDetails.getCustomer();
+        Customer customer = Objects.nonNull(transactionDetails.getCustomer()) ? transactionDetails.getCustomer() : new Customer();
         String string = UUID.randomUUID().toString();
         DetailedAmount detailedAmount = Objects.nonNull(transactionAmount.getDetailedAmount()) ? transactionAmount.getDetailedAmount() : new DetailedAmount();
         Address billingAddress = Objects.nonNull(customer.getBillingAddress()) ? customer.getBillingAddress() : new Address();
         CPRequestHeaders headers = request.getHeaders();
         String authChainId = request.getAuthChainId();
         Gateway gatewayId = (Objects.nonNull(initialPayment) && Objects.nonNull(initialPayment.getGatewayId())) ? initialPayment.getGatewayId() : null;
-        SaleItem<?> saleItem = transactionDetails.getSaleItem();
+        SaleItem saleItem = transactionDetails.getSaleItem();
         String saleType = saleItem.getSaleType();
         String cardType = Objects.nonNull(card.getCardType()) ? card.getCardType() : null;
         String enumByString = helper.getEnumValueOfCardType(cardType);
+        Merchant merchant = Objects.nonNull(transactionDetails.getMerchant()) ? transactionDetails.getMerchant() : new Merchant();
         newPayment
                 .paymentId(string)
                 .referenceId(String.valueOf(request.getReferenceId()))
@@ -365,7 +370,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .billingState(billingAddress.getTownName())
                 .billingZipCode(billingAddress.getPostCode())
                 .billingCountry(billingAddress.getCountry())
-                .clerkId(transactionDetails.getMerchant().getClerkIdentifier())
+                .clerkId(merchant.getClerkIdentifier())
                 .transactionType(REFUND)
                 //.gatewayReasonCode().gatewayReasonDescription().gatewayAuthSource()
                 .deferredAuth(null)

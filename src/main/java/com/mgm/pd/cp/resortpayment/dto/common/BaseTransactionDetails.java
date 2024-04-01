@@ -19,11 +19,10 @@ public class BaseTransactionDetails {
     private Card card;
 
     @Valid
-    @NotNull(message = "merchant details can't be empty or null")
     private Merchant merchant;
 
     @Valid
-    private SaleItem<?> saleItem;
+    private SaleItem saleItem;
 
     @Valid
     private List<AdditionalData> additionalData;

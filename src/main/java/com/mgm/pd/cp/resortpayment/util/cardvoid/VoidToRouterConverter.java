@@ -9,6 +9,7 @@ import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CardVoidRouterRequestJson;
 import com.mgm.pd.cp.resortpayment.dto.common.BaseTransactionDetails;
 import com.mgm.pd.cp.resortpayment.dto.common.Merchant;
+import com.mgm.pd.cp.resortpayment.dto.common.SaleItem;
 import com.mgm.pd.cp.resortpayment.dto.router.RouterRequest;
 import com.mgm.pd.cp.resortpayment.util.common.PaymentProcessingServiceHelper;
 import lombok.AllArgsConstructor;
@@ -33,12 +34,13 @@ public class VoidToRouterConverter implements Converter<CPPaymentCardVoidRequest
     @Override
     public RouterRequest convert(CPPaymentCardVoidRequest source) {
         BaseTransactionDetails baseTransactionDetails = helper.getBaseTransactionDetails(source);
-        String saleType = baseTransactionDetails.getSaleItem().getSaleType();
+        SaleItem saleItem = Objects.nonNull(baseTransactionDetails.getSaleItem()) ? baseTransactionDetails.getSaleItem() : new SaleItem();
+        String saleType = saleItem.getSaleType();
         saleType = Objects.nonNull(saleType) ? saleType: "";
-        HashMap<String, String> valueFromSaleDetails = helper.getSaleDetailsObject(baseTransactionDetails);
+        HashMap<String, String> valueFromSaleDetails = Objects.nonNull(helper.getSaleDetailsObject(baseTransactionDetails)) ? helper.getSaleDetailsObject(baseTransactionDetails) : new HashMap<>();
         BaseTransactionDetails transactionDetails = source.getTransactionDetails();
         Card card = transactionDetails.getCard();
-        Merchant merchant = transactionDetails.getMerchant();
+        Merchant merchant = Objects.nonNull(transactionDetails.getMerchant()) ? transactionDetails.getMerchant() : new Merchant();
         String clerkIdentifier = merchant.getClerkIdentifier();
         CPRequestHeaders headers = source.getHeaders();
         String originalTransactionIdentifier = source.getOriginalTransactionIdentifier();
@@ -49,7 +51,7 @@ public class VoidToRouterConverter implements Converter<CPPaymentCardVoidRequest
                 .cardNumber(card.getTokenValue())
                 .cardExpirationDate(card.getExpiryDate())
                 .workstation(merchant.getTerminalIdentifier())
-                .resvNameID(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
+                .resvNameID(saleItem.getSaleReferenceIdentifier())
                 .roomNum(saleType.equals(OrderType.Hotel.name()) ? valueFromSaleDetails.get(ROOM_NUMBER) : valueFromSaleDetails.get(TICKET_NUMBER))
                 .vendorTranID(source.getAuthChainId())
                 .sequenceNumber(source.getTransactionIdentifier())

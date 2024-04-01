@@ -14,8 +14,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Ticket implements Serializable {
-    @Size(max = 50, message = "propertyIdentifier exceeds the permissible length of 50")
-    private String propertyIdentifier;
+    @Size(max = 50, message = "eventIdentifier exceeds the permissible length of 50")
+    private String eventIdentifier;
 
     @Size(max = 30, message = "ticketNumber exceeds the permissible length of 30")
     private String ticketNumber;

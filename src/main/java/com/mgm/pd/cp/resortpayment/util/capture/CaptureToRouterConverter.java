@@ -10,9 +10,7 @@ import com.mgm.pd.cp.payment.common.dto.opera.DetailedAmount;
 import com.mgm.pd.cp.payment.common.dto.opera.TransactionAmount;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CaptureRouterRequestJson;
-import com.mgm.pd.cp.resortpayment.dto.common.BaseTransactionDetails;
-import com.mgm.pd.cp.resortpayment.dto.common.Merchant;
-import com.mgm.pd.cp.resortpayment.dto.common.TransactionDetails;
+import com.mgm.pd.cp.resortpayment.dto.common.*;
 import com.mgm.pd.cp.resortpayment.dto.router.RouterRequest;
 import com.mgm.pd.cp.resortpayment.util.common.PaymentProcessingServiceHelper;
 import lombok.AllArgsConstructor;
@@ -36,15 +34,17 @@ public class CaptureToRouterConverter implements Converter<CPPaymentCaptureReque
 
     @Override
     public RouterRequest convert(CPPaymentCaptureRequest source) {
-        TransactionDetails transactionDetails = source.getTransactionDetails();
-        String saleType = transactionDetails.getSaleItem().getSaleType();
-        saleType = Objects.nonNull(saleType) ? saleType: "";
         BaseTransactionDetails baseTransactionDetails = helper.getBaseTransactionDetails(source);
-        HashMap<String, String> valueFromSaleDetails = helper.getSaleDetailsObject(baseTransactionDetails);
+        SaleItem saleItem = Objects.nonNull(baseTransactionDetails.getSaleItem()) ? baseTransactionDetails.getSaleItem() : new SaleItem();
+        String saleType = saleItem.getSaleType();
+        saleType = Objects.nonNull(saleType) ? saleType: "";
+        HashMap<String, String> valueFromSaleDetails = Objects.nonNull(helper.getSaleDetailsObject(baseTransactionDetails)) ? helper.getSaleDetailsObject(baseTransactionDetails) : new HashMap<>();
+        TransactionDetails transactionDetails = source.getTransactionDetails();
         TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
         DetailedAmount detailedAmount = transactionAmount.getDetailedAmount();
         Card card = transactionDetails.getCard();
-        Merchant merchant = transactionDetails.getMerchant();
+        Customer customer = Objects.nonNull(transactionDetails.getCustomer()) ? transactionDetails.getCustomer() : new Customer();
+        Merchant merchant = Objects.nonNull(transactionDetails.getMerchant()) ? transactionDetails.getMerchant() : new Merchant();
         String clerkIdentifier = merchant.getClerkIdentifier();
         CPRequestHeaders headers = source.getHeaders();
         String originalTransactionIdentifier = source.getOriginalTransactionIdentifier();
@@ -57,12 +57,12 @@ public class CaptureToRouterConverter implements Converter<CPPaymentCaptureReque
                 .departureDate(valueFromSaleDetails.get(CHECK_OUT_DATE))
                 .arrivalDate(valueFromSaleDetails.get(CHECK_IN_DATE))
                 .messageType(String.valueOf(source.getTransactionType()))
-                .guestName(transactionDetails.getCustomer().getFullName())
+                .guestName(customer.getFullName())
                 .cardNumber(card.getTokenValue())
                 .cardExpirationDate(card.getExpiryDate())
                 .cardPresent(BooleanValue.getEnumByString(isCardPresent.toString()))
                 .workstation(merchant.getTerminalIdentifier())
-                .resvNameID(transactionDetails.getSaleItem().getSaleReferenceIdentifier())
+                .resvNameID(saleItem.getSaleReferenceIdentifier())
                 .roomNum(saleType.equals(OrderType.Hotel.name()) ? valueFromSaleDetails.get(ROOM_NUMBER) : valueFromSaleDetails.get(TICKET_NUMBER))
                 .vendorTranID(source.getAuthChainId())
                 .sequenceNumber(source.getTransactionIdentifier())

@@ -31,11 +31,11 @@ import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.INTELLI
 @SpringBootTest
 @AutoConfigureMockMvc
 public class IntelligentRouterConnectivityTest {
-    public static final String INCREMENTAL_AUTH_PATH = "/services/v1/payments/incrementalauth";
-    public static final String AUTHORIZE_PATH = "/services/v1/payments/authorize";
-    public static final String CAPTURE_PATH = "/services/v1/payments/capture";
-    public static final String VOID_PATH = "/services/v1/payments/void";
-    public static final String REFUND_PATH = "/services/v1/payments/refund";
+    public static final String INCREMENTAL_AUTH_PATH = "/services/paymentprocess/v1/authorize/incremental";
+    public static final String AUTHORIZE_PATH = "/services/paymentprocess/v1/authorize";
+    public static final String CAPTURE_PATH = "/services/paymentprocess/v1/capture";
+    public static final String VOID_PATH = "/services/paymentprocess/v1/void";
+    public static final String REFUND_PATH = "/services/paymentprocess/v1/refund";
     @Autowired
     private MockMvc mockMvc;
     @Autowired

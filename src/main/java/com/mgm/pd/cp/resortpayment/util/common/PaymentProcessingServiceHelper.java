@@ -63,6 +63,7 @@ public class PaymentProcessingServiceHelper {
                     switch (orderType) {
                         case Hotel : map = mapper.convertValue(saleDetails.getHotel(), new TypeReference<>() {}); break;
                         case Ticket : map = mapper.convertValue(saleDetails.getTicket(), new TypeReference<>() {}); break;
+                        default: map = new LinkedHashMap<>();
                     }
                     if (!map.isEmpty()) return map;
                 }

@@ -139,7 +139,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .groupId(null)
                 //.gatewayRelationNumber(headers.getCorrelationId())
                 .clientReferenceNumber(saleItem.getSaleReferenceIdentifier())
-                .gatewayId(Gateway.SHIFT4)
+                .gatewayId(Gateway.SHFT)
                 .amount(detailedAmount.getAmount())
                 .clientId(headers.getClientId())
                 .orderType(Objects.nonNull(saleType) ? OrderType.valueOf(saleType) : null)

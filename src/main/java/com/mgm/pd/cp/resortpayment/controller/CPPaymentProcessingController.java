@@ -29,7 +29,7 @@ import static com.mgm.pd.cp.payment.common.audit.constant.AuditConstant.*;
  * All methods are responsible for Validating the request.
  */
 @RestController
-@RequestMapping("/services/v1/payments")
+@RequestMapping("/services/paymentprocess/v1")
 @AllArgsConstructor
 public class CPPaymentProcessingController {
     private static final Logger logger = LogManager.getLogger(CPPaymentProcessingController.class);
@@ -44,7 +44,7 @@ public class CPPaymentProcessingController {
      * @param request: needs a valid request to process the complete process
      * @return response for Opera
      */
-    @PostMapping("/incrementalauth")
+    @PostMapping("/authorize/incremental")
     public ResponseEntity<GenericResponse<?>> incrementalAuth(@RequestHeader HttpHeaders headers, @Valid @RequestBody CPPaymentIncrementalAuthRequest request) throws JsonProcessingException {
         logger.log(Level.DEBUG, "incrementalAuth Request in DEBUG is : " + request.getTransactionType());
         return processPayload(request, headers);

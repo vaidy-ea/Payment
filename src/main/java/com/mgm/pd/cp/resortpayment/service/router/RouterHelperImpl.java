@@ -144,14 +144,12 @@ public class RouterHelperImpl implements RouterHelper {
      * and return response received form IR
      * Retry (Resilience4J) mechanism is used to try sending request to IR as per application properties file
      *
-     * @param request: request to convert and send to Router
-     * @param initialPayment: initialPayment
-     * @param headers: Request Headers
+     * @param request : request to convert and send to Router
+     * @param headers : Request Headers
      */
     @Override
     @Retry(name = "refundMessage")
-    public RefundRouterResponse sendRefundRequestToRouter(CPPaymentRefundRequest request, Payment initialPayment, HttpHeaders headers) throws JsonProcessingException {
-        request.setReferenceId(Objects.nonNull(initialPayment) ? initialPayment.getPaymentId() : null);
+    public RefundRouterResponse sendRefundRequestToRouter(CPPaymentRefundRequest request, HttpHeaders headers) throws JsonProcessingException {
         //converting request to IR compatible
         RouterRequest routerRequest = refundToRouterConverter.convert(request);
         logger.log(Level.DEBUG, "Attempting to send Message To Intelligent Router for Refund Request "+ routerRequest);

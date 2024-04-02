@@ -29,7 +29,7 @@ class SavePaymentServiceTest {
     @Test
     void test_refund_payment_with_payload() throws IOException {
         paymentRepository.deleteAll();
-        paymentService.saveRefundPayment(TestHelperUtil.getRefundPaymentRequestWithHeaders(), TestHelperUtil.getRefundRouterResponse(), TestHelperUtil.getInitialPayment().get().get(0));
+        paymentService.saveRefundPayment(TestHelperUtil.getRefundPaymentRequestWithHeaders(), TestHelperUtil.getRefundRouterResponse());
         Assertions.assertEquals(1, paymentRepository.findAll().size());
     }
 

@@ -62,7 +62,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         String saleType = saleItem.getSaleType();
         String cardType = Objects.nonNull(card.getCardType()) ? card.getCardType() : null;
         String enumByString = helper.getEnumValueOfCardType(cardType);
-        Merchant merchant = Objects.nonNull(transactionDetails.getMerchant()) ? transactionDetails.getMerchant() : new Merchant();
         newPayment
                 .paymentId(randomId)
                 .referenceId(String.valueOf(request.getReferenceId()))
@@ -87,7 +86,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .billingState(billingAddress.getTownName())
                 .billingZipCode(billingAddress.getPostCode())
                 .billingCountry(billingAddress.getCountry())
-                .clerkId(merchant.getClerkIdentifier())
                 .transactionType(TransactionType.AUTHORIZE)
                 //.gatewayReasonCode().gatewayReasonDescription().gatewayAuthSource()
                 .deferredAuth(null)
@@ -132,7 +130,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         String saleType = saleItem.getSaleType();
         String cardType = Objects.nonNull(card.getCardType()) ? card.getCardType() : null;
         String enumByString = helper.getEnumValueOfCardType(cardType);
-        Merchant merchant = Objects.nonNull(transactionDetails.getMerchant()) ? transactionDetails.getMerchant() : new Merchant();
         newPayment
                 .paymentId(randomId)
                 .referenceId(null)
@@ -155,7 +152,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .billingState(billingAddress.getTownName())
                 .billingZipCode(billingAddress.getPostCode())
                 .billingCountry(billingAddress.getCountry())
-                .clerkId(merchant.getClerkIdentifier())
                 .transactionType(TransactionType.AUTHORIZE)
                 //.gatewayReasonCode().gatewayReasonDescription()
                 //.gatewayAuthSource()
@@ -207,7 +203,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         String saleType = saleItem.getSaleType();
         String cardType = Objects.nonNull(card.getCardType()) ? card.getCardType() : null;
         String enumByString = helper.getEnumValueOfCardType(cardType);
-        Merchant merchant = Objects.nonNull(transactionDetails.getMerchant()) ? transactionDetails.getMerchant() : new Merchant();
         newPayment
                 .paymentId(string)
                 .referenceId(String.valueOf(request.getReferenceId()))
@@ -232,7 +227,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .billingState(billingAddress.getTownName())
                 .billingZipCode(billingAddress.getPostCode())
                 .billingCountry(billingAddress.getCountry())
-                .clerkId(merchant.getClerkIdentifier())
                 .transactionType(TransactionType.CAPTURE)
                 //.gatewayReasonCode().gatewayReasonDescription().gatewayAuthSource()
                 .deferredAuth(null)
@@ -277,7 +271,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         String saleType = saleItem.getSaleType();
         String cardType = Objects.nonNull(card.getCardType()) ? card.getCardType() : null;
         String enumByString = helper.getEnumValueOfCardType(cardType);
-        Merchant merchant = Objects.nonNull(transactionDetails.getMerchant()) ? transactionDetails.getMerchant() : new Merchant();
         newPayment
                 .paymentId(string)
                 .referenceId(String.valueOf(request.getReferenceId()))
@@ -296,7 +289,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .tenderCategory(null)
                 //.currencyCode(currencyConversion.getBinCurrencyCode())
                 //.last4DigitsOfCard()
-                .clerkId(merchant.getClerkIdentifier())
                 .transactionType(TransactionType.VOID)
                 //.gatewayReasonCode().gatewayReasonDescription().gatewayAuthSource()
                 .deferredAuth(null)
@@ -327,7 +319,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
     }
 
     @Override
-    public Payment saveRefundPayment(CPPaymentRefundRequest request, RefundRouterResponse response, Payment initialPayment) throws InvalidFormatException {
+    public Payment saveRefundPayment(CPPaymentRefundRequest request, RefundRouterResponse response) throws InvalidFormatException {
         Payment.PaymentBuilder newPayment = Payment.builder();
         TransactionDetails transactionDetails = request.getTransactionDetails();
         TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
@@ -339,22 +331,18 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         DetailedAmount detailedAmount = Objects.nonNull(transactionAmount.getDetailedAmount()) ? transactionAmount.getDetailedAmount() : new DetailedAmount();
         Address billingAddress = Objects.nonNull(customer.getBillingAddress()) ? customer.getBillingAddress() : new Address();
         CPRequestHeaders headers = request.getHeaders();
-        String authChainId = request.getTransactionAuthChainId();
-        Gateway gatewayId = (Objects.nonNull(initialPayment) && Objects.nonNull(initialPayment.getGatewayId())) ? initialPayment.getGatewayId() : null;
+        Gateway gatewayId = Gateway.SHFT;
         SaleItem saleItem = transactionDetails.getSaleItem();
         String saleType = saleItem.getSaleType();
         String cardType = Objects.nonNull(card.getCardType()) ? card.getCardType() : null;
         String enumByString = helper.getEnumValueOfCardType(cardType);
-        Merchant merchant = Objects.nonNull(transactionDetails.getMerchant()) ? transactionDetails.getMerchant() : new Merchant();
         newPayment
                 .paymentId(string)
                 .referenceId(String.valueOf(request.getReferenceId()))
                 .groupId(null)
                 //.gatewayRelationNumber(headers.getCorrelationId())
-                .gatewayChainId(Objects.nonNull(authChainId) ? authChainId.replaceFirst("^0+(?!$)", "") : null)
                 .clientReferenceNumber(saleItem.getSaleReferenceIdentifier())
                 .amount(detailedAmount.getAmount())
-                .authChainId(Objects.nonNull(authChainId) ? Long.valueOf(authChainId) : null)
                 .gatewayId(gatewayId)
                 .clientId(headers.getClientId())
                 .orderType(Objects.nonNull(saleType) ? OrderType.valueOf(saleType) : null)
@@ -370,7 +358,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .billingState(billingAddress.getTownName())
                 .billingZipCode(billingAddress.getPostCode())
                 .billingCountry(billingAddress.getCountry())
-                .clerkId(merchant.getClerkIdentifier())
                 .transactionType(REFUND)
                 //.gatewayReasonCode().gatewayReasonDescription().gatewayAuthSource()
                 .deferredAuth(null)
@@ -388,10 +375,13 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .updatedTimestamp(LocalDateTime.now());
         if (Objects.nonNull(response)) {
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
+            String vendorTranID = response.getVendorTranID();
             newPayment
                     .authorizedAmount(response.getTotalAuthAmount())
                     .gatewayAuthCode(response.getApprovalCode())
                     .gatewayResponseCode(returnCode)
+                    .authChainId(Objects.nonNull(vendorTranID) ? Long.valueOf(vendorTranID) : null)
+                    .gatewayChainId(Objects.nonNull(vendorTranID) ? vendorTranID.replaceFirst("^0+(?!$)", "") : null)
                     .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
         }
         Payment payment = newPayment.build();

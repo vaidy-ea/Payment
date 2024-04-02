@@ -3,6 +3,7 @@ package com.mgm.pd.cp.resortpayment.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.mgm.pd.cp.payment.common.constant.MGMChannel;
 import com.mgm.pd.cp.payment.common.dto.CPRequestHeaders;
 import com.mgm.pd.cp.payment.common.model.Payment;
 import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
@@ -108,7 +109,7 @@ public class TestHelperUtil {
 		httpHeaders.add("x-mgm-journey-id", "testJourney");
 		httpHeaders.add("x-mgm-correlation-id", "testCorrelation");
 		httpHeaders.add("x-mgm-transaction-id", "testTransaction");
-		httpHeaders.add("x-mgm-channel", "testTransaction");
+		httpHeaders.add("x-mgm-channel", MGMChannel.POS.name());
 		httpHeaders.add("x-mgm-client-id", "testClient");
 		httpHeaders.add("authorization", "testAuthorization");
 		return httpHeaders;
@@ -121,7 +122,7 @@ public class TestHelperUtil {
 	}
 
 	private static CPRequestHeaders buildCustomHeaders() {
-		return CPRequestHeaders.builder().channel("testChannel").source("testSource").transactionId("testTransaction")
+		return CPRequestHeaders.builder().channel(MGMChannel.POS).source("testSource").transactionId("testTransaction")
 				.journeyId("testJourney").correlationId("testCorrelation").clientId("testClient").authorization("testAuth").build();
 	}
 

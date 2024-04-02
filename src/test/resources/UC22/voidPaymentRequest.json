@@ -22,12 +22,6 @@
       "tokenType": "MGM",
       "tokenValue": "string"
     },
-    "merchant": {
-      "merchantIdentifier": "string",
-      "terminalIdentifier": "string",
-      "version": "string",
-      "clerkIdentifier": "1576"
-    },
     "saleItem": {
       "saleType": "Hotel",
       "saleDate": "2019-08-24T14:15:22Z",
@@ -50,9 +44,5 @@
         "value": "string"
       }
     ]
-  },
-  "gatewayInfo": {
-    "gatewayTransactionIdentifier": "0000192029",
-    "gatewayIdentifier": "string"
   }
 }

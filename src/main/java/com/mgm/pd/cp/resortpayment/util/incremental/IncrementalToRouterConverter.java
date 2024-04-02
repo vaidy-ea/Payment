@@ -43,8 +43,6 @@ public class IncrementalToRouterConverter implements Converter<CPPaymentIncremen
         Customer customer = Objects.nonNull(transactionDetails.getCustomer()) ? transactionDetails.getCustomer() : new Customer();
         Address billingAddress = Objects.nonNull(customer.getBillingAddress()) ? customer.getBillingAddress() : new Address();
         Card card = transactionDetails.getCard();
-        Merchant merchant = Objects.nonNull(transactionDetails.getMerchant()) ? transactionDetails.getMerchant() : new Merchant();
-        String clerkIdentifier = merchant.getClerkIdentifier();
         CPRequestHeaders headers = request.getHeaders();
         String originalTransactionIdentifier = request.getOriginalTransactionIdentifier();
         Boolean isCardPresent = Objects.nonNull(transactionDetails.getIsCardPresent()) ? transactionDetails.getIsCardPresent() : Boolean.TRUE;
@@ -59,7 +57,6 @@ public class IncrementalToRouterConverter implements Converter<CPPaymentIncremen
                 .cardNumber(card.getTokenValue())
                 .cardExpirationDate(card.getExpiryDate())
                 .cardPresent(BooleanValue.getEnumByString(isCardPresent.toString()))
-                .workstation(merchant.getTerminalIdentifier())
                 .checkOutDate(valueFromSaleDetails.get(CHECK_OUT_DATE))
                 .checkInDate(valueFromSaleDetails.get(CHECK_IN_DATE))
                 .roomNum(saleType.equals(OrderType.Hotel.name()) ? valueFromSaleDetails.get(ROOM_NUMBER) : valueFromSaleDetails.get(TICKET_NUMBER))
@@ -68,7 +65,6 @@ public class IncrementalToRouterConverter implements Converter<CPPaymentIncremen
                 .originalAuthSequence(Objects.nonNull(originalTransactionIdentifier) ? Long.valueOf(originalTransactionIdentifier) : null)
                 .transDate(request.getTransactionDateTime())
                 .authType(request.getTransactionType())
-                .clerkId(Objects.nonNull(clerkIdentifier) ? Long.valueOf(clerkIdentifier) : null)
                 .clientID(headers.getClientId())
                 .corelationId(headers.getCorrelationId())
                 .vendorTranID(request.getTransactionAuthChainId())

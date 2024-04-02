@@ -96,7 +96,7 @@ public class CPPaymentProcessingController {
      */
     @PostMapping("/refund")
     public ResponseEntity<GenericResponse<?>> refund(@RequestHeader HttpHeaders headers, @Valid @RequestBody CPPaymentRefundRequest cpPaymentRefundRequest) throws JsonProcessingException {
-        logger.log(Level.DEBUG, "refund Request in DEBUG is : " + cpPaymentRefundRequest.getTransactionType());
+            logger.log(Level.DEBUG, "refund Request in DEBUG is : " + cpPaymentRefundRequest.getTransactionType());
         return processPayload(cpPaymentRefundRequest, headers);
     }
 

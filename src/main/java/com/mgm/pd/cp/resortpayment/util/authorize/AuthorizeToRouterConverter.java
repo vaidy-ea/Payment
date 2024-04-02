@@ -46,10 +46,8 @@ public class AuthorizeToRouterConverter implements Converter<CPPaymentAuthorizat
         Address billingAddress = Objects.nonNull(customer.getBillingAddress()) ? customer.getBillingAddress() : new Address();
         /*CurrencyConversion currencyConversion = transactionDetails.getCurrencyConversion();*/
         Card card = transactionDetails.getCard();
-        Merchant merchant = Objects.nonNull(transactionDetails.getMerchant()) ? transactionDetails.getMerchant() : new Merchant();
         /*String roomRate = valueFromSaleDetails.get(ROOM_RATE);*/
         CPRequestHeaders headers = request.getHeaders();
-        String clerkIdentifier = merchant.getClerkIdentifier();
         String originalTransactionIdentifier = request.getOriginalTransactionIdentifier();
         Boolean isCardPresent = Objects.nonNull(transactionDetails.getIsCardPresent()) ? transactionDetails.getIsCardPresent() : Boolean.TRUE;
         AuthorizationRouterRequestJson requestJson = AuthorizationRouterRequestJson.builder()
@@ -63,7 +61,6 @@ public class AuthorizeToRouterConverter implements Converter<CPPaymentAuthorizat
                 .cardNumber(card.getTokenValue())
                 .cardExpirationDate(card.getExpiryDate())
                 .cardPresent(BooleanValue.getEnumByString(isCardPresent.toString()))
-                .workstation(merchant.getTerminalIdentifier())
                 .checkOutDate(valueFromSaleDetails.get(CHECK_OUT_DATE))
                 .checkInDate(valueFromSaleDetails.get(CHECK_IN_DATE))
                 .roomNum(saleType.equals(OrderType.Hotel.name()) ? valueFromSaleDetails.get(ROOM_NUMBER) : valueFromSaleDetails.get(TICKET_NUMBER))
@@ -72,11 +69,10 @@ public class AuthorizeToRouterConverter implements Converter<CPPaymentAuthorizat
                 .originalAuthSequence(Objects.nonNull(originalTransactionIdentifier) ? Long.valueOf(originalTransactionIdentifier) : null)
                 .transDate(request.getTransactionDateTime())
                 .authType(request.getTransactionType())
-                .clerkId(Objects.nonNull(clerkIdentifier) ? Long.valueOf(clerkIdentifier) : null)
                 .clientID(headers.getClientId())
                 .corelationId(headers.getCorrelationId())
                 .cardIssuerIdentification(card.getCardIssuerIdentification())
-                .taxAmount(detailedAmount.getVat())
+                .taxAmount(detailedAmount.getTax())
                 .build();
         String requestJsonAsString;
         try {

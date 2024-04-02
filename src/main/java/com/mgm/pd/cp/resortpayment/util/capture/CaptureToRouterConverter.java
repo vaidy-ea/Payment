@@ -10,7 +10,10 @@ import com.mgm.pd.cp.payment.common.dto.opera.DetailedAmount;
 import com.mgm.pd.cp.payment.common.dto.opera.TransactionAmount;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CaptureRouterRequestJson;
-import com.mgm.pd.cp.resortpayment.dto.common.*;
+import com.mgm.pd.cp.resortpayment.dto.common.BaseTransactionDetails;
+import com.mgm.pd.cp.resortpayment.dto.common.Customer;
+import com.mgm.pd.cp.resortpayment.dto.common.SaleItem;
+import com.mgm.pd.cp.resortpayment.dto.common.TransactionDetails;
 import com.mgm.pd.cp.resortpayment.dto.router.RouterRequest;
 import com.mgm.pd.cp.resortpayment.util.common.PaymentProcessingServiceHelper;
 import lombok.AllArgsConstructor;
@@ -44,15 +47,13 @@ public class CaptureToRouterConverter implements Converter<CPPaymentCaptureReque
         DetailedAmount detailedAmount = Objects.nonNull(transactionAmount.getDetailedAmount()) ? transactionAmount.getDetailedAmount() : new DetailedAmount();
         Card card = transactionDetails.getCard();
         Customer customer = Objects.nonNull(transactionDetails.getCustomer()) ? transactionDetails.getCustomer() : new Customer();
-        Merchant merchant = Objects.nonNull(transactionDetails.getMerchant()) ? transactionDetails.getMerchant() : new Merchant();
-        String clerkIdentifier = merchant.getClerkIdentifier();
         CPRequestHeaders headers = source.getHeaders();
         String originalTransactionIdentifier = source.getOriginalTransactionIdentifier();
         Boolean isCardPresent = Objects.nonNull(transactionDetails.getIsCardPresent()) ? transactionDetails.getIsCardPresent() : Boolean.TRUE;
         CaptureRouterRequestJson requestJson = CaptureRouterRequestJson.builder()
                 .dateTime(String.valueOf(LocalDateTime.now()))
                 .amount(detailedAmount.getAmount())
-                .taxAmount(detailedAmount.getVat())
+                .taxAmount(detailedAmount.getTax())
                 .totalAuthAmount(transactionAmount.getRequestedAmount())
                 .departureDate(valueFromSaleDetails.get(CHECK_OUT_DATE))
                 .arrivalDate(valueFromSaleDetails.get(CHECK_IN_DATE))
@@ -61,14 +62,12 @@ public class CaptureToRouterConverter implements Converter<CPPaymentCaptureReque
                 .cardNumber(card.getTokenValue())
                 .cardExpirationDate(card.getExpiryDate())
                 .cardPresent(BooleanValue.getEnumByString(isCardPresent.toString()))
-                .workstation(merchant.getTerminalIdentifier())
                 .resvNameID(saleItem.getSaleReferenceIdentifier())
                 .roomNum(saleType.equals(OrderType.Hotel.name()) ? valueFromSaleDetails.get(ROOM_NUMBER) : valueFromSaleDetails.get(TICKET_NUMBER))
                 .vendorTranID(source.getTransactionAuthChainId())
                 .sequenceNumber(source.getTransactionIdentifier())
                 .originalAuthSequence(Objects.nonNull(originalTransactionIdentifier) ? Long.valueOf(originalTransactionIdentifier) : null)
                 .transDate(source.getTransactionDateTime())
-                .clerkId(Objects.nonNull(clerkIdentifier) ? Long.valueOf(clerkIdentifier) : null)
                 .clientID(headers.getClientId())
                 .corelationId(headers.getCorrelationId())
                 .build();

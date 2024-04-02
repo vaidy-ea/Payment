@@ -6,6 +6,7 @@ import com.mgm.pd.cp.payment.common.constant.BooleanValue;
 import com.mgm.pd.cp.payment.common.constant.OrderType;
 import com.mgm.pd.cp.payment.common.dto.CPRequestHeaders;
 import com.mgm.pd.cp.payment.common.dto.opera.Card;
+import com.mgm.pd.cp.payment.common.dto.opera.DetailedAmount;
 import com.mgm.pd.cp.payment.common.dto.opera.TransactionAmount;
 import com.mgm.pd.cp.resortpayment.dto.common.*;
 import com.mgm.pd.cp.resortpayment.dto.refund.CPPaymentRefundRequest;
@@ -42,13 +43,12 @@ public class RefundToRouterConverter implements Converter<CPPaymentRefundRequest
         saleType = Objects.nonNull(saleType) ? saleType: "";
         TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
         Card card = transactionDetails.getCard();
-        Merchant merchant = Objects.nonNull(transactionDetails.getMerchant()) ? transactionDetails.getMerchant() : new Merchant();
         Customer customer = Objects.nonNull(transactionDetails.getCustomer()) ? transactionDetails.getCustomer() : new Customer();
         Address billingAddress = Objects.nonNull(customer.getBillingAddress()) ? customer.getBillingAddress() : new Address();
-        String clerkIdentifier = merchant.getClerkIdentifier();
         CPRequestHeaders headers = request.getHeaders();
         String originalTransactionIdentifier = request.getOriginalTransactionIdentifier();
         Boolean isCardPresent = Objects.nonNull(transactionDetails.getIsCardPresent()) ? transactionDetails.getIsCardPresent() : Boolean.TRUE;
+        DetailedAmount detailedAmount = Objects.nonNull(transactionAmount.getDetailedAmount()) ? transactionAmount.getDetailedAmount() : new DetailedAmount();
         Optional<RefundRouterRequestJson> requestJson= Optional.ofNullable(RefundRouterRequestJson.builder()
                 .dateTime(String.valueOf(LocalDateTime.now()))
                 .totalAuthAmount(transactionAmount.getRequestedAmount())
@@ -58,16 +58,15 @@ public class RefundToRouterConverter implements Converter<CPPaymentRefundRequest
                 .cardNumber(card.getTokenValue())
                 .cardExpirationDate(card.getExpiryDate())
                 .cardPresent(BooleanValue.getEnumByString(isCardPresent.toString()))
-                .workstation(merchant.getTerminalIdentifier())
                 .resvNameID(saleItem.getSaleReferenceIdentifier())
                 .roomNum(saleType.equals(OrderType.Hotel.name()) ? valueFromSaleDetails.get(ROOM_NUMBER) : valueFromSaleDetails.get(TICKET_NUMBER))
                 .vendorTranID(request.getTransactionAuthChainId())
                 .sequenceNumber(request.getTransactionIdentifier())
                 .originalAuthSequence(Objects.nonNull(originalTransactionIdentifier) ? Long.valueOf(originalTransactionIdentifier) : null)
                 .transDate(request.getTransactionDateTime())
-                .clerkId(Objects.nonNull(clerkIdentifier) ? Long.valueOf(clerkIdentifier) : null)
                 .clientID(headers.getClientId())
                 .corelationId(headers.getCorrelationId())
+                .taxAmount(detailedAmount.getTax())
                 .build());
         String requestJsonAsString;
         try {

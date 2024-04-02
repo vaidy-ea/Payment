@@ -8,7 +8,6 @@ import com.mgm.pd.cp.payment.common.dto.opera.Card;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CardVoidRouterRequestJson;
 import com.mgm.pd.cp.resortpayment.dto.common.BaseTransactionDetails;
-import com.mgm.pd.cp.resortpayment.dto.common.Merchant;
 import com.mgm.pd.cp.resortpayment.dto.common.SaleItem;
 import com.mgm.pd.cp.resortpayment.dto.router.RouterRequest;
 import com.mgm.pd.cp.resortpayment.util.common.PaymentProcessingServiceHelper;
@@ -40,8 +39,6 @@ public class VoidToRouterConverter implements Converter<CPPaymentCardVoidRequest
         HashMap<String, String> valueFromSaleDetails = Objects.nonNull(helper.getSaleDetailsObject(baseTransactionDetails)) ? helper.getSaleDetailsObject(baseTransactionDetails) : new HashMap<>();
         BaseTransactionDetails transactionDetails = source.getTransactionDetails();
         Card card = transactionDetails.getCard();
-        Merchant merchant = Objects.nonNull(transactionDetails.getMerchant()) ? transactionDetails.getMerchant() : new Merchant();
-        String clerkIdentifier = merchant.getClerkIdentifier();
         CPRequestHeaders headers = source.getHeaders();
         String originalTransactionIdentifier = source.getOriginalTransactionIdentifier();
         CardVoidRouterRequestJson requestJson = CardVoidRouterRequestJson.builder()
@@ -50,14 +47,12 @@ public class VoidToRouterConverter implements Converter<CPPaymentCardVoidRequest
                 .arrivalDate(valueFromSaleDetails.get(CHECK_IN_DATE))
                 .cardNumber(card.getTokenValue())
                 .cardExpirationDate(card.getExpiryDate())
-                .workstation(merchant.getTerminalIdentifier())
                 .resvNameID(saleItem.getSaleReferenceIdentifier())
                 .roomNum(saleType.equals(OrderType.Hotel.name()) ? valueFromSaleDetails.get(ROOM_NUMBER) : valueFromSaleDetails.get(TICKET_NUMBER))
                 .vendorTranID(source.getTransactionAuthChainId())
                 .sequenceNumber(source.getTransactionIdentifier())
                 .originalAuthSequence(Objects.nonNull(originalTransactionIdentifier) ? Long.valueOf(originalTransactionIdentifier) : null)
                 .transDate(source.getTransactionDateTime())
-                .clerkId(Objects.nonNull(clerkIdentifier) ? Long.valueOf(clerkIdentifier) : null)
                 .clientID(headers.getClientId())
                 .corelationId(headers.getCorrelationId())
                 .build();

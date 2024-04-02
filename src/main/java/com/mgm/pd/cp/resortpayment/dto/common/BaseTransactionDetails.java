@@ -19,9 +19,6 @@ public class BaseTransactionDetails {
     private Card card;
 
     @Valid
-    private Merchant merchant;
-
-    @Valid
     private SaleItem saleItem;
 
     @Valid

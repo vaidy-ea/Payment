@@ -161,17 +161,15 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
     public ResponseEntity<GenericResponse<?>> processRefundRequest(CPPaymentRefundRequest request, HttpHeaders headers) throws JsonProcessingException {
         //adding headers in request before sending to IR
         request = serviceHelper.mapHeadersInRequest(request, headers);
-        //finding initial Payment as pre-requisite for processing of Refund Request
-        Optional<Payment> optionalInitialPayment = serviceHelper.getInitialAuthPayment(request);
         RefundRouterResponse rrResponse = null;
         Payment payment;
         try{
             //sending request to IR
-            rrResponse = routerHelper.sendRefundRequestToRouter(request, optionalInitialPayment.orElse(null), headers);
+            rrResponse = routerHelper.sendRefundRequestToRouter(request, headers);
         }
         finally {
             //saving combined response of (Request and response from IR) to Payment DB
-            payment = savePaymentService.saveRefundPayment(request, rrResponse, optionalInitialPayment.orElse(null));
+            payment = savePaymentService.saveRefundPayment(request, rrResponse);
         }
         //converting and returning response for upstream system
         return serviceHelper.response(payment);

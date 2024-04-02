@@ -49,5 +49,5 @@ public interface RouterHelper {
      * This method takes the action for Refund operation only.
      * It shouldn't be called without passing the Refund Request.
      */
-    RefundRouterResponse sendRefundRequestToRouter(CPPaymentRefundRequest refundRequest, Payment initialPayment, HttpHeaders headers) throws JsonProcessingException;
+    RefundRouterResponse sendRefundRequestToRouter(CPPaymentRefundRequest refundRequest, HttpHeaders headers) throws JsonProcessingException;
 }

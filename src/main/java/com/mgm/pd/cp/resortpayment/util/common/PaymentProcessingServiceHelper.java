@@ -172,12 +172,16 @@ public class PaymentProcessingServiceHelper {
     public String getEnumValueOfCardType(String cardType) throws InvalidFormatException {
         String enumByString = null;
         if (Objects.nonNull(cardType)){
-            enumByString = CardType.getEnumByString(cardType.replaceAll("\\s+", "_")
-                    .replaceAll("’", "\\$").replaceAll("'", "\\$"));
+            enumByString = CardType.getEnumByString(replaceSpecialCharacters(cardType));
             if (Objects.isNull(enumByString)) {
                 throw new InvalidFormatException("Invalid Value for CardType ", cardType, CardType.class);
             }
         }
         return enumByString;
+    }
+
+    private static String replaceSpecialCharacters(String value) {
+        return value.replaceAll("\\s+", "_")
+                .replaceAll("’", "\\$").replaceAll("'", "\\$");
     }
 }

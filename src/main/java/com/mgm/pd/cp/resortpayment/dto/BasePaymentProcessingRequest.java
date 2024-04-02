@@ -1,8 +1,10 @@
 package com.mgm.pd.cp.resortpayment.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.mgm.pd.cp.payment.common.constant.TransactionLOB;
 import com.mgm.pd.cp.payment.common.dto.CPRequestHeaders;
 import com.mgm.pd.cp.payment.common.dto.opera.GatewayInfo;
+import com.mgm.pd.cp.payment.common.validation.TransactionLOBDeserializer;
 import com.mgm.pd.cp.payment.common.validation.possibledatetime.PossibleDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,6 +34,7 @@ public class BasePaymentProcessingRequest {
     private String transactionDateTime;
 
     @Valid @Enumerated(EnumType.STRING)
+    @JsonDeserialize(using = TransactionLOBDeserializer.class)
     private TransactionLOB transactionLOB;
 
     private GatewayInfo gatewayInfo;

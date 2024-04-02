@@ -56,6 +56,8 @@ public class AuthorizationRouterRequestJson {
     private String aVSStatus;
     private String clientID;
     private String corelationId;
+    private String cardIssuerIdentification;
+    private Double taxAmount;
 
     //TODO: Missing in Payload
     private String dateTime;

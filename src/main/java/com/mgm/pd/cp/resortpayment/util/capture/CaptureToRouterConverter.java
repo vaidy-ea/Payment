@@ -41,7 +41,7 @@ public class CaptureToRouterConverter implements Converter<CPPaymentCaptureReque
         HashMap<String, String> valueFromSaleDetails = Objects.nonNull(helper.getSaleDetailsObject(baseTransactionDetails)) ? helper.getSaleDetailsObject(baseTransactionDetails) : new HashMap<>();
         TransactionDetails transactionDetails = source.getTransactionDetails();
         TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
-        DetailedAmount detailedAmount = transactionAmount.getDetailedAmount();
+        DetailedAmount detailedAmount = Objects.nonNull(transactionAmount.getDetailedAmount()) ? transactionAmount.getDetailedAmount() : new DetailedAmount();
         Card card = transactionDetails.getCard();
         Customer customer = Objects.nonNull(transactionDetails.getCustomer()) ? transactionDetails.getCustomer() : new Customer();
         Merchant merchant = Objects.nonNull(transactionDetails.getMerchant()) ? transactionDetails.getMerchant() : new Merchant();

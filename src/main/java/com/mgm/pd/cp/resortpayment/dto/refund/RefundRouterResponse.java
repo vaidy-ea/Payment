@@ -54,4 +54,5 @@ public class RefundRouterResponse {
     private String dateTime;
     private String returnCode;
     private String approvalCode;
+    private String message;
 }

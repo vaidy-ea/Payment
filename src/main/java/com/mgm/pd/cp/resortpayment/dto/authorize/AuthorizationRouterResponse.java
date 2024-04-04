@@ -43,4 +43,5 @@ public class AuthorizationRouterResponse {
     private Integer cardNumberLast4Digits;
     private String returnCode;
     private String approvalCode;
+    private String message;
 }

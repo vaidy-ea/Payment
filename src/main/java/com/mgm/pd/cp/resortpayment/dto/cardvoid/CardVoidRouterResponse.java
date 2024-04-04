@@ -54,4 +54,5 @@ public class CardVoidRouterResponse {
     private String dateTime;
     private Double totalAuthAmount;
     private String approvalCode;
+    private String message;
 }

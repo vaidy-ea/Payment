@@ -87,7 +87,8 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .billingZipCode(billingAddress.getPostCode())
                 .billingCountry(billingAddress.getCountry())
                 .transactionType(TransactionType.AUTHORIZE)
-                //.gatewayReasonCode().gatewayReasonDescription().gatewayAuthSource()
+                //.gatewayReasonCode()
+                //.gatewayAuthSource()
                 .deferredAuth(null)
                 .createdTimeStamp(helper.convertToTimestamp(request.getTransactionDateTime()))
                 .correlationId(headers.getCorrelationId())
@@ -106,6 +107,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                     //.authorizedAmount(response.getTotalAuthAmount())
                     .cumulativeAmount(response.getTotalAuthAmount())
                     .gatewayAuthCode(response.getApprovalCode())
+                    .gatewayReasonDescription(response.getMessage())
                     .gatewayResponseCode(returnCode)
                     .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
         }
@@ -154,8 +156,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .billingZipCode(billingAddress.getPostCode())
                 .billingCountry(billingAddress.getCountry())
                 .transactionType(TransactionType.AUTHORIZE)
-                //.gatewayReasonCode().gatewayReasonDescription()
-                //.gatewayAuthSource()
+                //.gatewayReasonCode().gatewayAuthSource()
                 .deferredAuth(null)
                 .createdTimeStamp(helper.convertToTimestamp(request.getTransactionDateTime()))
                 //.createdBy().updatedBy()
@@ -177,6 +178,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                     .gatewayChainId(Objects.nonNull(vendorTranID) ? vendorTranID.replaceFirst("^0+(?!$)", "") : null)
                     .authorizedAmount(response.getTotalAuthAmount())
                     .gatewayAuthCode(response.getApprovalCode())
+                    .gatewayReasonDescription(response.getMessage())
                     .gatewayResponseCode(returnCode)
                     .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
         }
@@ -229,7 +231,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .billingZipCode(billingAddress.getPostCode())
                 .billingCountry(billingAddress.getCountry())
                 .transactionType(TransactionType.CAPTURE)
-                //.gatewayReasonCode().gatewayReasonDescription().gatewayAuthSource()
+                //.gatewayReasonCode().gatewayAuthSource()
                 .deferredAuth(null)
                 .createdTimeStamp(helper.convertToTimestamp(request.getTransactionDateTime()))
                 //.createdBy().updatedBy()
@@ -249,6 +251,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                     .authorizedAmount(response.getTotalAuthAmount())
                     .gatewayAuthCode(response.getApprovalCode())
                     .gatewayResponseCode(returnCode)
+                    .gatewayReasonDescription(response.getMessage())
                     .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
         }
         Payment payment = newPayment.build();
@@ -291,7 +294,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.currencyCode(currencyConversion.getBinCurrencyCode())
                 //.last4DigitsOfCard()
                 .transactionType(TransactionType.VOID)
-                //.gatewayReasonCode().gatewayReasonDescription().gatewayAuthSource()
+                //.gatewayReasonCode().gatewayAuthSource()
                 .deferredAuth(null)
                 .createdTimeStamp(helper.convertToTimestamp(request.getTransactionDateTime()))
                 //.createdBy().updatedBy()
@@ -312,6 +315,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                     .authorizedAmount(response.getTotalAuthAmount())
                     .gatewayAuthCode(response.getApprovalCode())
                     .gatewayResponseCode(returnCode)
+                    .gatewayReasonDescription(response.getMessage())
                     .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
         }
         Payment payment = newPayment.build();
@@ -360,7 +364,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .billingZipCode(billingAddress.getPostCode())
                 .billingCountry(billingAddress.getCountry())
                 .transactionType(REFUND)
-                //.gatewayReasonCode().gatewayReasonDescription().gatewayAuthSource()
+                //.gatewayReasonCode().gatewayAuthSource()
                 .deferredAuth(null)
                 .createdTimeStamp(helper.convertToTimestamp(request.getTransactionDateTime()))
                 //.createdBy().updatedBy()
@@ -382,6 +386,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                     .gatewayAuthCode(response.getApprovalCode())
                     .gatewayResponseCode(returnCode)
                     .authChainId(vendorTranID)
+                    .gatewayReasonDescription(response.getMessage())
                     .gatewayChainId(Objects.nonNull(vendorTranID) ? vendorTranID.replaceFirst("^0+(?!$)", "") : null)
                     .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
         }

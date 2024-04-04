@@ -95,13 +95,13 @@ public class PaymentProcessingServiceHelper {
      * @return Payment details from Payment DB
      */
     public <T> Optional<Payment> getInitialAuthPayment(T request) {
-        long authChainId;
+        String authChainId;
         Optional<List<Payment>> paymentDetails;
         if (request.getClass().equals(CPPaymentCardVoidRequest.class)) {
-            authChainId = Long.parseLong(((CPPaymentCardVoidRequest) request).getTransactionAuthChainId());
+            authChainId = ((CPPaymentCardVoidRequest) request).getTransactionAuthChainId();
             paymentDetails = findPaymentService.getPaymentDetails(authChainId);
         } else {
-            authChainId = Long.parseLong(((CPPaymentProcessingRequest) request).getTransactionAuthChainId());
+            authChainId = ((CPPaymentProcessingRequest) request).getTransactionAuthChainId();
             @Valid AuthType transactionType = ((CPPaymentProcessingRequest) request).getTransactionType();
             if (transactionType == AuthType.DEPOSIT) {
                 paymentDetails = findPaymentService.getPaymentDetails(authChainId, transactionType);

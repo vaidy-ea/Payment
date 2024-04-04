@@ -21,7 +21,7 @@ public class Converter {
                 //.balanceAmount(payment.getAmount())
                 //.requestedAmount(payment.getAuthorizedAmount())
                 .authorizedAmount(payment.getAuthorizedAmount())
-                //.cumulativeAmount(payment.getAmount())
+                .cumulativeAmount(payment.getCumulativeAmount())
                 .currencyIndicator(null)
                 //.detailedAmount(detailedAmount)
                 .build();

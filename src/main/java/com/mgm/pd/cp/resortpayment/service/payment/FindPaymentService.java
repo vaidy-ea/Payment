@@ -21,7 +21,7 @@ public interface FindPaymentService {
      * @return Optional<List<Payment>>: List of Payments on the basis of authChainId and transactionType if present
      */
     @Transactional
-    Optional<List<Payment>> getPaymentDetails(Long authChainId, @Valid AuthType transactionType);
+    Optional<List<Payment>> getPaymentDetails(String authChainId, @Valid AuthType transactionType);
 
     /**
      *
@@ -29,5 +29,5 @@ public interface FindPaymentService {
      * @return Optional<List<Payment>>: List of Payments on the basis of authChainId if present
      */
     @Transactional
-    Optional<List<Payment>> getPaymentDetails(Long authChainId);
+    Optional<List<Payment>> getPaymentDetails(String authChainId);
 }

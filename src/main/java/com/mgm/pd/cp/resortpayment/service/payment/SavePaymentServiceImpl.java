@@ -64,14 +64,14 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         String enumByString = helper.getEnumValueOfCardType(cardType);
         newPayment
                 .paymentId(randomId)
-                .referenceId(String.valueOf(request.getReferenceId()))
+                .referenceId(request.getReferenceId())
                 .groupId(null)
                 .gatewayId(gatewayId)
                 //.gatewayRelationNumber(headers.getCorrelationId())
                 .clientReferenceNumber(saleItem.getSaleReferenceIdentifier())
                 .amount(detailedAmount.getAmount())
                 .gatewayChainId(Objects.nonNull(authChainId) ? authChainId.replaceFirst("^0+(?!$)", "") : null)
-                .authChainId(Objects.nonNull(authChainId) ? Long.valueOf(authChainId) : null)
+                .authChainId(authChainId)
                 .clientId(headers.getClientId())
                 .orderType(Objects.nonNull(saleType) ? OrderType.valueOf(saleType) : null)
                 .mgmId(null)
@@ -92,7 +92,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .createdTimeStamp(helper.convertToTimestamp(request.getTransactionDateTime()))
                 .correlationId(headers.getCorrelationId())
                 .journeyId(headers.getJourneyId())
-                .transactionSessionId(headers.getTransactionId())
+                .transactionId(headers.getTransactionId())
                 .cardEntryMode(card.getCardEntryMode())
                 //.avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
@@ -103,7 +103,8 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         if (Objects.nonNull(response)) {
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
             newPayment
-                    .authorizedAmount(response.getTotalAuthAmount())
+                    //.authorizedAmount(response.getTotalAuthAmount())
+                    .cumulativeAmount(response.getTotalAuthAmount())
                     .gatewayAuthCode(response.getApprovalCode())
                     .gatewayResponseCode(returnCode)
                     .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
@@ -160,7 +161,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.createdBy().updatedBy()
                 .correlationId(headers.getCorrelationId())
                 .journeyId(headers.getJourneyId())
-                .transactionSessionId(headers.getTransactionId())
+                .transactionId(headers.getTransactionId())
                 .cardEntryMode(card.getCardEntryMode())
                 //.avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
@@ -172,7 +173,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
             String vendorTranID = response.getVendorTranID();
             newPayment
-                    .authChainId(Objects.nonNull(vendorTranID) ? Long.valueOf(vendorTranID) : null)
+                    .authChainId(vendorTranID)
                     .gatewayChainId(Objects.nonNull(vendorTranID) ? vendorTranID.replaceFirst("^0+(?!$)", "") : null)
                     .authorizedAmount(response.getTotalAuthAmount())
                     .gatewayAuthCode(response.getApprovalCode())
@@ -205,13 +206,13 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         String enumByString = helper.getEnumValueOfCardType(cardType);
         newPayment
                 .paymentId(string)
-                .referenceId(String.valueOf(request.getReferenceId()))
+                .referenceId(request.getReferenceId())
                 .groupId(null)
                 .gatewayId(gatewayId)
                 //.gatewayRelationNumber(headers.getCorrelationId())
                 .clientReferenceNumber(saleItem.getSaleReferenceIdentifier())
                 .amount(detailedAmount.getAmount())
-                .authChainId(Objects.nonNull(authChainId) ? Long.valueOf(authChainId) : null)
+                .authChainId(authChainId)
                 .gatewayChainId(Objects.nonNull(authChainId) ? authChainId.replaceFirst("^0+(?!$)", "") : null)
                 .clientId(headers.getClientId())
                 .orderType(Objects.nonNull(saleType) ? OrderType.valueOf(saleType) : null)
@@ -234,7 +235,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.createdBy().updatedBy()
                 .correlationId(headers.getCorrelationId())
                 .journeyId(headers.getJourneyId())
-                .transactionSessionId(headers.getTransactionId())
+                .transactionId(headers.getTransactionId())
                 .cardEntryMode(card.getCardEntryMode())
                 //.avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
@@ -273,14 +274,14 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         String enumByString = helper.getEnumValueOfCardType(cardType);
         newPayment
                 .paymentId(string)
-                .referenceId(String.valueOf(request.getReferenceId()))
+                .referenceId(request.getReferenceId())
                 .groupId(null)
                 .gatewayId(gatewayId)
                 //.gatewayRelationNumber(headers.getCorrelationId())
                 .gatewayChainId(Objects.nonNull(authChainId) ? authChainId.replaceFirst("^0+(?!$)", "") : null)
                 .clientReferenceNumber(saleItem.getSaleReferenceIdentifier())
                 //.amount(detailedAmount.getAmount())
-                .authChainId(Objects.nonNull(authChainId) ? Long.valueOf(authChainId) : null)
+                .authChainId(authChainId)
                 .clientId(headers.getClientId())
                 .orderType(Objects.nonNull(saleType) ? OrderType.valueOf(saleType) : null)
                 .mgmId(null)
@@ -296,7 +297,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.createdBy().updatedBy()
                 .correlationId(headers.getCorrelationId())
                 .journeyId(headers.getJourneyId())
-                .transactionSessionId(headers.getTransactionId())
+                .transactionId(headers.getTransactionId())
                 .cardEntryMode(card.getCardEntryMode())
                 .tenderType(TenderType.CREDIT)
                 .issuerType(Objects.nonNull(enumByString) ? IssuerType.valueOf(enumByString) : null)
@@ -338,7 +339,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         String enumByString = helper.getEnumValueOfCardType(cardType);
         newPayment
                 .paymentId(string)
-                .referenceId(String.valueOf(request.getReferenceId()))
+                .referenceId(request.getReferenceId())
                 .groupId(null)
                 //.gatewayRelationNumber(headers.getCorrelationId())
                 .clientReferenceNumber(saleItem.getSaleReferenceIdentifier())
@@ -365,7 +366,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.createdBy().updatedBy()
                 .correlationId(headers.getCorrelationId())
                 .journeyId(headers.getJourneyId())
-                .transactionSessionId(headers.getTransactionId())
+                .transactionId(headers.getTransactionId())
                 .cardEntryMode(card.getCardEntryMode())
                 //.avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
@@ -380,7 +381,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                     .authorizedAmount(response.getTotalAuthAmount())
                     .gatewayAuthCode(response.getApprovalCode())
                     .gatewayResponseCode(returnCode)
-                    .authChainId(Objects.nonNull(vendorTranID) ? Long.valueOf(vendorTranID) : null)
+                    .authChainId(vendorTranID)
                     .gatewayChainId(Objects.nonNull(vendorTranID) ? vendorTranID.replaceFirst("^0+(?!$)", "") : null)
                     .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
         }

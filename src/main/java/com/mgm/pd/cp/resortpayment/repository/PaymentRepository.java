@@ -11,8 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, String> {
-    //Optional<Payment> findFirstByPropertyCodeAndResvNameIDAndAuthTypeNotNullAndApprovalCodeNotNullOrderByIdDesc(String resortId, String reservationNumber);
-    Optional<List<Payment>> findByAuthChainIdAndAuthSubType(Long authChainId, @Valid AuthType transactionType);
+    Optional<List<Payment>> findByAuthChainIdAndAuthSubType(String authChainId, @Valid AuthType transactionType);
 
-    Optional<List<Payment>> findByAuthChainId(Long authChainId);
+    Optional<List<Payment>> findByAuthChainId(String authChainId);
 }

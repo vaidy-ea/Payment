@@ -16,7 +16,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -47,7 +47,7 @@ public class IncrementalToRouterConverter implements Converter<CPPaymentIncremen
         String originalTransactionIdentifier = request.getOriginalTransactionIdentifier();
         Boolean isCardPresent = Objects.nonNull(transactionDetails.getIsCardPresent()) ? transactionDetails.getIsCardPresent() : Boolean.TRUE;
         IncrementalRouterRequestJson requestJson = IncrementalRouterRequestJson.builder()
-                .dateTime(String.valueOf(LocalDateTime.now()))
+                .dateTime(String.valueOf(ZonedDateTime.now()))
                 .totalAuthAmount(transactionAmount.getCumulativeAmount())
                 .currencyIndicator(transactionAmount.getCurrencyIndicator())
                 .guestName(customer.getFullName())

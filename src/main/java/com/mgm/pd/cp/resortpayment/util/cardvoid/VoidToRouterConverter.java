@@ -15,7 +15,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -42,7 +42,7 @@ public class VoidToRouterConverter implements Converter<CPPaymentCardVoidRequest
         CPRequestHeaders headers = source.getHeaders();
         String originalTransactionIdentifier = source.getOriginalTransactionIdentifier();
         CardVoidRouterRequestJson requestJson = CardVoidRouterRequestJson.builder()
-                .dateTime(String.valueOf(LocalDateTime.now()))
+                .dateTime(String.valueOf(ZonedDateTime.now()))
                 .departureDate(valueFromSaleDetails.get(CHECK_OUT_DATE))
                 .arrivalDate(valueFromSaleDetails.get(CHECK_IN_DATE))
                 .cardNumber(card.getTokenValue())

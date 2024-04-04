@@ -17,7 +17,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -51,7 +51,7 @@ public class AuthorizeToRouterConverter implements Converter<CPPaymentAuthorizat
         String originalTransactionIdentifier = request.getOriginalTransactionIdentifier();
         Boolean isCardPresent = Objects.nonNull(transactionDetails.getIsCardPresent()) ? transactionDetails.getIsCardPresent() : Boolean.TRUE;
         AuthorizationRouterRequestJson requestJson = AuthorizationRouterRequestJson.builder()
-                .dateTime(String.valueOf(LocalDateTime.now()))
+                .dateTime(String.valueOf(ZonedDateTime.now()))
                 .totalAuthAmount(transactionAmount.getRequestedAmount())
                 .currencyIndicator(transactionAmount.getCurrencyIndicator())
                 .guestName(customer.getFullName())

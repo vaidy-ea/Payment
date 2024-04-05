@@ -261,11 +261,8 @@ public class SavePaymentServiceImpl implements SavePaymentService {
 
     @Override
     public Payment saveCardVoidAuthPayment(CPPaymentCardVoidRequest request, CardVoidRouterResponse response, Payment initialPayment) throws InvalidFormatException {
-        BaseTransactionDetails transactionDetails = request.getTransactionDetails();
-        Card card = new Card();
-        if (Objects.nonNull(transactionDetails)) {
-            card = transactionDetails.getCard();
-        }
+        BaseTransactionDetails transactionDetails = Objects.nonNull(request.getTransactionDetails()) ? request.getTransactionDetails() : new TransactionDetails();
+        Card card = Objects.nonNull(transactionDetails.getCard()) ? transactionDetails.getCard() : new Card();
         Payment.PaymentBuilder newPayment = Payment.builder();
         String string = UUID.randomUUID().toString();
         CPRequestHeaders headers = request.getHeaders();

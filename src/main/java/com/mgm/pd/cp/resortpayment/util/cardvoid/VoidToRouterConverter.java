@@ -32,13 +32,13 @@ public class VoidToRouterConverter implements Converter<CPPaymentCardVoidRequest
 
     @Override
     public RouterRequest convert(CPPaymentCardVoidRequest source) {
-        BaseTransactionDetails baseTransactionDetails = helper.getBaseTransactionDetails(source);
+        BaseTransactionDetails baseTransactionDetails = Objects.nonNull(helper.getBaseTransactionDetails(source)) ? helper.getBaseTransactionDetails(source) : new BaseTransactionDetails();
         SaleItem saleItem = Objects.nonNull(baseTransactionDetails.getSaleItem()) ? baseTransactionDetails.getSaleItem() : new SaleItem();
         String saleType = saleItem.getSaleType();
         saleType = Objects.nonNull(saleType) ? saleType: "";
         HashMap<String, String> valueFromSaleDetails = Objects.nonNull(helper.getSaleDetailsObject(baseTransactionDetails)) ? helper.getSaleDetailsObject(baseTransactionDetails) : new HashMap<>();
-        BaseTransactionDetails transactionDetails = source.getTransactionDetails();
-        Card card = transactionDetails.getCard();
+        BaseTransactionDetails transactionDetails = Objects.nonNull(source.getTransactionDetails()) ? source.getTransactionDetails() : new BaseTransactionDetails();
+        Card card = Objects.nonNull(transactionDetails.getCard()) ? transactionDetails.getCard() : new Card();
         CPRequestHeaders headers = source.getHeaders();
         String originalTransactionIdentifier = source.getOriginalTransactionIdentifier();
         CardVoidRouterRequestJson requestJson = CardVoidRouterRequestJson.builder()

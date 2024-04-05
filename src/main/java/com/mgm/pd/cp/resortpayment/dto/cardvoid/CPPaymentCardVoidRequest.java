@@ -11,6 +11,9 @@ import javax.validation.constraints.NotNull;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class CPPaymentCardVoidRequest extends BasePaymentProcessingRequest {
-    @Valid @NotNull(message = "transactionDetails can't be empty or null")
+    @NotNull(message = "transactionAuthChainId can't be empty or NULL")
+    private String transactionAuthChainId;
+
+    @Valid
     private BaseTransactionDetails transactionDetails;
 }

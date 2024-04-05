@@ -37,7 +37,6 @@ public class BasePaymentProcessingRequest {
     private TransactionLOB transactionLOB;
 
     //TODO: Missing in Payload sheet
-    private String transactionAuthChainId;
     private String referenceId;
     @Valid
     private CPRequestHeaders headers;

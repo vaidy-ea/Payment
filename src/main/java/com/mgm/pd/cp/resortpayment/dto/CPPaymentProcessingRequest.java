@@ -17,6 +17,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CPPaymentProcessingRequest extends BasePaymentProcessingRequest {
+    private String transactionAuthChainId;
 
     @Valid @Enumerated(EnumType.STRING)
     private AuthType transactionType;

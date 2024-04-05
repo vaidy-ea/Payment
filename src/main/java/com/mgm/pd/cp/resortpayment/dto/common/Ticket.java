@@ -23,6 +23,6 @@ public class Ticket implements Serializable {
     @Size(max = 10, message = "ticketRate exceeds the permissible length of 10")
     private String ticketRate;
 
-    @PossibleDateTime(pattern = "yyyy-MM-dd", fallbackPatterns = "yyyy-MM-dd'T'HH:mm:ss'Z'", message = "invalid showDate, expected format is yyyy-MM-ddThh:mm:ssZ")
+    @PossibleDateTime(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", fallbackPatterns = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", message = "invalid showDate, expected format is yyyy-MM-ddThh:mm:ssZ")
     private String showDate;
 }

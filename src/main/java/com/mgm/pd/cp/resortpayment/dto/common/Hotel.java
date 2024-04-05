@@ -26,17 +26,17 @@ public class Hotel implements Serializable {
     @Size(max = 10, message = "roomRate exceeds the permissible length of 10")
     private String roomRate;
 
-    @PossibleDateTime(pattern = "yyyy-MM-dd", fallbackPatterns = "yyyy-MM-dd'T'HH:mm:ss'Z'", message = "invalid originDate, expected format is yyyy-MM-ddThh:mm:ssZ")
+    @PossibleDateTime(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", fallbackPatterns = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", message = "invalid originDate, expected format is yyyy-MM-ddThh:mm:ssZ")
     private String originDate;
 
-    @PossibleDateTime(pattern = "yyyy-MM-dd", fallbackPatterns = "yyyy-MM-dd'T'HH:mm:ss'Z'", message = "invalid departureDate, expected format is yyyy-MM-ddThh:mm:ssZ")
+    @PossibleDateTime(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", fallbackPatterns = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", message = "invalid departureDate, expected format is yyyy-MM-ddThh:mm:ssZ")
     private String departureDate;
 
-    @PossibleDateTime(pattern = "yyyy-MM-dd", fallbackPatterns = "yyyy-MM-dd'T'HH:mm:ss'Z'", message = "invalid checkInDate, expected format is yyyy-MM-ddThh:mm:ssZ")
+    @PossibleDateTime(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", fallbackPatterns = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", message = "invalid checkInDate, expected format is yyyy-MM-ddThh:mm:ssZ")
     @Size(max = 70, message = "checkInDate exceeds the permissible length of 70")
     private String checkInDate;
 
-    @PossibleDateTime(pattern = "yyyy-MM-dd", fallbackPatterns = "yyyy-MM-dd'T'HH:mm:ss'Z'", message = "invalid checkOutDate, expected format is yyyy-MM-ddThh:mm:ssZ")
+    @PossibleDateTime(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", fallbackPatterns = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", message = "invalid checkOutDate, expected format is yyyy-MM-ddThh:mm:ssZ")
     @Size(max = 70, message = "checkOutDate exceeds the permissible length of 70")
     private String checkOutDate;
 

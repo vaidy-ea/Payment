@@ -28,7 +28,7 @@ public class BasePaymentProcessingRequest {
     @Size(max = 40, message = "originalTransactionIdentifier exceed the permissible length")
     private String originalTransactionIdentifier;
 
-    @PossibleDateTime(pattern = "yyyy-MM-dd", fallbackPatterns = "yyyy-MM-dd'T'HH:mm:ss'Z'", message = "invalid transactionDateTime, expected format is yyyy-MM-ddThh:mm:ssZ")
+    @PossibleDateTime(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", fallbackPatterns = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", message = "invalid transactionDateTime, expected format is yyyy-MM-ddThh:mm:ssZ")
     @NotBlank(message = "transactionDateTime can't be empty or NULL")
     private String transactionDateTime;
 

@@ -140,6 +140,17 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
                 .messages(Collections.singletonList(RESOURCE_NOT_FOUND)).build(), HttpStatus.NOT_FOUND);
     }
 
+    //Used to handle NullPointer Exceptions
+    @ExceptionHandler(NullPointerException.class)
+    public ResponseEntity<ErrorResponse> handleNotFoundError(NullPointerException ex, WebRequest request) {
+        logger.log(Level.ERROR, EXCEPTION_PREFIX + ex);
+        String uri = request.getDescription(false);
+        return new ResponseEntity<>(ErrorResponse.builder().type(HttpStatus.INTERNAL_SERVER_ERROR.toString()).status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()).detail(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()).instance(uri)
+                .errorCode(MGMErrorCode.getMgmErrorCode(MGMErrorCode.getServiceCodeByMethodURI(uri), HttpStatus.INTERNAL_SERVER_ERROR.value(), false))
+                .messages(Collections.singletonList(ex.getStackTrace()[0] + ": " + ex.getMessage())).build(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     private static String getErrorDetails(HttpMessageNotReadableException ex) {
         String errorDetails = "Unacceptable JSON " + ex.getMessage();
         Throwable cause = ex.getCause();

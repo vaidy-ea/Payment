@@ -58,7 +58,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         CPRequestHeaders headers = request.getHeaders();
         String authChainId = request.getTransactionAuthChainId();
         Gateway gatewayId = (Objects.nonNull(initialPayment) && Objects.nonNull(initialPayment.getGatewayId())) ? initialPayment.getGatewayId() : null;
-        SaleItem saleItem = transactionDetails.getSaleItem();
+        SaleItem saleItem = Objects.nonNull(transactionDetails.getSaleItem()) ? transactionDetails.getSaleItem() : new SaleItem();
         String saleType = saleItem.getSaleType();
         String cardType = Objects.nonNull(card.getCardType()) ? card.getCardType() : null;
         String enumByString = helper.getEnumValueOfCardType(cardType);
@@ -202,7 +202,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         CPRequestHeaders headers = request.getHeaders();
         String authChainId = request.getTransactionAuthChainId();
         Gateway gatewayId = (Objects.nonNull(initialPayment) && Objects.nonNull(initialPayment.getGatewayId())) ? initialPayment.getGatewayId() : null;
-        SaleItem saleItem = transactionDetails.getSaleItem();
+        SaleItem saleItem = Objects.nonNull(transactionDetails.getSaleItem()) ? transactionDetails.getSaleItem() : new SaleItem();
         String saleType = saleItem.getSaleType();
         String cardType = Objects.nonNull(card.getCardType()) ? card.getCardType() : null;
         String enumByString = helper.getEnumValueOfCardType(cardType);
@@ -271,7 +271,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         CPRequestHeaders headers = request.getHeaders();
         String authChainId = request.getTransactionAuthChainId();
         Gateway gatewayId = (Objects.nonNull(initialPayment) && Objects.nonNull(initialPayment.getGatewayId())) ? initialPayment.getGatewayId() : null;
-        SaleItem saleItem = transactionDetails.getSaleItem();
+        SaleItem saleItem = Objects.nonNull(transactionDetails.getSaleItem()) ? transactionDetails.getSaleItem() : new SaleItem();
         String saleType = saleItem.getSaleType();
         String cardType = Objects.nonNull(card.getCardType()) ? card.getCardType() : null;
         String enumByString = helper.getEnumValueOfCardType(cardType);
@@ -337,7 +337,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         Address billingAddress = Objects.nonNull(customer.getBillingAddress()) ? customer.getBillingAddress() : new Address();
         CPRequestHeaders headers = request.getHeaders();
         Gateway gatewayId = Gateway.SHFT;
-        SaleItem saleItem = transactionDetails.getSaleItem();
+        SaleItem saleItem = Objects.nonNull(transactionDetails.getSaleItem()) ? transactionDetails.getSaleItem() : new SaleItem();
         String saleType = saleItem.getSaleType();
         String cardType = Objects.nonNull(card.getCardType()) ? card.getCardType() : null;
         String enumByString = helper.getEnumValueOfCardType(cardType);

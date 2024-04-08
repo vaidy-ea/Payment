@@ -90,7 +90,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.gatewayReasonCode()
                 //.gatewayAuthSource()
                 .deferredAuth(null)
-                .createdTimeStamp(helper.convertToTimestamp(request.getTransactionDateTime()))
                 .correlationId(headers.getCorrelationId())
                 .journeyId(headers.getJourneyId())
                 .transactionId(headers.getTransactionId())
@@ -109,6 +108,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                     .gatewayAuthCode(response.getApprovalCode())
                     .gatewayReasonDescription(response.getMessage())
                     .gatewayResponseCode(returnCode)
+                    .createdTimeStamp(helper.convertToTimestamp(response.getDateTime()))
                     .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
         }
         Payment payment = newPayment.build();
@@ -158,7 +158,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .transactionType(TransactionType.AUTHORIZE)
                 //.gatewayReasonCode().gatewayAuthSource()
                 .deferredAuth(null)
-                .createdTimeStamp(helper.convertToTimestamp(request.getTransactionDateTime()))
                 //.createdBy().updatedBy()
                 .correlationId(headers.getCorrelationId())
                 .journeyId(headers.getJourneyId())
@@ -180,6 +179,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                     .gatewayAuthCode(response.getApprovalCode())
                     .gatewayReasonDescription(response.getMessage())
                     .gatewayResponseCode(returnCode)
+                    .createdTimeStamp(helper.convertToTimestamp(response.getDateTime()))
                     .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
         }
         Payment payment = newPayment.build();
@@ -233,7 +233,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .transactionType(TransactionType.CAPTURE)
                 //.gatewayReasonCode().gatewayAuthSource()
                 .deferredAuth(null)
-                .createdTimeStamp(helper.convertToTimestamp(request.getTransactionDateTime()))
                 //.createdBy().updatedBy()
                 .correlationId(headers.getCorrelationId())
                 .journeyId(headers.getJourneyId())
@@ -252,6 +251,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                     .gatewayAuthCode(response.getApprovalCode())
                     .gatewayResponseCode(returnCode)
                     .gatewayReasonDescription(response.getMessage())
+                    .createdTimeStamp(helper.convertToTimestamp(response.getDateTime()))
                     .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
         }
         Payment payment = newPayment.build();
@@ -293,7 +293,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .transactionType(TransactionType.VOID)
                 //.gatewayReasonCode().gatewayAuthSource()
                 .deferredAuth(null)
-                .createdTimeStamp(helper.convertToTimestamp(request.getTransactionDateTime()))
                 //.createdBy().updatedBy()
                 .correlationId(headers.getCorrelationId())
                 .journeyId(headers.getJourneyId())
@@ -313,6 +312,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                     .gatewayAuthCode(response.getApprovalCode())
                     .gatewayResponseCode(returnCode)
                     .gatewayReasonDescription(response.getMessage())
+                    .createdTimeStamp(helper.convertToTimestamp(response.getDateTime()))
                     .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
         }
         Payment payment = newPayment.build();
@@ -363,7 +363,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .transactionType(REFUND)
                 //.gatewayReasonCode().gatewayAuthSource()
                 .deferredAuth(null)
-                .createdTimeStamp(helper.convertToTimestamp(request.getTransactionDateTime()))
                 //.createdBy().updatedBy()
                 .correlationId(headers.getCorrelationId())
                 .journeyId(headers.getJourneyId())
@@ -384,6 +383,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                     .gatewayResponseCode(returnCode)
                     .authChainId(vendorTranID)
                     .gatewayReasonDescription(response.getMessage())
+                    .createdTimeStamp(helper.convertToTimestamp(response.getDateTime()))
                     .gatewayChainId(Objects.nonNull(vendorTranID) ? vendorTranID.replaceFirst("^0+(?!$)", "") : null)
                     .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
         }

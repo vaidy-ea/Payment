@@ -58,8 +58,5 @@ public class AuthorizationRouterRequestJson {
     private String corelationId;
     private String cardIssuerIdentification;
     private Double taxAmount;
-
-    //TODO: Missing in Payload
-    private String dateTime;
     private Long clerkId;
 }

@@ -109,6 +109,5 @@ public class RefundRouterRequestJson {
     private String clientID;
     private String corelationId;
     private Long clerkId;
-    private String dateTime;
     private String billingZIP;
 }

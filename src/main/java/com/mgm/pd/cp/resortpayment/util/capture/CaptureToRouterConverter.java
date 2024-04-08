@@ -51,7 +51,6 @@ public class CaptureToRouterConverter implements Converter<CPPaymentCaptureReque
         String originalTransactionIdentifier = source.getOriginalTransactionIdentifier();
         Boolean isCardPresent = Objects.nonNull(transactionDetails.getIsCardPresent()) ? transactionDetails.getIsCardPresent() : Boolean.TRUE;
         CaptureRouterRequestJson requestJson = CaptureRouterRequestJson.builder()
-                .dateTime(String.valueOf(ZonedDateTime.now()))
                 .amount(detailedAmount.getAmount())
                 .taxAmount(detailedAmount.getTax())
                 .totalAuthAmount(transactionAmount.getRequestedAmount())

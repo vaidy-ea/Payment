@@ -106,13 +106,9 @@ public class CPPaymentProcessingController {
      */
     private ResponseEntity<GenericResponse<?>> processPayload(CPPaymentIncrementalAuthRequest request, HttpHeaders headers) throws JsonProcessingException {
         ResponseEntity<GenericResponse<?>> responseEntity = cpPaymentProcessingService.processIncrementalAuthorizationRequest(request, headers);
-        sendAuditData(INCREMENTAL_AUTH, INCREMENTAL_AUTH, responseEntity.getBody(), INCREMENTAL_AUTH, headers.toSingleValueMap(), request);
+        sendAuditData(INCREMENTAL_AUTH, INCREMENTAL_AUTH, request, INCREMENTAL_AUTH, headers.toSingleValueMap(), responseEntity.getBody());
         return responseEntity;
 
-    }
-
-    private void sendAuditData(String eventName, String eventDescription, Object requestPayload, String method, Map<String, String> requestHeader, Object responsePayload){
-        auditEventProducer.sendAuditData(eventName,eventDescription,requestPayload,"shift4",requestHeader,null,"CP-PaymentProcessorService - "+method,responsePayload);
     }
 
     /**
@@ -121,7 +117,7 @@ public class CPPaymentProcessingController {
      */
     private ResponseEntity<GenericResponse<?>> processPayload(CPPaymentAuthorizationRequest cpPaymentAuthorizationRequest, HttpHeaders headers) throws JsonProcessingException {
         ResponseEntity<GenericResponse<?>> responseEntity =  cpPaymentProcessingService.processAuthorizeRequest(cpPaymentAuthorizationRequest, headers);
-        sendAuditData(INITIAL_AUTH, INITIAL_AUTH, responseEntity.getBody(), INITIAL_AUTH, headers.toSingleValueMap(), cpPaymentAuthorizationRequest);
+        sendAuditData(INITIAL_AUTH, INITIAL_AUTH, cpPaymentAuthorizationRequest, INITIAL_AUTH, headers.toSingleValueMap(), responseEntity.getBody());
         return responseEntity;
     }
 
@@ -132,7 +128,7 @@ public class CPPaymentProcessingController {
     private ResponseEntity<GenericResponse<?>> processPayload(CPPaymentCaptureRequest cpPaymentCaptureRequest, HttpHeaders headers) throws JsonProcessingException {
 
         ResponseEntity<GenericResponse<?>> responseEntity =  cpPaymentProcessingService.processCaptureRequest(cpPaymentCaptureRequest, headers);
-        sendAuditData(CAPTURE, CAPTURE, responseEntity.getBody(), CAPTURE, headers.toSingleValueMap(), cpPaymentCaptureRequest);
+        sendAuditData(CAPTURE, CAPTURE, cpPaymentCaptureRequest, CAPTURE, headers.toSingleValueMap(), responseEntity.getBody());
         return responseEntity;
     }
 
@@ -142,7 +138,7 @@ public class CPPaymentProcessingController {
      */
     private ResponseEntity<GenericResponse<?>> processPayload(CPPaymentCardVoidRequest cpPaymentCardVoidRequest, HttpHeaders headers) throws JsonProcessingException {
         ResponseEntity<GenericResponse<?>> responseEntity =  cpPaymentProcessingService.processCardVoidRequest(cpPaymentCardVoidRequest, headers);
-        sendAuditData(VOID, VOID, responseEntity.getBody(), VOID, headers.toSingleValueMap(), cpPaymentCardVoidRequest);
+        sendAuditData(VOID, VOID, cpPaymentCardVoidRequest, VOID, headers.toSingleValueMap(), responseEntity.getBody());
         return responseEntity;
     }
 
@@ -152,7 +148,11 @@ public class CPPaymentProcessingController {
      */
     private ResponseEntity<GenericResponse<?>> processPayload(CPPaymentRefundRequest cpPaymentRefundRequest, HttpHeaders headers) throws JsonProcessingException {
         ResponseEntity<GenericResponse<?>> responseEntity =  cpPaymentProcessingService.processRefundRequest(cpPaymentRefundRequest, headers);
-        sendAuditData(REFUND, REFUND, responseEntity.getBody(), REFUND, headers.toSingleValueMap(), responseEntity);
+        sendAuditData(REFUND, REFUND, cpPaymentRefundRequest, REFUND, headers.toSingleValueMap(), responseEntity.getBody());
         return responseEntity;
+    }
+
+    private void sendAuditData(String eventName, String eventDescription, Object requestPayload, String method, Map<String, String> requestHeader, Object responsePayload){
+        auditEventProducer.sendAuditData(eventName,eventDescription,requestPayload,"shift4",requestHeader,null,"CP-PaymentProcessorService - "+method,responsePayload);
     }
 }

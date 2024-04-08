@@ -126,6 +126,5 @@ public class CaptureRouterRequestJson {
     private String clientID;
     @NotBlank(message = "Corelation ID can't be empty or NULL")
     private String corelationId;
-    private String dateTime;
     private Long clerkId;
 }

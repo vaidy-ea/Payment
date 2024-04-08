@@ -56,8 +56,5 @@ public class IncrementalRouterRequestJson {
     private String aVSStatus;
     private String clientID;
     private String corelationId;
-
-    //TODO: Missing in Payload
-    private String dateTime;
     private Long clerkId;
 }

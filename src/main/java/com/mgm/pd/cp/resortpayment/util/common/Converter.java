@@ -22,7 +22,7 @@ public class Converter {
                 //.requestedAmount(payment.getAuthorizedAmount())
                 .authorizedAmount(payment.getAuthorizedAmount())
                 .cumulativeAmount(payment.getCumulativeAmount())
-                .currencyIndicator(null)
+                .currencyIndicator(payment.getCurrencyCode())
                 //.detailedAmount(detailedAmount)
                 .build();
 

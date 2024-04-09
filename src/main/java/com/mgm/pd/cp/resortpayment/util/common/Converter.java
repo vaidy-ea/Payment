@@ -7,29 +7,41 @@ import com.mgm.pd.cp.payment.common.dto.opera.OperaResponse;
 import com.mgm.pd.cp.payment.common.dto.opera.PrintDetails;
 import com.mgm.pd.cp.payment.common.dto.opera.TransactionAmount;
 import com.mgm.pd.cp.payment.common.model.Payment;
+import com.mgm.pd.cp.resortpayment.dto.CPPaymentProcessingRequest;
+import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
+import com.mgm.pd.cp.resortpayment.dto.common.BaseTransactionDetails;
+import com.mgm.pd.cp.resortpayment.dto.common.TransactionDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.Objects;
 
 /**
  * Converter Class from payment to Opera Response
  */
 @Component
 public class Converter {
-    public OperaResponse convert(Payment payment) {
-        TransactionAmount transactionAmount = TransactionAmount.builder()
-                //.balanceAmount(payment.getAmount())
-                //.requestedAmount(payment.getAuthorizedAmount())
-                .authorizedAmount(payment.getAuthorizedAmount())
-                .cumulativeAmount(payment.getCumulativeAmount())
-                .currencyIndicator(payment.getCurrencyCode())
-                //.detailedAmount(detailedAmount)
-                .build();
+    public <T> OperaResponse convert(Payment payment, T genericRequest) {
+        if (genericRequest.getClass().equals(CPPaymentCardVoidRequest.class)) {
+            CPPaymentCardVoidRequest request  = (CPPaymentCardVoidRequest) genericRequest;
+            BaseTransactionDetails transactionDetails = Objects.nonNull(request.getTransactionDetails()) ? request.getTransactionDetails() : new BaseTransactionDetails();
+            Card card = getCard(payment, transactionDetails);
+            return getOperaResponse(payment, card);
+        } else {
+            CPPaymentProcessingRequest request = (CPPaymentProcessingRequest) genericRequest;
+            TransactionDetails transactionDetails = request.getTransactionDetails();
+            Card card = getCard(payment, transactionDetails);
+            return getOperaResponse(payment, card);
+        }
+    }
 
-        Card card = Card.builder()
+    private static Card getCard(Payment payment, BaseTransactionDetails transactionDetails) {
+        Card card = Objects.nonNull(transactionDetails.getCard()) ? transactionDetails.getCard() : new Card();
+        Boolean isTokenized = Objects.nonNull(card.getIsTokenized()) ? card.getIsTokenized() : Boolean.TRUE;
+        return Card.builder()
+                //.cardEntryMode()
                 //.cardType(String.valueOf(payment.getIssuerType()))
                 .maskedCardNumber(payment.getLast4DigitsOfCard())
-                //.cardHolderName(payment.getCardHolderName())
                 .startDate(null)
                 .expiryDate(null)
                 .cardIssuerName(null)
@@ -38,28 +50,41 @@ public class Converter {
                 .track1(null)
                 .track2(null)
                 .track3(null)
-                //.isTokenized(false)
+                .isTokenized(isTokenized)
                 .tokenType(TokenType.MGM)
                 .tokenValue(payment.getMgmToken())
                 .build();
+    }
 
-        PrintDetails printDetails = PrintDetails.builder()
+    private static OperaResponse getOperaResponse(Payment payment, Card card) {
+        return OperaResponse.builder()
+                .approvalCode(payment.getPaymentAuthId())
+                .responseCode(payment.getGatewayResponseCode())
+                .responseReason(payment.getGatewayTransactionStatusReason())
+                .transactionDateTime(String.valueOf(payment.getCreatedTimeStamp()))
+                .transactionAuthChainId(String.valueOf(payment.getAuthChainId()))
+                .transactionAmount(getTransactionAmount(payment))
+                .card(card)
+                .printDetails(Collections.singletonList(getPrintDetails()))
+                .build();
+    }
+
+    private static PrintDetails getPrintDetails() {
+        return PrintDetails.builder()
                 .printKey(null)
                 .printName(null)
                 .printValue(null)
                 .build();
+    }
 
-        return OperaResponse.builder()
-                .approvalCode(payment.getGatewayAuthCode())
-                .responseCode(payment.getGatewayResponseCode())
-                .responseReason(payment.getGatewayReasonDescription())
-                .transactionAuthChainId(String.valueOf(payment.getAuthChainId()))
-                .networkIdentifier(null)
-                .originalTransactionIdentifier(null)
-                .transactionDateTime(String.valueOf(payment.getCreatedTimeStamp()))
-                .transactionAmount(transactionAmount)
-                .card(card)
-                .printDetails(Collections.singletonList(printDetails))
+    private static TransactionAmount getTransactionAmount(Payment payment) {
+        return TransactionAmount.builder()
+                //.balanceAmount(payment.getAmount())
+                //.requestedAmount(payment.getAuthorizedAmount())
+                .authorizedAmount(payment.getAuthorizedAmount())
+                .cumulativeAmount(payment.getCumulativeAmount())
+                .currencyIndicator(payment.getCurrencyCode())
+                //.detailedAmount(detailedAmount)
                 .build();
     }
 }

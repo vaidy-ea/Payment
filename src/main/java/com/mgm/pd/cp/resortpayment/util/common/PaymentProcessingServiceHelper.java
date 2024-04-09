@@ -76,11 +76,11 @@ public class PaymentProcessingServiceHelper {
      * Method to convert a positive response from Payment DB for Opera
      * @param payment: data from Payment DB
      */
-    public ResponseEntity<GenericResponse<?>> response(Payment payment) {
+    public <T> ResponseEntity<GenericResponse<?>> response(Payment payment, T request) {
         logger.log(Level.INFO, "Client Id is: " + payment.getClientId() + " Response Code from Router is: " + payment.getGatewayResponseCode());
         OperaResponse operaResponse;
         //converting the response from Payment DB for Opera
-        operaResponse = converter.convert(payment);
+        operaResponse = converter.convert(payment, request);
         return response(operaResponse);
     }
 

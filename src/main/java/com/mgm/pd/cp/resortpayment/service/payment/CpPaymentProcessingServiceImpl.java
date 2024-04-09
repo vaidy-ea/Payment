@@ -60,7 +60,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
             payment = savePaymentService.saveIncrementalAuthorizationPayment(request, irResponse, optionalInitialPayment.orElse(null));
         }
         //converting and returning response for upstream system
-        return serviceHelper.response(payment);
+        return serviceHelper.response(payment, request);
     }
 
     /**
@@ -87,7 +87,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
             payment = savePaymentService.saveAuthorizationPayment(request, authRouterResponse);
         }
         //converting and returning response for upstream system
-        return serviceHelper.response(payment);
+        return serviceHelper.response(payment, request);
     }
 
     /**
@@ -116,7 +116,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
             payment = savePaymentService.saveCaptureAuthPayment(request, crResponse, optionalInitialPayment.orElse(null));
         }
         //converting and returning response for upstream system
-        return serviceHelper.response(payment);
+        return serviceHelper.response(payment, request);
     }
 
     /**
@@ -145,7 +145,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
             payment = savePaymentService.saveCardVoidAuthPayment(request, cvrResponse, optionalInitialPayment.orElse(null));
         }
         //converting and returning response for upstream system
-        return serviceHelper.response(payment);
+        return serviceHelper.response(payment, request);
     }
 
     /**
@@ -172,6 +172,6 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
             payment = savePaymentService.saveRefundPayment(request, rrResponse);
         }
         //converting and returning response for upstream system
-        return serviceHelper.response(payment);
+        return serviceHelper.response(payment, request);
     }
 }

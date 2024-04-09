@@ -97,7 +97,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
                 .authSubType(request.getTransactionType())
-                .tenderType(TenderType.CREDIT)
+                .tenderType(String.valueOf(TenderType.CREDIT))
                 .issuerType(Objects.nonNull(enumByString) ? IssuerType.valueOf(enumByString) : null)
                 .updatedTimestamp(LocalDateTime.now());
         if (Objects.nonNull(response)) {
@@ -166,7 +166,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
                 .authSubType(request.getTransactionType())
-                .tenderType(TenderType.CREDIT)
+                .tenderType(String.valueOf(TenderType.CREDIT))
                 .issuerType(Objects.nonNull(enumByString) ? IssuerType.valueOf(enumByString) : null)
                 .updatedTimestamp(LocalDateTime.now());
         if (Objects.nonNull(response)) {
@@ -241,7 +241,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
                 .authSubType(request.getTransactionType())
-                .tenderType(TenderType.CREDIT)
+                .tenderType(String.valueOf(TenderType.CREDIT))
                 .issuerType(Objects.nonNull(enumByString) ? IssuerType.valueOf(enumByString) : null)
                 .updatedTimestamp(LocalDateTime.now());
         if (Objects.nonNull(response)) {
@@ -298,7 +298,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .mgmJourneyId(headers.getJourneyId())
                 .mgmTransactionId(headers.getTransactionId())
                 .cardEntryMode(card.getCardEntryMode())
-                .tenderType(TenderType.CREDIT)
+                .tenderType(String.valueOf(TenderType.CREDIT))
                 .issuerType(Objects.nonNull(enumByString) ? IssuerType.valueOf(enumByString) : null)
                 .updatedTimestamp(LocalDateTime.now());
                 //.avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
@@ -371,7 +371,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
                 .authSubType(request.getTransactionType())
-                .tenderType(TenderType.CREDIT)
+                .tenderType(String.valueOf(TenderType.CREDIT))
                 .issuerType(Objects.nonNull(enumByString) ? IssuerType.valueOf(enumByString) : null)
                 .updatedTimestamp(LocalDateTime.now());
         if (Objects.nonNull(response)) {

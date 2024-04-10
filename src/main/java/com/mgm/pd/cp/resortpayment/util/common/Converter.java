@@ -24,14 +24,16 @@ public class Converter {
     public <T> OperaResponse convert(Payment payment, T genericRequest) {
         if (genericRequest.getClass().equals(CPPaymentCardVoidRequest.class)) {
             CPPaymentCardVoidRequest request  = (CPPaymentCardVoidRequest) genericRequest;
+            String transactionDateTime = request.getTransactionDateTime();
             BaseTransactionDetails transactionDetails = Objects.nonNull(request.getTransactionDetails()) ? request.getTransactionDetails() : new BaseTransactionDetails();
             Card card = getCard(payment, transactionDetails);
-            return getOperaResponse(payment, card);
+            return getOperaResponse(payment, card, transactionDateTime);
         } else {
             CPPaymentProcessingRequest request = (CPPaymentProcessingRequest) genericRequest;
+            String transactionDateTime = request.getTransactionDateTime();
             TransactionDetails transactionDetails = request.getTransactionDetails();
             Card card = getCard(payment, transactionDetails);
-            return getOperaResponse(payment, card);
+            return getOperaResponse(payment, card, transactionDateTime);
         }
     }
 
@@ -56,12 +58,12 @@ public class Converter {
                 .build();
     }
 
-    private static OperaResponse getOperaResponse(Payment payment, Card card) {
+    private static OperaResponse getOperaResponse(Payment payment, Card card, String transactionDateTime) {
         return OperaResponse.builder()
                 .approvalCode(payment.getPaymentAuthId())
                 .responseCode(payment.getGatewayResponseCode())
                 .responseReason(payment.getGatewayTransactionStatusReason())
-                .transactionDateTime(String.valueOf(payment.getCreatedTimeStamp()))
+                .transactionDateTime(transactionDateTime)
                 .transactionAuthChainId(String.valueOf(payment.getAuthChainId()))
                 .transactionAmount(getTransactionAmount(payment))
                 .card(card)

@@ -101,6 +101,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .issuerType(Objects.nonNull(enumByString) ? IssuerType.valueOf(enumByString) : null)
                 .updatedTimestamp(LocalDateTime.now());
         if (Objects.nonNull(response)) {
+            request.setTransactionDateTime(response.getDateTime());
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
             newPayment
                     //.authorizedAmount(response.getTotalAuthAmount())
@@ -170,6 +171,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .issuerType(Objects.nonNull(enumByString) ? IssuerType.valueOf(enumByString) : null)
                 .updatedTimestamp(LocalDateTime.now());
         if (Objects.nonNull(response)) {
+            request.setTransactionDateTime(response.getDateTime());
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
             String vendorTranID = response.getVendorTranID();
             newPayment
@@ -245,6 +247,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .issuerType(Objects.nonNull(enumByString) ? IssuerType.valueOf(enumByString) : null)
                 .updatedTimestamp(LocalDateTime.now());
         if (Objects.nonNull(response)) {
+            request.setTransactionDateTime(response.getDateTime());
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
             newPayment
                     .authorizedAmount(response.getTotalAuthAmount())
@@ -305,7 +308,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
                 //.authSubType(AuthType.valueOf(request.getTransactionType()));
         if (Objects.nonNull(response)) {
-            String transDate = response.getTransDate();
+            request.setTransactionDateTime(response.getDateTime());
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
             newPayment
                     .authorizedAmount(response.getTotalAuthAmount())
@@ -375,6 +378,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .issuerType(Objects.nonNull(enumByString) ? IssuerType.valueOf(enumByString) : null)
                 .updatedTimestamp(LocalDateTime.now());
         if (Objects.nonNull(response)) {
+            request.setTransactionDateTime(response.getDateTime());
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
             String vendorTranID = response.getVendorTranID();
             newPayment

@@ -1,6 +1,7 @@
 package com.mgm.pd.cp.resortpayment.dto.common;
 
 import com.mgm.pd.cp.payment.common.constant.BooleanValue;
+import com.mgm.pd.cp.payment.common.validation.currencyvalidation.ValidCurrencyCode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,6 +26,7 @@ public class CurrencyConversion implements Serializable {
     @Valid @Enumerated(EnumType.STRING)
     private BooleanValue conversionFlag;
 
+    @ValidCurrencyCode(message = "Invalid binCurrencyCode")
     @Size(max = 3, message = "binCurrencyCode exceeds the permissible length of 3")
     private String binCurrencyCode;
 

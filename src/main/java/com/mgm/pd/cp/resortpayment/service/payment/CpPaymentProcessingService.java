@@ -22,29 +22,29 @@ public interface CpPaymentProcessingService {
      * This method takes the action for IncrementalAuthorization operation only.
      * It shouldn't be called without passing the IncrementalAuthorization Request.
      */
-    ResponseEntity<GenericResponse<?>> processIncrementalAuthorizationRequest(CPPaymentIncrementalAuthRequest request, HttpHeaders headers) throws JsonProcessingException;
+    ResponseEntity<GenericResponse> processIncrementalAuthorizationRequest(CPPaymentIncrementalAuthRequest request, HttpHeaders headers) throws JsonProcessingException;
 
     /**
      * This method takes the action for Authorization operation only.
      * It shouldn't be called without passing the Authorization Request.
      */
-    ResponseEntity<GenericResponse<?>> processAuthorizeRequest(CPPaymentAuthorizationRequest request, HttpHeaders headers) throws JsonProcessingException;
+    ResponseEntity<GenericResponse> processAuthorizeRequest(CPPaymentAuthorizationRequest request, HttpHeaders headers) throws JsonProcessingException;
 
     /**
      * This method takes the action for Capture operation only.
      * It shouldn't be called without passing the Capture Request.
      */
-    ResponseEntity<GenericResponse<?>> processCaptureRequest(CPPaymentCaptureRequest request, HttpHeaders headers) throws JsonProcessingException;
+    ResponseEntity<GenericResponse> processCaptureRequest(CPPaymentCaptureRequest request, HttpHeaders headers) throws JsonProcessingException;
 
     /**
      * This method takes the action for Card Void operation only.
      * It shouldn't be called without passing the Card Void Request.
      */
-    ResponseEntity<GenericResponse<?>> processCardVoidRequest(CPPaymentCardVoidRequest request, HttpHeaders headers) throws JsonProcessingException;
+    ResponseEntity<GenericResponse> processCardVoidRequest(CPPaymentCardVoidRequest request, HttpHeaders headers) throws JsonProcessingException;
 
     /**
      * This method takes the action for Refund operation only.
      * It shouldn't be called without passing the Refund Request.
      */
-    ResponseEntity<GenericResponse<?>> processRefundRequest(CPPaymentRefundRequest request, HttpHeaders headers) throws JsonProcessingException;
+    ResponseEntity<GenericResponse> processRefundRequest(CPPaymentRefundRequest request, HttpHeaders headers) throws JsonProcessingException;
 }

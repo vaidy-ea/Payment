@@ -36,8 +36,8 @@ public class BasePaymentProcessingRequest {
     @JsonDeserialize(using = TransactionLOBDeserializer.class)
     private TransactionLOB transactionLOB;
 
-    //TODO: Missing in Payload sheet
     private String referenceId;
+
     @Valid
     private CPRequestHeaders headers;
 }

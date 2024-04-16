@@ -23,14 +23,14 @@ public class FindPaymentServiceImpl implements FindPaymentService {
     @Override
     @Retry(name = "authChainIdAndAuthSubType")
     public Optional<List<Payment>> getPaymentDetails(String authChainId, @Valid AuthType authSubType) {
-        logger.log(Level.DEBUG, "Attempting to find Initial Auth from Payment DB using authChainId: " + authChainId + " and authSubType: " + authSubType);
+        logger.log(Level.DEBUG, "Attempting to find Initial Auth from Payment DB using authChainId: {} and authSubType: {}", authChainId, authSubType);
         return paymentRepository.findByAuthChainIdAndAuthSubType(authChainId, authSubType);
     }
 
     @Override
     @Retry(name = "authChainId")
     public Optional<List<Payment>> getPaymentDetails(String authChainId) {
-        logger.log(Level.DEBUG, "Attempting to find Initial Auth from Payment DB using authChainId: " + authChainId);
+        logger.log(Level.DEBUG, "Attempting to find Initial Auth from Payment DB using authChainId: {}", authChainId);
         return paymentRepository.findByAuthChainId(authChainId);
     }
 }

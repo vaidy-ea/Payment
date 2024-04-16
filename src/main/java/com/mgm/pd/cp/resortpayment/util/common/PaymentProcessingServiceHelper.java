@@ -12,10 +12,19 @@ import com.mgm.pd.cp.payment.common.dto.opera.OperaResponse;
 import com.mgm.pd.cp.payment.common.model.Payment;
 import com.mgm.pd.cp.resortpayment.config.HeaderConfigProperties;
 import com.mgm.pd.cp.resortpayment.dto.CPPaymentProcessingRequest;
+import com.mgm.pd.cp.resortpayment.dto.authorize.AuthorizationRouterResponse;
+import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
+import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
+import com.mgm.pd.cp.resortpayment.dto.capture.CaptureRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
+import com.mgm.pd.cp.resortpayment.dto.cardvoid.CardVoidRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.common.BaseTransactionDetails;
 import com.mgm.pd.cp.resortpayment.dto.common.SaleDetails;
 import com.mgm.pd.cp.resortpayment.dto.common.SaleItem;
+import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalAuthRequest;
+import com.mgm.pd.cp.resortpayment.dto.incrementalauth.IncrementalAuthorizationRouterResponse;
+import com.mgm.pd.cp.resortpayment.dto.refund.CPPaymentRefundRequest;
+import com.mgm.pd.cp.resortpayment.dto.refund.RefundRouterResponse;
 import com.mgm.pd.cp.resortpayment.service.payment.FindPaymentService;
 import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.Level;
@@ -34,6 +43,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.FAILURE_MESSAGE;
+import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.SUCCESS_MESSAGE;
+import static com.mgm.pd.cp.payment.common.constant.ReturnCode.Approved;
 import static com.mgm.pd.cp.payment.common.util.CommonService.throwExceptionIfRequiredHeadersAreMissing;
 
 /**
@@ -42,6 +54,7 @@ import static com.mgm.pd.cp.payment.common.util.CommonService.throwExceptionIfRe
 @Component
 @AllArgsConstructor
 public class PaymentProcessingServiceHelper {
+    public static final String LEADING_ZEROES = "^0+(?!$)";
     private static final Logger logger = LogManager.getLogger(PaymentProcessingServiceHelper.class);
     private FindPaymentService findPaymentService;
     private ObjectMapper mapper;
@@ -78,7 +91,7 @@ public class PaymentProcessingServiceHelper {
      * Method to convert a positive response from Payment DB for Opera
      * @param payment: data from Payment DB
      */
-    public <T> ResponseEntity<GenericResponse<?>> response(Payment payment, T request) {
+    public <T> ResponseEntity<GenericResponse> response(Payment payment, T request) {
         logger.log(Level.INFO, "Client Id is: " + payment.getClientId() + " Response Code from Router is: " + payment.getGatewayResponseCode());
         OperaResponse operaResponse;
         //converting the response from Payment DB for Opera
@@ -87,7 +100,7 @@ public class PaymentProcessingServiceHelper {
     }
 
     //internal method to add complete data in the response payload
-    private <D> ResponseEntity<GenericResponse<?>> response(D data) {
+    private <D> ResponseEntity<GenericResponse> response(D data) {
         return new ResponseEntity<>(GenericResponse.builder().data(data).build(), HttpStatus.OK);
     }
 
@@ -194,6 +207,83 @@ public class PaymentProcessingServiceHelper {
 
     private static String replaceSpecialCharacters(String value) {
         return value.replaceAll("\\s+", "_")
-                .replaceAll("’", "\\$").replaceAll("'", "\\$");
+                .replace("’", "\\$").replace("'", "\\$");
+    }
+
+    public void getIncrementalAuthorizationDetailsFromRouterResponse(CPPaymentIncrementalAuthRequest request, IncrementalAuthorizationRouterResponse response, Payment.PaymentBuilder newPayment) {
+        if (Objects.nonNull(response)) {
+            request.setTransactionDateTime(response.getDateTime());
+            String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
+            newPayment
+                    //.authorizedAmount(response.getTotalAuthAmount())
+                    .cumulativeAmount(response.getTotalAuthAmount())
+                    .paymentAuthId(response.getApprovalCode())
+                    .gatewayTransactionStatusReason(response.getMessage())
+                    .gatewayResponseCode(returnCode)
+                    .createdTimeStamp(convertToTimestamp(response.getDateTime()))
+                    .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
+        }
+    }
+
+    public void getAuthorizationDetailsFromRouterResponse(CPPaymentAuthorizationRequest request, AuthorizationRouterResponse response, Payment.PaymentBuilder newPayment) {
+        if (Objects.nonNull(response)) {
+            request.setTransactionDateTime(response.getDateTime());
+            String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
+            String vendorTranID = response.getVendorTranID();
+            newPayment
+                    .authChainId(vendorTranID)
+                    .gatewayChainId(Objects.nonNull(vendorTranID) ? vendorTranID.replaceFirst(LEADING_ZEROES, "") : null)
+                    .authorizedAmount(response.getTotalAuthAmount())
+                    .paymentAuthId(response.getApprovalCode())
+                    .gatewayTransactionStatusReason(response.getMessage())
+                    .gatewayResponseCode(returnCode)
+                    .createdTimeStamp(convertToTimestamp(response.getDateTime()))
+                    .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
+        }
+    }
+
+    public void getCaptureDetailsFromRouterResponse(CPPaymentCaptureRequest request, CaptureRouterResponse response, Payment.PaymentBuilder newPayment) {
+        if (Objects.nonNull(response)) {
+            request.setTransactionDateTime(response.getDateTime());
+            String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
+            newPayment
+                    .authorizedAmount(response.getTotalAuthAmount())
+                    .paymentAuthId(response.getApprovalCode())
+                    .gatewayResponseCode(returnCode)
+                    .gatewayTransactionStatusReason(response.getMessage())
+                    .createdTimeStamp(convertToTimestamp(response.getDateTime()))
+                    .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
+        }
+    }
+
+    public void getVoidDetailsFromRouterResponse(CPPaymentCardVoidRequest request, CardVoidRouterResponse response, Payment.PaymentBuilder newPayment) {
+        if (Objects.nonNull(response)) {
+            request.setTransactionDateTime(response.getDateTime());
+            String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
+            newPayment
+                    .authorizedAmount(response.getTotalAuthAmount())
+                    .paymentAuthId(response.getApprovalCode())
+                    .gatewayResponseCode(returnCode)
+                    .gatewayTransactionStatusReason(response.getMessage())
+                    .createdTimeStamp(convertToTimestamp(response.getDateTime()))
+                    .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
+        }
+    }
+
+    public void getRefundDetailsFromRouterResponse(CPPaymentRefundRequest request, RefundRouterResponse response, Payment.PaymentBuilder newPayment) {
+        if (Objects.nonNull(response)) {
+            request.setTransactionDateTime(response.getDateTime());
+            String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
+            String vendorTranID = response.getVendorTranID();
+            newPayment
+                    .authorizedAmount(response.getTotalAuthAmount())
+                    .paymentAuthId(response.getApprovalCode())
+                    .gatewayResponseCode(returnCode)
+                    .authChainId(vendorTranID)
+                    .gatewayTransactionStatusReason(response.getMessage())
+                    .createdTimeStamp(convertToTimestamp(response.getDateTime()))
+                    .gatewayChainId(Objects.nonNull(vendorTranID) ? vendorTranID.replaceFirst(LEADING_ZEROES, "") : null)
+                    .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
+        }
     }
 }

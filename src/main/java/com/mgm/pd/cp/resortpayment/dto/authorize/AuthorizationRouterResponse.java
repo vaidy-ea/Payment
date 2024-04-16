@@ -37,8 +37,6 @@ public class AuthorizationRouterResponse {
     private String vendorTranID;
     private String clientID;
     private String corelationId;
-
-    //TODO: Needs mapping for below
     private Double authAmountRequested;
     private Integer cardNumberLast4Digits;
     private String returnCode;

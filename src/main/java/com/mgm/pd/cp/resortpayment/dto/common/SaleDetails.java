@@ -6,11 +6,12 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import lombok.Getter;
 
 import javax.validation.Valid;
+import java.io.Serializable;
 
 @Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class SaleDetails {
+public class SaleDetails implements Serializable {
     @JsonUnwrapped @Valid
     private Hotel hotel;
 

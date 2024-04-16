@@ -44,7 +44,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
      * @return response from IR
      */
     @Override
-    public ResponseEntity<GenericResponse<?>> processIncrementalAuthorizationRequest(CPPaymentIncrementalAuthRequest request, HttpHeaders headers) throws JsonProcessingException {
+    public ResponseEntity<GenericResponse> processIncrementalAuthorizationRequest(CPPaymentIncrementalAuthRequest request, HttpHeaders headers) throws JsonProcessingException {
         //adding headers in request before sending to IR
         request = serviceHelper.mapHeadersInRequest(request, headers);
         //finding initial Payment as pre-requisite for processing of Incremental Authorization
@@ -73,7 +73,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
      * @return response from IR
      */
     @Override
-    public ResponseEntity<GenericResponse<?>> processAuthorizeRequest(CPPaymentAuthorizationRequest request, HttpHeaders headers) throws JsonProcessingException {
+    public ResponseEntity<GenericResponse> processAuthorizeRequest(CPPaymentAuthorizationRequest request, HttpHeaders headers) throws JsonProcessingException {
         //adding headers in request before sending to IR
         request = serviceHelper.mapHeadersInRequest(request, headers);
         AuthorizationRouterResponse authRouterResponse = null;
@@ -100,7 +100,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
      * @return response from IR
      */
     @Override
-    public ResponseEntity<GenericResponse<?>> processCaptureRequest(CPPaymentCaptureRequest request, HttpHeaders headers) throws JsonProcessingException {
+    public ResponseEntity<GenericResponse> processCaptureRequest(CPPaymentCaptureRequest request, HttpHeaders headers) throws JsonProcessingException {
         //adding headers in request before sending to IR
         request = serviceHelper.mapHeadersInRequest(request, headers);
         //finding initial Payment as pre-requisite for processing of Capture
@@ -129,7 +129,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
      * @return response from IR
      */
     @Override
-    public ResponseEntity<GenericResponse<?>> processCardVoidRequest(CPPaymentCardVoidRequest request, HttpHeaders headers) throws JsonProcessingException {
+    public ResponseEntity<GenericResponse> processCardVoidRequest(CPPaymentCardVoidRequest request, HttpHeaders headers) throws JsonProcessingException {
         //adding headers in request before sending to IR
         request = serviceHelper.mapHeadersInRequest(request, headers);
         //finding initial Payment as pre-requisite for processing of Card Void Request
@@ -158,7 +158,7 @@ public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingServic
      * @return response from IR
      */
     @Override
-    public ResponseEntity<GenericResponse<?>> processRefundRequest(CPPaymentRefundRequest request, HttpHeaders headers) throws JsonProcessingException {
+    public ResponseEntity<GenericResponse> processRefundRequest(CPPaymentRefundRequest request, HttpHeaders headers) throws JsonProcessingException {
         //adding headers in request before sending to IR
         request = serviceHelper.mapHeadersInRequest(request, headers);
         RefundRouterResponse rrResponse = null;

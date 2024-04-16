@@ -30,15 +30,14 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
-import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.FAILURE_MESSAGE;
-import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.SUCCESS_MESSAGE;
-import static com.mgm.pd.cp.payment.common.constant.ReturnCode.Approved;
 import static com.mgm.pd.cp.payment.common.constant.TransactionType.REFUND;
 
 @Service
 @AllArgsConstructor
 public class SavePaymentServiceImpl implements SavePaymentService {
     private static final Logger logger = LogManager.getLogger(SavePaymentServiceImpl.class);
+    public static final String TRANSACTION_TYPE = "Transaction Type is: {}";
+    public static final String LEADING_ZEROES = "^0+(?!$)";
 
     private PaymentRepository paymentRepository;
     private PaymentProcessingServiceHelper helper;
@@ -70,7 +69,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.gatewayRelationNumber(headers.getCorrelationId())
                 .clientReferenceNumber(saleItem.getSaleReferenceIdentifier())
                 .amount(detailedAmount.getAmount())
-                .gatewayChainId(Objects.nonNull(authChainId) ? authChainId.replaceFirst("^0+(?!$)", "") : null)
+                .gatewayChainId(Objects.nonNull(authChainId) ? authChainId.replaceFirst(LEADING_ZEROES, "") : null)
                 .authChainId(authChainId)
                 .clientId(headers.getClientId())
                 .orderType(Objects.nonNull(saleType) ? OrderType.valueOf(saleType) : null)
@@ -100,20 +99,9 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .tenderType(String.valueOf(TenderType.CREDIT))
                 .issuerType(Objects.nonNull(enumByString) ? IssuerType.valueOf(enumByString) : null)
                 .updatedTimestamp(LocalDateTime.now());
-        if (Objects.nonNull(response)) {
-            request.setTransactionDateTime(response.getDateTime());
-            String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
-            newPayment
-                    //.authorizedAmount(response.getTotalAuthAmount())
-                    .cumulativeAmount(response.getTotalAuthAmount())
-                    .paymentAuthId(response.getApprovalCode())
-                    .gatewayTransactionStatusReason(response.getMessage())
-                    .gatewayResponseCode(returnCode)
-                    .createdTimeStamp(helper.convertToTimestamp(response.getDateTime()))
-                    .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
-        }
+        helper.getIncrementalAuthorizationDetailsFromRouterResponse(request, response, newPayment);
         Payment payment = newPayment.build();
-        logger.log(Level.INFO, "Transaction Type is: " + payment.getTransactionType());
+        logger.log(Level.INFO, TRANSACTION_TYPE, payment.getTransactionType());
         return this.paymentRepository.save(payment);
     }
 
@@ -170,22 +158,9 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .tenderType(String.valueOf(TenderType.CREDIT))
                 .issuerType(Objects.nonNull(enumByString) ? IssuerType.valueOf(enumByString) : null)
                 .updatedTimestamp(LocalDateTime.now());
-        if (Objects.nonNull(response)) {
-            request.setTransactionDateTime(response.getDateTime());
-            String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
-            String vendorTranID = response.getVendorTranID();
-            newPayment
-                    .authChainId(vendorTranID)
-                    .gatewayChainId(Objects.nonNull(vendorTranID) ? vendorTranID.replaceFirst("^0+(?!$)", "") : null)
-                    .authorizedAmount(response.getTotalAuthAmount())
-                    .paymentAuthId(response.getApprovalCode())
-                    .gatewayTransactionStatusReason(response.getMessage())
-                    .gatewayResponseCode(returnCode)
-                    .createdTimeStamp(helper.convertToTimestamp(response.getDateTime()))
-                    .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
-        }
+        helper.getAuthorizationDetailsFromRouterResponse(request, response, newPayment);
         Payment payment = newPayment.build();
-        logger.log(Level.INFO, "Transaction Type is: " + payment.getTransactionType());
+        logger.log(Level.INFO, TRANSACTION_TYPE, payment.getTransactionType());
         return  this.paymentRepository.save(payment);
     }
 
@@ -217,7 +192,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .clientReferenceNumber(saleItem.getSaleReferenceIdentifier())
                 .amount(detailedAmount.getAmount())
                 .authChainId(authChainId)
-                .gatewayChainId(Objects.nonNull(authChainId) ? authChainId.replaceFirst("^0+(?!$)", "") : null)
+                .gatewayChainId(Objects.nonNull(authChainId) ? authChainId.replaceFirst(LEADING_ZEROES, "") : null)
                 .clientId(headers.getClientId())
                 .orderType(Objects.nonNull(saleType) ? OrderType.valueOf(saleType) : null)
                 .mgmId(null)
@@ -246,19 +221,9 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .tenderType(String.valueOf(TenderType.CREDIT))
                 .issuerType(Objects.nonNull(enumByString) ? IssuerType.valueOf(enumByString) : null)
                 .updatedTimestamp(LocalDateTime.now());
-        if (Objects.nonNull(response)) {
-            request.setTransactionDateTime(response.getDateTime());
-            String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
-            newPayment
-                    .authorizedAmount(response.getTotalAuthAmount())
-                    .paymentAuthId(response.getApprovalCode())
-                    .gatewayResponseCode(returnCode)
-                    .gatewayTransactionStatusReason(response.getMessage())
-                    .createdTimeStamp(helper.convertToTimestamp(response.getDateTime()))
-                    .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
-        }
+        helper.getCaptureDetailsFromRouterResponse(request, response, newPayment);
         Payment payment = newPayment.build();
-        logger.log(Level.INFO, "Transaction Type is: " + payment.getTransactionType());
+        logger.log(Level.INFO, TRANSACTION_TYPE, payment.getTransactionType());
         return this.paymentRepository.save(payment);
     }
 
@@ -281,7 +246,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .groupId(null)
                 .gatewayId(gatewayId)
                 //.gatewayRelationNumber(headers.getCorrelationId())
-                .gatewayChainId(Objects.nonNull(authChainId) ? authChainId.replaceFirst("^0+(?!$)", "") : null)
+                .gatewayChainId(Objects.nonNull(authChainId) ? authChainId.replaceFirst(LEADING_ZEROES, "") : null)
                 .clientReferenceNumber(saleItem.getSaleReferenceIdentifier())
                 //.amount(detailedAmount.getAmount())
                 .authChainId(authChainId)
@@ -307,19 +272,9 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
                 //.authSubType(AuthType.valueOf(request.getTransactionType()));
-        if (Objects.nonNull(response)) {
-            request.setTransactionDateTime(response.getDateTime());
-            String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
-            newPayment
-                    .authorizedAmount(response.getTotalAuthAmount())
-                    .paymentAuthId(response.getApprovalCode())
-                    .gatewayResponseCode(returnCode)
-                    .gatewayTransactionStatusReason(response.getMessage())
-                    .createdTimeStamp(helper.convertToTimestamp(response.getDateTime()))
-                    .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
-        }
+        helper.getVoidDetailsFromRouterResponse(request, response, newPayment);
         Payment payment = newPayment.build();
-        logger.log(Level.INFO, "Transaction Type is: " + payment.getTransactionType());
+        logger.log(Level.INFO, TRANSACTION_TYPE, payment.getTransactionType());
         return this.paymentRepository.save(payment);
     }
 
@@ -331,6 +286,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         CurrencyConversion currencyConversion = transactionDetails.getCurrencyConversion();
         CurrencyConversion cc = Objects.nonNull(currencyConversion) ? currencyConversion : new CurrencyConversion();
         Card card = Objects.nonNull(transactionDetails.getCard()) ? transactionDetails.getCard(): new Card();
+        String cardType = Objects.nonNull(card.getCardType()) ? card.getCardType() : null;
         Customer customer = Objects.nonNull(transactionDetails.getCustomer()) ? transactionDetails.getCustomer() : new Customer();
         String string = UUID.randomUUID().toString();
         DetailedAmount detailedAmount = Objects.nonNull(transactionAmount.getDetailedAmount()) ? transactionAmount.getDetailedAmount() : new DetailedAmount();
@@ -339,7 +295,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         Gateway gatewayId = Gateway.SHFT;
         SaleItem saleItem = Objects.nonNull(transactionDetails.getSaleItem()) ? transactionDetails.getSaleItem() : new SaleItem();
         String saleType = saleItem.getSaleType();
-        String cardType = Objects.nonNull(card.getCardType()) ? card.getCardType() : null;
         String enumByString = helper.getEnumValueOfCardType(cardType);
         newPayment
                 .paymentId(string)
@@ -377,22 +332,9 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .tenderType(String.valueOf(TenderType.CREDIT))
                 .issuerType(Objects.nonNull(enumByString) ? IssuerType.valueOf(enumByString) : null)
                 .updatedTimestamp(LocalDateTime.now());
-        if (Objects.nonNull(response)) {
-            request.setTransactionDateTime(response.getDateTime());
-            String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
-            String vendorTranID = response.getVendorTranID();
-            newPayment
-                    .authorizedAmount(response.getTotalAuthAmount())
-                    .paymentAuthId(response.getApprovalCode())
-                    .gatewayResponseCode(returnCode)
-                    .authChainId(vendorTranID)
-                    .gatewayTransactionStatusReason(response.getMessage())
-                    .createdTimeStamp(helper.convertToTimestamp(response.getDateTime()))
-                    .gatewayChainId(Objects.nonNull(vendorTranID) ? vendorTranID.replaceFirst("^0+(?!$)", "") : null)
-                    .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
-        }
+        helper.getRefundDetailsFromRouterResponse(request, response, newPayment);
         Payment payment = newPayment.build();
-        logger.log(Level.INFO, "Transaction Type is: " + payment.getTransactionType());
+        logger.log(Level.INFO, TRANSACTION_TYPE, payment.getTransactionType());
         return this.paymentRepository.save(payment);
     }
 }

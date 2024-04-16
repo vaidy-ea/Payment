@@ -43,9 +43,7 @@ public class AuthorizeToRouterConverter implements Converter<CPPaymentAuthorizat
         DetailedAmount detailedAmount = Objects.nonNull(transactionAmount.getDetailedAmount()) ? transactionAmount.getDetailedAmount() : new DetailedAmount();
         Customer customer = Objects.nonNull(transactionDetails.getCustomer()) ? transactionDetails.getCustomer() : new Customer();
         Address billingAddress = Objects.nonNull(customer.getBillingAddress()) ? customer.getBillingAddress() : new Address();
-        /*CurrencyConversion currencyConversion = transactionDetails.getCurrencyConversion();*/
         Card card = transactionDetails.getCard();
-        /*String roomRate = valueFromSaleDetails.get(ROOM_RATE);*/
         CPRequestHeaders headers = request.getHeaders();
         String originalTransactionIdentifier = request.getOriginalTransactionIdentifier();
         Boolean isCardPresent = Objects.nonNull(transactionDetails.getIsCardPresent()) ? transactionDetails.getIsCardPresent() : Boolean.TRUE;

@@ -26,18 +26,16 @@ public class Converter {
             CPPaymentCardVoidRequest request  = (CPPaymentCardVoidRequest) genericRequest;
             String transactionDateTime = request.getTransactionDateTime();
             BaseTransactionDetails transactionDetails = Objects.nonNull(request.getTransactionDetails()) ? request.getTransactionDetails() : new BaseTransactionDetails();
-            Card card = getCard(payment, transactionDetails);
-            return getOperaResponse(payment, card, transactionDateTime);
+            return getOperaResponse(payment, setCardDetails(payment, transactionDetails), transactionDateTime);
         } else {
             CPPaymentProcessingRequest request = (CPPaymentProcessingRequest) genericRequest;
             String transactionDateTime = request.getTransactionDateTime();
             TransactionDetails transactionDetails = request.getTransactionDetails();
-            Card card = getCard(payment, transactionDetails);
-            return getOperaResponse(payment, card, transactionDateTime);
+            return getOperaResponse(payment, setCardDetails(payment, transactionDetails), transactionDateTime);
         }
     }
 
-    private static Card getCard(Payment payment, BaseTransactionDetails transactionDetails) {
+    private static Card setCardDetails(Payment payment, BaseTransactionDetails transactionDetails) {
         Card card = Objects.nonNull(transactionDetails.getCard()) ? transactionDetails.getCard() : new Card();
         Boolean isTokenized = Objects.nonNull(card.getIsTokenized()) ? card.getIsTokenized() : Boolean.TRUE;
         return Card.builder()

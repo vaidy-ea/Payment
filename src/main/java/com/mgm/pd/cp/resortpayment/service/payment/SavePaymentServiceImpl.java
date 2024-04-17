@@ -52,7 +52,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         Card card = Objects.nonNull(transactionDetails.getCard()) ? transactionDetails.getCard(): new Card();
         Payment.PaymentBuilder newPayment = Payment.builder();
         String randomId = UUID.randomUUID().toString();
-        DetailedAmount detailedAmount = Objects.nonNull(transactionAmount.getDetailedAmount()) ? transactionAmount.getDetailedAmount() : new DetailedAmount();
         Address billingAddress = Objects.nonNull(customer.getBillingAddress()) ? customer.getBillingAddress() : new Address();
         CPRequestHeaders headers = request.getHeaders();
         String authChainId = request.getTransactionAuthChainId();
@@ -68,7 +67,8 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .gatewayId(gatewayId)
                 //.gatewayRelationNumber(headers.getCorrelationId())
                 .clientReferenceNumber(saleItem.getSaleReferenceIdentifier())
-                .amount(detailedAmount.getAmount())
+                .amount(transactionAmount.getRequestedAmount())
+                .cumulativeAmount(transactionAmount.getCumulativeAmount())
                 .gatewayChainId(Objects.nonNull(authChainId) ? authChainId.replaceFirst(LEADING_ZEROES, "") : null)
                 .authChainId(authChainId)
                 .clientId(headers.getClientId())
@@ -115,7 +115,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         Card card = Objects.nonNull(transactionDetails.getCard()) ? transactionDetails.getCard(): new Card();
         Payment.PaymentBuilder newPayment = Payment.builder();
         String randomId = UUID.randomUUID().toString();
-        DetailedAmount detailedAmount = Objects.nonNull(transactionAmount.getDetailedAmount()) ? transactionAmount.getDetailedAmount() : new DetailedAmount();
         Address billingAddress = Objects.nonNull(customer.getBillingAddress()) ? customer.getBillingAddress() : new Address();
         CPRequestHeaders headers = request.getHeaders();
         SaleItem saleItem = Objects.nonNull(transactionDetails.getSaleItem()) ? transactionDetails.getSaleItem() : new SaleItem();
@@ -129,7 +128,8 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.gatewayRelationNumber(headers.getCorrelationId())
                 .clientReferenceNumber(saleItem.getSaleReferenceIdentifier())
                 .gatewayId(Gateway.SHFT)
-                .amount(detailedAmount.getAmount())
+                .amount(transactionAmount.getRequestedAmount())
+                .cumulativeAmount(transactionAmount.getCumulativeAmount())
                 .clientId(headers.getClientId())
                 .orderType(Objects.nonNull(saleType) ? OrderType.valueOf(saleType) : null)
                 .mgmId(null)
@@ -174,7 +174,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         Card card = Objects.nonNull(transactionDetails.getCard()) ? transactionDetails.getCard(): new Card();
         Payment.PaymentBuilder newPayment = Payment.builder();
         String string = UUID.randomUUID().toString();
-        DetailedAmount detailedAmount = Objects.nonNull(transactionAmount.getDetailedAmount()) ? transactionAmount.getDetailedAmount() : new DetailedAmount();
         Address billingAddress = Objects.nonNull(customer.getBillingAddress()) ? customer.getBillingAddress() : new Address();
         CPRequestHeaders headers = request.getHeaders();
         String authChainId = request.getTransactionAuthChainId();
@@ -190,7 +189,8 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .gatewayId(gatewayId)
                 //.gatewayRelationNumber(headers.getCorrelationId())
                 .clientReferenceNumber(saleItem.getSaleReferenceIdentifier())
-                .amount(detailedAmount.getAmount())
+                .amount(transactionAmount.getRequestedAmount())
+                .cumulativeAmount(transactionAmount.getCumulativeAmount())
                 .authChainId(authChainId)
                 .gatewayChainId(Objects.nonNull(authChainId) ? authChainId.replaceFirst(LEADING_ZEROES, "") : null)
                 .clientId(headers.getClientId())
@@ -248,7 +248,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 //.gatewayRelationNumber(headers.getCorrelationId())
                 .gatewayChainId(Objects.nonNull(authChainId) ? authChainId.replaceFirst(LEADING_ZEROES, "") : null)
                 .clientReferenceNumber(saleItem.getSaleReferenceIdentifier())
-                //.amount(detailedAmount.getAmount())
                 .authChainId(authChainId)
                 .clientId(headers.getClientId())
                 .orderType(Objects.nonNull(saleType) ? OrderType.valueOf(saleType) : null)
@@ -289,7 +288,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         String cardType = Objects.nonNull(card.getCardType()) ? card.getCardType() : null;
         Customer customer = Objects.nonNull(transactionDetails.getCustomer()) ? transactionDetails.getCustomer() : new Customer();
         String string = UUID.randomUUID().toString();
-        DetailedAmount detailedAmount = Objects.nonNull(transactionAmount.getDetailedAmount()) ? transactionAmount.getDetailedAmount() : new DetailedAmount();
         Address billingAddress = Objects.nonNull(customer.getBillingAddress()) ? customer.getBillingAddress() : new Address();
         CPRequestHeaders headers = request.getHeaders();
         Gateway gatewayId = Gateway.SHFT;
@@ -302,7 +300,8 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .groupId(null)
                 //.gatewayRelationNumber(headers.getCorrelationId())
                 .clientReferenceNumber(saleItem.getSaleReferenceIdentifier())
-                .amount(detailedAmount.getAmount())
+                .amount(transactionAmount.getRequestedAmount())
+                .cumulativeAmount(transactionAmount.getCumulativeAmount())
                 .gatewayId(gatewayId)
                 .clientId(headers.getClientId())
                 .orderType(Objects.nonNull(saleType) ? OrderType.valueOf(saleType) : null)

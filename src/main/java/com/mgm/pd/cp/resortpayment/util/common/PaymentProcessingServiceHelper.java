@@ -215,8 +215,7 @@ public class PaymentProcessingServiceHelper {
             request.setTransactionDateTime(response.getDateTime());
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
             newPayment
-                    //.authorizedAmount(response.getTotalAuthAmount())
-                    .cumulativeAmount(response.getTotalAuthAmount())
+                    .authorizedAmount(response.getTotalAuthAmount())
                     .paymentAuthId(response.getApprovalCode())
                     .gatewayTransactionStatusReason(response.getMessage())
                     .gatewayResponseCode(returnCode)

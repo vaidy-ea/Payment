@@ -133,7 +133,7 @@ public class TestHelperUtil {
 	}
 
 	public static String getOperaResponseForCardVoidOperation() {
-		return "{\"approvalCode\":\"OK196Z\",\"responseCode\":\"A\",\"transactionAuthChainId\":\"12345\",\"transactionDateTime\":\"2021-04-15T09:18:23.000-07:00\",\"transactionAmount\":{\"authorizedAmount\":898.07},\"card\":{\"isTokenized\":true,\"tokenType\":\"MGM\",\"tokenValue\":\"string\"},\"printDetails\":[{}]}";
+		return "{\"approvalCode\":\"OK196Z\",\"responseCode\":\"A\",\"transactionAuthChainId\":\"0000192029\",\"transactionDateTime\":\"2021-04-15T09:18:23.000-07:00\",\"transactionAmount\":{\"authorizedAmount\":898.07},\"card\":{\"isTokenized\":true,\"tokenType\":\"MGM\",\"tokenValue\":\"string\"},\"printDetails\":[{}]}";
 	}
 
 	public static String getOperaResponseForIncrementalAuthOperation() {

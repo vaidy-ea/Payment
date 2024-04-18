@@ -151,6 +151,16 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
                 .messages(Collections.singletonList(ex.getStackTrace()[0] + ": " + ex.getMessage())).build(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(MissingRequiredFieldException.class)
+    public ResponseEntity<ErrorResponse> handleMissingRequiredField(MissingRequiredFieldException ex, WebRequest request) {
+        logger.log(Level.ERROR, EXCEPTION_PREFIX, ex);
+        String uri = request.getDescription(false);
+        return new ResponseEntity<>(ErrorResponse.builder().type(HttpStatus.BAD_REQUEST.toString()).status(HttpStatus.BAD_REQUEST.value())
+                .title(INVALID_REQUEST_PARAMETERS).detail(INVALID_REQUEST_PARAMETERS).instance(uri)
+                .errorCode(MGMErrorCode.getMgmErrorCode(MGMErrorCode.getServiceCodeByMethodURI(uri), HttpStatus.BAD_REQUEST.value(), false))
+                .messages(Collections.singletonList(ex.getMessage())).build(), HttpStatus.BAD_REQUEST);
+    }
+
     private static String getErrorDetails(HttpMessageNotReadableException ex) {
         String errorDetails = "Unacceptable JSON " + ex.getMessage();
         Throwable cause = ex.getCause();

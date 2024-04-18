@@ -116,7 +116,7 @@ public class CPPaymentProcessingController {
      * and pass it to cpPaymentProcessingService to process.
      */
     private ResponseEntity<GenericResponse> processPayload(CPPaymentAuthorizationRequest cpPaymentAuthorizationRequest, HttpHeaders headers) throws JsonProcessingException {
-        ResponseEntity<GenericResponse> responseEntity =  cpPaymentProcessingService.processAuthorizeRequest(cpPaymentAuthorizationRequest, headers);
+        ResponseEntity<GenericResponse> responseEntity = cpPaymentProcessingService.processAuthorizeRequest(cpPaymentAuthorizationRequest, headers);
         sendAuditData(INITIAL_AUTH, INITIAL_AUTH, cpPaymentAuthorizationRequest, INITIAL_AUTH, headers.toSingleValueMap(), responseEntity.getBody());
         return responseEntity;
     }

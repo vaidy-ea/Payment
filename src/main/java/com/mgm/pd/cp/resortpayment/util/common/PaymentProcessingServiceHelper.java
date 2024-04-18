@@ -25,6 +25,7 @@ import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalAuthR
 import com.mgm.pd.cp.resortpayment.dto.incrementalauth.IncrementalAuthorizationRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.refund.CPPaymentRefundRequest;
 import com.mgm.pd.cp.resortpayment.dto.refund.RefundRouterResponse;
+import com.mgm.pd.cp.resortpayment.exception.MissingRequiredFieldException;
 import com.mgm.pd.cp.resortpayment.service.payment.FindPaymentService;
 import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.Level;
@@ -214,7 +215,10 @@ public class PaymentProcessingServiceHelper {
         if (Objects.nonNull(response)) {
             request.setTransactionDateTime(response.getDateTime());
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
+            String vendorTranID = response.getVendorTranID();
             newPayment
+                    .authChainId(vendorTranID)
+                    .gatewayChainId(Objects.nonNull(vendorTranID) ? vendorTranID.replaceFirst(LEADING_ZEROES, "") : null)
                     .authorizedAmount(response.getTotalAuthAmount())
                     .paymentAuthId(response.getApprovalCode())
                     .gatewayTransactionStatusReason(response.getMessage())
@@ -245,7 +249,10 @@ public class PaymentProcessingServiceHelper {
         if (Objects.nonNull(response)) {
             request.setTransactionDateTime(response.getDateTime());
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
+            String vendorTranID = response.getVendorTranID();
             newPayment
+                    .authChainId(vendorTranID)
+                    .gatewayChainId(Objects.nonNull(vendorTranID) ? vendorTranID.replaceFirst(LEADING_ZEROES, "") : null)
                     .authorizedAmount(response.getTotalAuthAmount())
                     .paymentAuthId(response.getApprovalCode())
                     .gatewayResponseCode(returnCode)
@@ -255,11 +262,20 @@ public class PaymentProcessingServiceHelper {
         }
     }
 
+    public void validateIncrementalAuthorizationRequest(CPPaymentIncrementalAuthRequest request) {
+        if(request.getTransactionAuthChainId() == null || request.getTransactionAuthChainId().isEmpty()) {
+            throw new MissingRequiredFieldException("transactionAuthChainId can't be empty or NULL");
+        }
+    }
+
     public void getVoidDetailsFromRouterResponse(CPPaymentCardVoidRequest request, CardVoidRouterResponse response, Payment.PaymentBuilder newPayment) {
         if (Objects.nonNull(response)) {
             request.setTransactionDateTime(response.getDateTime());
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
+            String vendorTranID = response.getVendorTranID();
             newPayment
+                    .authChainId(vendorTranID)
+                    .gatewayChainId(Objects.nonNull(vendorTranID) ? vendorTranID.replaceFirst(LEADING_ZEROES, "") : null)
                     .authorizedAmount(response.getTotalAuthAmount())
                     .paymentAuthId(response.getApprovalCode())
                     .gatewayResponseCode(returnCode)
@@ -283,6 +299,12 @@ public class PaymentProcessingServiceHelper {
                     .createdTimeStamp(convertToTimestamp(response.getDateTime()))
                     .gatewayChainId(Objects.nonNull(vendorTranID) ? vendorTranID.replaceFirst(LEADING_ZEROES, "") : null)
                     .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
+        }
+    }
+
+    public void validateCaptureRequest(CPPaymentCaptureRequest request) {
+        if(request.getTransactionAuthChainId() == null || request.getTransactionAuthChainId().isEmpty()) {
+            throw new MissingRequiredFieldException("transactionAuthChainId can't be empty or NULL");
         }
     }
 }

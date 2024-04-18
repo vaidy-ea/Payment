@@ -52,7 +52,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         String randomId = UUID.randomUUID().toString();
         Address billingAddress = Objects.nonNull(customer.getBillingAddress()) ? customer.getBillingAddress() : new Address();
         CPRequestHeaders headers = request.getHeaders();
-        String authChainId = request.getTransactionAuthChainId();
         Gateway gatewayId = (Objects.nonNull(initialPayment) && Objects.nonNull(initialPayment.getGatewayId())) ? initialPayment.getGatewayId() : null;
         SaleItem saleItem = Objects.nonNull(transactionDetails.getSaleItem()) ? transactionDetails.getSaleItem() : new SaleItem();
         String saleType = saleItem.getSaleType();
@@ -67,8 +66,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .clientReferenceNumber(saleItem.getSaleReferenceIdentifier())
                 .amount(transactionAmount.getRequestedAmount())
                 .cumulativeAmount(transactionAmount.getCumulativeAmount())
-                .gatewayChainId(Objects.nonNull(authChainId) ? authChainId.replaceFirst(LEADING_ZEROES, "") : null)
-                .authChainId(authChainId)
                 .clientId(headers.getClientId())
                 .orderType(Objects.nonNull(saleType) ? OrderType.valueOf(saleType) : null)
                 .mgmId(null)
@@ -185,8 +182,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .clientReferenceNumber(saleItem.getSaleReferenceIdentifier())
                 .amount(transactionAmount.getRequestedAmount())
                 .cumulativeAmount(transactionAmount.getCumulativeAmount())
-                .authChainId(authChainId)
-                .gatewayChainId(Objects.nonNull(authChainId) ? authChainId.replaceFirst(LEADING_ZEROES, "") : null)
                 .clientId(headers.getClientId())
                 .orderType(Objects.nonNull(saleType) ? OrderType.valueOf(saleType) : null)
                 .mgmId(null)
@@ -240,9 +235,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .groupId(null)
                 .gatewayId(gatewayId)
                 //.gatewayRelationNumber(headers.getCorrelationId())
-                .gatewayChainId(Objects.nonNull(authChainId) ? authChainId.replaceFirst(LEADING_ZEROES, "") : null)
                 .clientReferenceNumber(saleItem.getSaleReferenceIdentifier())
-                .authChainId(authChainId)
                 .clientId(headers.getClientId())
                 .orderType(Objects.nonNull(saleType) ? OrderType.valueOf(saleType) : null)
                 .mgmId(null)

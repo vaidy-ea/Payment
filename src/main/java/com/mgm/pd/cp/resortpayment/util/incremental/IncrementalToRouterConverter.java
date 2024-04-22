@@ -64,7 +64,6 @@ public class IncrementalToRouterConverter implements Converter<CPPaymentIncremen
                 .sequenceNumber(request.getTransactionIdentifier())
                 .originalAuthSequence(Objects.nonNull(originalTransactionIdentifier) ? Long.valueOf(originalTransactionIdentifier) : null)
                 .transDate(request.getTransactionDateTime())
-                .authType(request.getTransactionType())
                 .clientID(headers.getClientId())
                 .corelationId(headers.getCorrelationId())
                 .vendorTranID(request.getTransactionAuthChainId())

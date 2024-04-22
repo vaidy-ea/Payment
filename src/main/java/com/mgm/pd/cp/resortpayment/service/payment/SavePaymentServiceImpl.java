@@ -37,7 +37,6 @@ import static com.mgm.pd.cp.payment.common.constant.TransactionType.REFUND;
 public class SavePaymentServiceImpl implements SavePaymentService {
     private static final Logger logger = LogManager.getLogger(SavePaymentServiceImpl.class);
     public static final String TRANSACTION_TYPE = "Transaction Type is: {}";
-    public static final String LEADING_ZEROES = "^0+(?!$)";
 
     private PaymentRepository paymentRepository;
     private PaymentProcessingServiceHelper helper;
@@ -167,7 +166,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         String string = UUID.randomUUID().toString();
         Address billingAddress = Objects.nonNull(customer.getBillingAddress()) ? customer.getBillingAddress() : new Address();
         CPRequestHeaders headers = request.getHeaders();
-        String authChainId = request.getTransactionAuthChainId();
         Gateway gatewayId = (Objects.nonNull(initialPayment) && Objects.nonNull(initialPayment.getGatewayId())) ? initialPayment.getGatewayId() : null;
         SaleItem saleItem = Objects.nonNull(transactionDetails.getSaleItem()) ? transactionDetails.getSaleItem() : new SaleItem();
         String saleType = saleItem.getSaleType();
@@ -223,7 +221,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         Payment.PaymentBuilder newPayment = Payment.builder();
         String string = UUID.randomUUID().toString();
         CPRequestHeaders headers = request.getHeaders();
-        String authChainId = request.getTransactionAuthChainId();
         Gateway gatewayId = (Objects.nonNull(initialPayment) && Objects.nonNull(initialPayment.getGatewayId())) ? initialPayment.getGatewayId() : null;
         SaleItem saleItem = Objects.nonNull(transactionDetails.getSaleItem()) ? transactionDetails.getSaleItem() : new SaleItem();
         String saleType = saleItem.getSaleType();
@@ -256,7 +253,6 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .updatedTimestamp(LocalDateTime.now());
                 //.avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
-                //.authSubType(AuthType.valueOf(request.getTransactionType()));
         helper.getVoidDetailsFromRouterResponse(request, response, newPayment);
         Payment payment = newPayment.build();
         logger.log(Level.INFO, TRANSACTION_TYPE, payment.getTransactionType());

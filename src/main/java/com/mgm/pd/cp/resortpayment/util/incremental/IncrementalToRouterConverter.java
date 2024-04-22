@@ -2,6 +2,7 @@ package com.mgm.pd.cp.resortpayment.util.incremental;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mgm.pd.cp.payment.common.constant.AuthType;
 import com.mgm.pd.cp.payment.common.constant.BooleanValue;
 import com.mgm.pd.cp.payment.common.constant.OrderType;
 import com.mgm.pd.cp.payment.common.dto.CPRequestHeaders;
@@ -46,6 +47,7 @@ public class IncrementalToRouterConverter implements Converter<CPPaymentIncremen
         String originalTransactionIdentifier = request.getOriginalTransactionIdentifier();
         Boolean isCardPresent = Objects.nonNull(transactionDetails.getIsCardPresent()) ? transactionDetails.getIsCardPresent() : Boolean.TRUE;
         IncrementalRouterRequestJson requestJson = IncrementalRouterRequestJson.builder()
+                .authType(AuthType.SUPP)
                 .totalAuthAmount(transactionAmount.getCumulativeAmount())
                 .currencyIndicator(transactionAmount.getCurrencyIndicator())
                 .guestName(customer.getFullName())

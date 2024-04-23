@@ -13,4 +13,5 @@ import java.util.List;
 @Setter
 public class HeaderConfigProperties {
     private List<String> requiredHeaders;
+    private List<String> optionalHeaders;
 }

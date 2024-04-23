@@ -10,7 +10,7 @@ import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalAuthR
 import com.mgm.pd.cp.resortpayment.dto.refund.CPPaymentRefundRequest;
 import com.mgm.pd.cp.resortpayment.dto.router.RouterRequest;
 import com.mgm.pd.cp.resortpayment.repository.PaymentRepository;
-import com.mgm.pd.cp.resortpayment.service.payment.CpPaymentProcessingService;
+import com.mgm.pd.cp.resortpayment.service.payment.CPPaymentProcessingService;
 import com.mgm.pd.cp.resortpayment.service.payment.FindPaymentService;
 import com.mgm.pd.cp.resortpayment.service.router.RouterClient;
 import com.mgm.pd.cp.resortpayment.util.TestHelperUtil;
@@ -57,7 +57,7 @@ public class CPPaymentProcessingControllerTest {
     @MockBean
     private RouterClient mockRouterClient;
     @Autowired
-    private CpPaymentProcessingService cpPaymentProcessingService;
+    private CPPaymentProcessingService cpPaymentProcessingService;
     @MockBean
     private FindPaymentService findPaymentService;
     @Autowired

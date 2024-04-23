@@ -8,7 +8,7 @@ import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
 import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalAuthRequest;
 import com.mgm.pd.cp.resortpayment.dto.refund.CPPaymentRefundRequest;
-import com.mgm.pd.cp.resortpayment.service.payment.CpPaymentProcessingService;
+import com.mgm.pd.cp.resortpayment.service.payment.CPPaymentProcessingService;
 import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -23,7 +23,7 @@ import java.util.Map;
 import static com.mgm.pd.cp.payment.common.audit.constant.AuditConstant.*;
 
 /**
- * This clas is responsible for handling multiple operations
+ * This class is responsible for handling multiple operations
  * related to Card Payment Processing like Authorization,
  * Capture, Refund, Void etc.
  * All methods are responsible for Validating the request.
@@ -33,7 +33,7 @@ import static com.mgm.pd.cp.payment.common.audit.constant.AuditConstant.*;
 @AllArgsConstructor
 public class CPPaymentProcessingController {
     private static final Logger logger = LogManager.getLogger(CPPaymentProcessingController.class);
-    private CpPaymentProcessingService cpPaymentProcessingService;
+    private CPPaymentProcessingService cpPaymentProcessingService;
     private AuditEventProducer auditEventProducer;
 
 

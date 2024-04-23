@@ -1,5 +1,6 @@
 package com.mgm.pd.cp.resortpayment.config;
 
+import com.mgm.pd.cp.resortpayment.service.router.RouterClient;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -8,8 +9,6 @@ import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-
-import com.mgm.pd.cp.resortpayment.service.router.RouterClient;
 
 @Component("intelligentRouter")
 public class RouterHealthIndicator implements HealthIndicator {

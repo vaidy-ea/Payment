@@ -29,7 +29,7 @@ import java.util.Optional;
  */
 @Service
 @AllArgsConstructor
-public class CpPaymentProcessingServiceImpl implements CpPaymentProcessingService {
+public class CPPaymentProcessingServiceImpl implements CPPaymentProcessingService {
     private SavePaymentService savePaymentService;
     private RouterHelper routerHelper;
     private PaymentProcessingServiceHelper serviceHelper;

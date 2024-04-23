@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity;
  *  This class has only one Implementation Class(CpPaymentProcessingServiceImpl.java)
  *  It is responsible to define the request and response type for each of the operation.
  */
-public interface CpPaymentProcessingService {
+public interface CPPaymentProcessingService {
 
     /**
      * This method takes the action for IncrementalAuthorization operation only.

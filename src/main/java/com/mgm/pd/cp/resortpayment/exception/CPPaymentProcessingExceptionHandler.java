@@ -82,9 +82,9 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
     public ResponseEntity<ErrorResponse> handleConnectionException(RetryableException ex, WebRequest request) {
         logger.log(Level.ERROR, EXCEPTION_PREFIX, ex);
         String uri = request.getDescription(false);
-        return new ResponseEntity<>(ErrorResponse.builder().type(HttpStatus.INTERNAL_SERVER_ERROR.toString()).status(HttpStatus.SERVICE_UNAVAILABLE.value())
+        return new ResponseEntity<>(ErrorResponse.builder().type(HttpStatus.INTERNAL_SERVER_ERROR.toString()).status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .title(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE).detail(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE).instance(uri)
-                .errorCode(MGMErrorCode.getMgmErrorCode(MGMErrorCode.getServiceCodeByMethodURI(uri), HttpStatus.BAD_REQUEST.value(), true))
+                .errorCode(MGMErrorCode.getMgmErrorCode(MGMErrorCode.getServiceCodeByMethodURI(uri), HttpStatus.INTERNAL_SERVER_ERROR.value(), true))
                 .messages(Collections.singletonList(ex.getMessage())).build(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

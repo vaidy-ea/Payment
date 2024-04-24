@@ -63,7 +63,7 @@ public class VoidToRouterConverter implements Converter<CPPaymentCardVoidRequest
         }
         return RouterRequest.builder()
                 .operation(VOID_OPERATION)
-                .gatewayId(SHIFT4_GATEWAY_ID)
+                //.gatewayId(String.valueOf(initialPayment.getGatewayId()))
                 .requestJson(requestJsonAsString).build();
     }
 }

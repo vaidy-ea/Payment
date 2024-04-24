@@ -74,7 +74,6 @@ public class RefundToRouterConverter implements Converter<CPPaymentRefundRequest
         }
         return RouterRequest.builder()
                 .operation(REFUND_OPERATION)
-                .gatewayId(SHIFT4_GATEWAY_ID)
                 .requestJson(requestJsonAsString).build();
     }
 }

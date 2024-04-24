@@ -78,7 +78,6 @@ public class AuthorizeToRouterConverter implements Converter<CPPaymentAuthorizat
         }
         return RouterRequest.builder()
                 .operation(AUTHORIZE_OPERATION)
-                .gatewayId(SHIFT4_GATEWAY_ID)
                 .requestJson(requestJsonAsString).build();
     }
 }

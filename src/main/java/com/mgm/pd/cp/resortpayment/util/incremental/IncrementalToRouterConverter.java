@@ -76,7 +76,7 @@ public class IncrementalToRouterConverter implements Converter<CPPaymentIncremen
         }
         return RouterRequest.builder()
                 .operation(AUTHORIZE_OPERATION)
-                .gatewayId(SHIFT4_GATEWAY_ID)
+                //.gatewayId(String.valueOf(initialPayment.getGatewayId()))
                 .requestJson(requestJsonAsString).build();
     }
 }

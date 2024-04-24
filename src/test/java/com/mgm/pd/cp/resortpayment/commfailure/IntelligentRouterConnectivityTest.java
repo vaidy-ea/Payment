@@ -59,7 +59,7 @@ public class IntelligentRouterConnectivityTest {
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
         Assertions.assertEquals(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE, JsonPath.read(responseJson, "$.title"));
-        Assertions.assertEquals(Integer.valueOf(HttpStatus.SERVICE_UNAVAILABLE.value()), JsonPath.read(responseJson, "$.status"));
+        Assertions.assertEquals(Integer.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), JsonPath.read(responseJson, "$.status"));
     }
 
     @Test
@@ -75,7 +75,7 @@ public class IntelligentRouterConnectivityTest {
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
         Assertions.assertEquals(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE, JsonPath.read(responseJson, "$.title"));
-        Assertions.assertEquals(Integer.valueOf(HttpStatus.SERVICE_UNAVAILABLE.value()), JsonPath.read(responseJson, "$.status"));
+        Assertions.assertEquals(Integer.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), JsonPath.read(responseJson, "$.status"));
     }
 
     @Test
@@ -92,7 +92,7 @@ public class IntelligentRouterConnectivityTest {
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
         Assertions.assertEquals(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE, JsonPath.read(responseJson, "$.title"));
-        Assertions.assertEquals(Integer.valueOf(HttpStatus.SERVICE_UNAVAILABLE.value()), JsonPath.read(responseJson, "$.status"));
+        Assertions.assertEquals(Integer.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), JsonPath.read(responseJson, "$.status"));
     }
 
     @Test
@@ -109,7 +109,7 @@ public class IntelligentRouterConnectivityTest {
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
         Assertions.assertEquals(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE, JsonPath.read(responseJson, "$.title"));
-        Assertions.assertEquals(Integer.valueOf(HttpStatus.SERVICE_UNAVAILABLE.value()), JsonPath.read(responseJson, "$.status"));
+        Assertions.assertEquals(Integer.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), JsonPath.read(responseJson, "$.status"));
     }
 
     @Test
@@ -126,6 +126,6 @@ public class IntelligentRouterConnectivityTest {
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
         Assertions.assertEquals(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE, JsonPath.read(responseJson, "$.title"));
-        Assertions.assertEquals(Integer.valueOf(HttpStatus.SERVICE_UNAVAILABLE.value()), JsonPath.read(responseJson, "$.status"));
+        Assertions.assertEquals(Integer.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), JsonPath.read(responseJson, "$.status"));
     }
 }

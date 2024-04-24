@@ -112,9 +112,10 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
 
     //Used to catch exception/errors from Intelligent Router
     @ExceptionHandler(FeignException.class)
-    public ResponseEntity<ErrorResponse> handleIntelligentRouterExceptions(FeignException ex) throws JsonProcessingException {
+    public ResponseEntity<ErrorResponse> handleIntelligentRouterExceptions(FeignException ex, WebRequest request) throws JsonProcessingException {
         logger.log(Level.ERROR, EXCEPTION_PREFIX, ex);
         ErrorResponse irEx = new ObjectMapper().readValue(ex.contentUTF8(), ErrorResponse.class);
+        irEx.setInstance(request.getDescription(false));
         return new ResponseEntity<>(irEx, Objects.requireNonNull(HttpStatus.resolve(ex.status())));
     }
 

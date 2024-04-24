@@ -76,6 +76,8 @@ public class CPPaymentProcessingServiceImpl implements CPPaymentProcessingServic
      */
     @Override
     public ResponseEntity<GenericResponse> processAuthorizeRequest(CPPaymentAuthorizationRequest request, HttpHeaders headers) throws JsonProcessingException {
+        //Used for business Validations of Authorize Request
+        serviceHelper.validateAuthorizeRequest(request);
         //adding headers in request before sending to IR
         request = serviceHelper.mapHeadersInRequest(request, headers);
         AuthorizationRouterResponse authRouterResponse = null;

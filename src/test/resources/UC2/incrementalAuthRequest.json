@@ -4,7 +4,7 @@
   "originalTransactionIdentifier": "192029",
   "transactionDateTime": "2019-08-24T14:15:22Z",
   "transactionLOB": "Parking",
-  "transactionType": "INIT",
+  "transactionType": "SUPP",
   "transactionDetails": {
     "isCardPresent": true,
     "transactionAmount": {

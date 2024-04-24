@@ -25,6 +25,7 @@ import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalAuthR
 import com.mgm.pd.cp.resortpayment.dto.incrementalauth.IncrementalAuthorizationRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.refund.CPPaymentRefundRequest;
 import com.mgm.pd.cp.resortpayment.dto.refund.RefundRouterResponse;
+import com.mgm.pd.cp.resortpayment.exception.InvalidTransactionTypeException;
 import com.mgm.pd.cp.resortpayment.exception.MissingRequiredFieldException;
 import com.mgm.pd.cp.resortpayment.service.payment.FindPaymentService;
 import lombok.AllArgsConstructor;
@@ -57,8 +58,10 @@ import static com.mgm.pd.cp.payment.common.util.CommonService.throwExceptionIfRe
 @Component
 @AllArgsConstructor
 public class PaymentProcessingServiceHelper {
-    public static final String LEADING_ZEROES = "^0+(?!$)";
     private static final Logger logger = LogManager.getLogger(PaymentProcessingServiceHelper.class);
+    public static final String LEADING_ZEROES = "^0+(?!$)";
+    private static final List<AuthType> APPROVED_INCREMENTAL_AUTHORIZATION_TRANSACTION_TYPES = List.of(AuthType.SUPP);
+    private static final List<AuthType> APPROVED_AUTHORIZATION_TRANSACTION_TYPES = List.of(AuthType.INIT, AuthType.DEPOSIT, AuthType.AR);
     private FindPaymentService findPaymentService;
     private ObjectMapper mapper;
     private Converter converter;
@@ -268,6 +271,11 @@ public class PaymentProcessingServiceHelper {
         if(request.getTransactionAuthChainId() == null || request.getTransactionAuthChainId().isEmpty()) {
             throw new MissingRequiredFieldException("transactionAuthChainId can't be empty or NULL");
         }
+        AuthType transactionType = request.getTransactionType();
+        if(Objects.nonNull(transactionType) && !APPROVED_INCREMENTAL_AUTHORIZATION_TRANSACTION_TYPES.contains(transactionType)) {
+            logger.log(Level.WARN, "Invalid Transaction Type received in request is: {}", transactionType);
+            throw new InvalidTransactionTypeException("Invalid field transactionType, Possible values is/are: "+ APPROVED_INCREMENTAL_AUTHORIZATION_TRANSACTION_TYPES);
+        }
     }
 
     public void getVoidDetailsFromRouterResponse(CPPaymentCardVoidRequest request, CardVoidRouterResponse response, Payment.PaymentBuilder newPayment) {
@@ -307,6 +315,14 @@ public class PaymentProcessingServiceHelper {
     public void validateCaptureRequest(CPPaymentCaptureRequest request) {
         if(request.getTransactionAuthChainId() == null || request.getTransactionAuthChainId().isEmpty()) {
             throw new MissingRequiredFieldException("transactionAuthChainId can't be empty or NULL");
+        }
+    }
+
+    public void validateAuthorizeRequest(CPPaymentAuthorizationRequest request) {
+        AuthType transactionType = request.getTransactionType();
+        if(Objects.nonNull(transactionType) && !APPROVED_AUTHORIZATION_TRANSACTION_TYPES.contains(transactionType)) {
+            logger.log(Level.WARN, "Invalid Transaction Type received in request is: {}", transactionType);
+            throw new InvalidTransactionTypeException("Invalid field transactionType, Possible values is/are: "+ APPROVED_AUTHORIZATION_TRANSACTION_TYPES);
         }
     }
 }

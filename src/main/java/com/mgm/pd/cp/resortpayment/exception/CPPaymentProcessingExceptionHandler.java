@@ -142,7 +142,7 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
 
     //Used to handle NullPointer Exceptions
     @ExceptionHandler(NullPointerException.class)
-    public ResponseEntity<ErrorResponse> handleNotFoundError(NullPointerException ex, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handleNullPointer(NullPointerException ex, WebRequest request) {
         logger.log(Level.ERROR, EXCEPTION_PREFIX, ex);
         String uri = request.getDescription(false);
         return new ResponseEntity<>(ErrorResponse.builder().type(HttpStatus.INTERNAL_SERVER_ERROR.toString()).status(HttpStatus.INTERNAL_SERVER_ERROR.value())
@@ -151,8 +151,20 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
                 .messages(Collections.singletonList(ex.getStackTrace()[0] + ": " + ex.getMessage())).build(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    //Used to handle the custom exception if Required Field is Missing and not caught by Spring Validations
     @ExceptionHandler(MissingRequiredFieldException.class)
     public ResponseEntity<ErrorResponse> handleMissingRequiredField(MissingRequiredFieldException ex, WebRequest request) {
+        logger.log(Level.ERROR, EXCEPTION_PREFIX, ex);
+        String uri = request.getDescription(false);
+        return new ResponseEntity<>(ErrorResponse.builder().type(HttpStatus.BAD_REQUEST.toString()).status(HttpStatus.BAD_REQUEST.value())
+                .title(INVALID_REQUEST_PARAMETERS).detail(INVALID_REQUEST_PARAMETERS).instance(uri)
+                .errorCode(MGMErrorCode.getMgmErrorCode(MGMErrorCode.getServiceCodeByMethodURI(uri), HttpStatus.BAD_REQUEST.value(), false))
+                .messages(Collections.singletonList(ex.getMessage())).build(), HttpStatus.BAD_REQUEST);
+    }
+
+    //Used to handle the custom exception if TransactionType is incorrect in the request
+    @ExceptionHandler(InvalidTransactionTypeException.class)
+    public ResponseEntity<ErrorResponse> handleTransactionType(InvalidTransactionTypeException ex, WebRequest request) {
         logger.log(Level.ERROR, EXCEPTION_PREFIX, ex);
         String uri = request.getDescription(false);
         return new ResponseEntity<>(ErrorResponse.builder().type(HttpStatus.BAD_REQUEST.toString()).status(HttpStatus.BAD_REQUEST.value())

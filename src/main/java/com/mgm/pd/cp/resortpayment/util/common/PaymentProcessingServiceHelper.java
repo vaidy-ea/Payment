@@ -25,13 +25,17 @@ import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalAuthR
 import com.mgm.pd.cp.resortpayment.dto.incrementalauth.IncrementalAuthorizationRouterResponse;
 import com.mgm.pd.cp.resortpayment.dto.refund.CPPaymentRefundRequest;
 import com.mgm.pd.cp.resortpayment.dto.refund.RefundRouterResponse;
-import com.mgm.pd.cp.resortpayment.exception.InvalidTransactionTypeException;
-import com.mgm.pd.cp.resortpayment.exception.MissingRequiredFieldException;
 import com.mgm.pd.cp.resortpayment.service.payment.FindPaymentService;
+import com.mgm.pd.cp.resortpayment.util.authorize.AuthorizeValidationHelper;
+import com.mgm.pd.cp.resortpayment.util.capture.CaptureValidationHelper;
+import com.mgm.pd.cp.resortpayment.util.cardvoid.CardVoidValidationHelper;
+import com.mgm.pd.cp.resortpayment.util.incremental.IncrementalAuthorizationValidationHelper;
+import com.mgm.pd.cp.resortpayment.util.refund.RefundValidationHelper;
 import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.flywaydb.core.internal.util.Pair;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,8 +64,6 @@ import static com.mgm.pd.cp.payment.common.util.CommonService.throwExceptionIfRe
 public class PaymentProcessingServiceHelper {
     private static final Logger logger = LogManager.getLogger(PaymentProcessingServiceHelper.class);
     public static final String LEADING_ZEROES = "^0+(?!$)";
-    private static final List<AuthType> APPROVED_INCREMENTAL_AUTHORIZATION_TRANSACTION_TYPES = List.of(AuthType.SUPP);
-    private static final List<AuthType> APPROVED_AUTHORIZATION_TRANSACTION_TYPES = List.of(AuthType.INIT, AuthType.DEPOSIT, AuthType.AR);
     private FindPaymentService findPaymentService;
     private ObjectMapper mapper;
     private Converter converter;
@@ -98,7 +100,7 @@ public class PaymentProcessingServiceHelper {
      * @param payment: data from Payment DB
      */
     public <T> ResponseEntity<GenericResponse> response(Payment payment, T request) {
-        logger.log(Level.INFO, "Client Id is: " + payment.getClientId() + " Response Code from Router is: " + payment.getGatewayResponseCode());
+        logger.log(Level.INFO, "Client Id is: {} and Response Code from Router is: {}", payment.getClientId(), payment.getGatewayResponseCode());
         OperaResponse operaResponse;
         //converting the response from Payment DB for Opera
         operaResponse = converter.convert(payment, request);
@@ -116,28 +118,42 @@ public class PaymentProcessingServiceHelper {
      * @return Payment details from Payment DB
      */
     public <T> Optional<Payment> getInitialAuthPayment(T request) {
-        String authChainId;
-        Optional<List<Payment>> paymentDetails;
-        if (request.getClass().equals(CPPaymentCardVoidRequest.class)) {
-            authChainId = ((CPPaymentCardVoidRequest) request).getTransactionAuthChainId();
-            paymentDetails = findPaymentService.getPaymentDetails(authChainId);
-        } else {
-            authChainId = ((CPPaymentProcessingRequest) request).getTransactionAuthChainId();
-            @Valid AuthType transactionType = ((CPPaymentProcessingRequest) request).getTransactionType();
-            if (transactionType == AuthType.DEPOSIT) {
-                paymentDetails = findPaymentService.getPaymentDetails(authChainId, transactionType);
-            } else {
-                paymentDetails = findPaymentService.getPaymentDetails(authChainId);
-            }
-        }
-        if (paymentDetails.isPresent()) {
-            List<Payment> payments = paymentDetails.get();
+        Pair<Optional<List<Payment>>, String> paymentDetails = getAllPayments(request);
+        return getLastRecordFromPaymentsList(paymentDetails);
+    }
+
+    private Optional<Payment> getLastRecordFromPaymentsList(Pair<Optional<List<Payment>>, String> paymentDetails) {
+        Optional<List<Payment>> optionalPaymentList = paymentDetails.getLeft();
+        if (optionalPaymentList.isPresent()) {
+            List<Payment> payments = optionalPaymentList.get();
             if (!payments.isEmpty()) {
                 return Optional.ofNullable(payments.get(payments.size() - 1));
             }
         }
-        logger.log(Level.WARN, "Parent Payment transaction is missing in Payment DB for authChainId: " + authChainId);
+        logger.log(Level.WARN, "Parent Payment transaction is missing in Payment DB for authChainId: {}", paymentDetails.getRight());
         return Optional.empty();
+    }
+
+    private <T> Pair<Optional<List<Payment>>, String> getAllPayments(T request) {
+        String authChainId;
+        Optional<List<Payment>> paymentDetails = Optional.empty();
+        if (request.getClass().equals(CPPaymentCardVoidRequest.class)) {
+            authChainId = ((CPPaymentCardVoidRequest) request).getTransactionAuthChainId();
+            if (Objects.nonNull(authChainId)) {
+                paymentDetails = findPaymentService.getPaymentDetails(authChainId);
+            }
+        } else {
+            authChainId = ((CPPaymentProcessingRequest) request).getTransactionAuthChainId();
+            @Valid AuthType transactionType = ((CPPaymentProcessingRequest) request).getTransactionType();
+            if (Objects.nonNull(authChainId)) {
+                if (transactionType == AuthType.DEPOSIT) {
+                    paymentDetails = findPaymentService.getPaymentDetails(authChainId, transactionType);
+                } else {
+                    paymentDetails = findPaymentService.getPaymentDetails(authChainId);
+                }
+            }
+        }
+        return Pair.of(paymentDetails, authChainId);
     }
 
     /**
@@ -216,7 +232,7 @@ public class PaymentProcessingServiceHelper {
                 .replace("’", "\\$").replace("'", "\\$");
     }
 
-    public void getIncrementalAuthorizationDetailsFromRouterResponse(CPPaymentIncrementalAuthRequest request, IncrementalAuthorizationRouterResponse response, Payment.PaymentBuilder newPayment) {
+    public void getAuthorizationDetailsFromRouterResponse(CPPaymentAuthorizationRequest request, AuthorizationRouterResponse response, Payment.PaymentBuilder newPayment) {
         if (Objects.nonNull(response)) {
             request.setTransactionDateTime(response.getDateTime());
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
@@ -233,7 +249,7 @@ public class PaymentProcessingServiceHelper {
         }
     }
 
-    public void getAuthorizationDetailsFromRouterResponse(CPPaymentAuthorizationRequest request, AuthorizationRouterResponse response, Payment.PaymentBuilder newPayment) {
+    public void getIncrementalAuthorizationDetailsFromRouterResponse(CPPaymentIncrementalAuthRequest request, IncrementalAuthorizationRouterResponse response, Payment.PaymentBuilder newPayment) {
         if (Objects.nonNull(response)) {
             request.setTransactionDateTime(response.getDateTime());
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
@@ -264,17 +280,6 @@ public class PaymentProcessingServiceHelper {
                     .gatewayTransactionStatusReason(response.getMessage())
                     .createdTimeStamp(convertToTimestamp(response.getDateTime()))
                     .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
-        }
-    }
-
-    public void validateIncrementalAuthorizationRequest(CPPaymentIncrementalAuthRequest request) {
-        if(request.getTransactionAuthChainId() == null || request.getTransactionAuthChainId().isEmpty()) {
-            throw new MissingRequiredFieldException("transactionAuthChainId can't be empty or NULL");
-        }
-        AuthType transactionType = request.getTransactionType();
-        if(Objects.nonNull(transactionType) && !APPROVED_INCREMENTAL_AUTHORIZATION_TRANSACTION_TYPES.contains(transactionType)) {
-            logger.log(Level.WARN, "Invalid Transaction Type received in request is: {}", transactionType);
-            throw new InvalidTransactionTypeException("Invalid field transactionType, Possible values is/are: "+ APPROVED_INCREMENTAL_AUTHORIZATION_TRANSACTION_TYPES);
         }
     }
 
@@ -312,17 +317,40 @@ public class PaymentProcessingServiceHelper {
         }
     }
 
-    public void validateCaptureRequest(CPPaymentCaptureRequest request) {
-        if(request.getTransactionAuthChainId() == null || request.getTransactionAuthChainId().isEmpty()) {
-            throw new MissingRequiredFieldException("transactionAuthChainId can't be empty or NULL");
-        }
+    public void validateAuthorizeRequest(CPPaymentAuthorizationRequest request) {
+        AuthorizeValidationHelper.throwExceptionIfTransactionTypeIsInvalid(request);
+        Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment = getAllPayments(request);
+        AuthorizeValidationHelper.throwExceptionForInvalidAttempts(optionalInitialAuthPayment);
+
     }
 
-    public void validateAuthorizeRequest(CPPaymentAuthorizationRequest request) {
-        AuthType transactionType = request.getTransactionType();
-        if(Objects.nonNull(transactionType) && !APPROVED_AUTHORIZATION_TRANSACTION_TYPES.contains(transactionType)) {
-            logger.log(Level.WARN, "Invalid Transaction Type received in request is: {}", transactionType);
-            throw new InvalidTransactionTypeException("Invalid field transactionType, Possible values is/are: "+ APPROVED_AUTHORIZATION_TRANSACTION_TYPES);
-        }
+    public Optional<Payment> validateIncrementalAuthorizationRequestAndReturnInitialPayment(CPPaymentIncrementalAuthRequest request, HttpHeaders headers) {
+        IncrementalAuthorizationValidationHelper.throwExceptionIfRequiredFieldMissing(request);
+        IncrementalAuthorizationValidationHelper.throwExceptionIfTransactionTypeIsInvalid(request);
+        Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment = getAllPayments(request);
+        IncrementalAuthorizationValidationHelper.logWarningIfDifferentClientIdUsed(headers, optionalInitialAuthPayment);
+        IncrementalAuthorizationValidationHelper.throwExceptionForInvalidAttempts(request, optionalInitialAuthPayment);
+        return getLastRecordFromPaymentsList(optionalInitialAuthPayment);
+    }
+
+    public Optional<Payment> validateCaptureRequestAndReturnInitialPayment(CPPaymentCaptureRequest request, HttpHeaders headers) {
+        CaptureValidationHelper.throwExceptionIfRequiredFieldMissing(request);
+        CaptureValidationHelper.throwExceptionIfTransactionTypeIsInvalid(request);
+        Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment = getAllPayments(request);
+        CaptureValidationHelper.logWarningIfDifferentClientIdUsed(headers, optionalInitialAuthPayment);
+        CaptureValidationHelper.throwExceptionForInvalidAttempts(request, optionalInitialAuthPayment);
+        return getLastRecordFromPaymentsList(optionalInitialAuthPayment);
+    }
+
+    public Optional<Payment> validateCardVoidRequestAndReturnInitialPayment(CPPaymentCardVoidRequest request, HttpHeaders headers) {
+        CardVoidValidationHelper.throwExceptionIfRequiredFieldMissing(request);
+        Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment = getAllPayments(request);
+        CardVoidValidationHelper.throwExceptionForInvalidAttempts(optionalInitialAuthPayment);
+        return getLastRecordFromPaymentsList(optionalInitialAuthPayment);
+    }
+
+    public void validateRefundRequest(CPPaymentRefundRequest request) {
+        Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment = getAllPayments(request);
+        RefundValidationHelper.throwExceptionForInvalidAttempts(optionalInitialAuthPayment);
     }
 }

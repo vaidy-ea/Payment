@@ -74,7 +74,7 @@ public class TestHelperUtil {
     }
 
 	public static String getOperaResponseForCaptureOperation() {
-		return "{\"approvalCode\":\"OK684Z\",\"responseCode\":\"A\",\"transactionAuthChainId\":\"0000192029\",\"transactionDateTime\":\"2021-04-15T09:18:23.000-07:00\",\"transactionAmount\":{\"authorizedAmount\":898.07,\"cumulativeAmount\":24500.0,\"currencyIndicator\":\"USD\"},\"card\":{\"isTokenized\":true,\"tokenType\":\"MGM\",\"tokenValue\":\"string\"},\"printDetails\":[{}]}";
+		return "{\"approvalCode\":\"OK684Z\",\"responseCode\":\"A\",\"transactionAuthChainId\":\"0000192029\",\"transactionDateTime\":\"2021-04-15T09:18:23.000-07:00\",\"transactionAmount\":{\"authorizedAmount\":898.07,\"cumulativeAmount\":24500.0,\"currencyIndicator\":\"USD\"},\"card\":{\"isTokenized\":true,\"tokenType\":\"MGM\",\"tokenValue\":\"8048994003381119\"},\"printDetails\":[{}]}";
 	}
 
 	public static CPPaymentRefundRequest getRefundPaymentRequest() throws IOException {
@@ -137,7 +137,7 @@ public class TestHelperUtil {
 	}
 
 	public static String getOperaResponseForIncrementalAuthOperation() {
-		return "{\"approvalCode\":\"OK196Z\",\"responseCode\":\"A\",\"transactionAuthChainId\":\"0000192029\",\"transactionDateTime\":\"2021-04-15T09:18:23.000-07:00\",\"transactionAmount\":{\"authorizedAmount\":898.07,\"cumulativeAmount\":24500.0,\"currencyIndicator\":\"USD\"},\"card\":{\"isTokenized\":true,\"tokenType\":\"MGM\",\"tokenValue\":\"string\"},\"printDetails\":[{}]}";
+		return "{\"approvalCode\":\"OK196Z\",\"responseCode\":\"A\",\"transactionAuthChainId\":\"0000192029\",\"transactionDateTime\":\"2021-04-15T09:18:23.000-07:00\",\"transactionAmount\":{\"authorizedAmount\":898.07,\"cumulativeAmount\":24500.0,\"currencyIndicator\":\"USD\"},\"card\":{\"isTokenized\":true,\"tokenType\":\"MGM\",\"tokenValue\":\"8048994003381119\"},\"printDetails\":[{}]}";
 	}
 
 	public static String getContentUTF8FromFeignException() {

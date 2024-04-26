@@ -4,7 +4,7 @@
   "originalTransactionIdentifier": "192029",
   "transactionDateTime": "2019-08-24T14:15:22Z",
   "transactionLOB": "Parking",
-  "transactionType": "INIT",
+  "transactionType": "DEPOSIT",
   "transactionDetails": {
     "isCardPresent": true,
     "transactionAmount": {
@@ -38,7 +38,7 @@
       "track3": "string",
       "isTokenized": true,
       "tokenType": "MGM",
-      "tokenValue": "string"
+      "tokenValue": "8048994003381119"
     },
     "customer": {
       "fullName": "first last",

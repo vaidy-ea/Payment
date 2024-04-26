@@ -17,18 +17,17 @@ import org.springframework.http.ResponseEntity;
  *  It is responsible to define the request and response type for each of the operation.
  */
 public interface CPPaymentProcessingService {
+    /**
+     * This method takes the action for Authorization operation only.
+     * It shouldn't be called without passing the Authorization Request.
+     */
+    ResponseEntity<GenericResponse> processAuthorizeRequest(CPPaymentAuthorizationRequest request, HttpHeaders headers) throws JsonProcessingException;
 
     /**
      * This method takes the action for IncrementalAuthorization operation only.
      * It shouldn't be called without passing the IncrementalAuthorization Request.
      */
     ResponseEntity<GenericResponse> processIncrementalAuthorizationRequest(CPPaymentIncrementalAuthRequest request, HttpHeaders headers) throws JsonProcessingException;
-
-    /**
-     * This method takes the action for Authorization operation only.
-     * It shouldn't be called without passing the Authorization Request.
-     */
-    ResponseEntity<GenericResponse> processAuthorizeRequest(CPPaymentAuthorizationRequest request, HttpHeaders headers) throws JsonProcessingException;
 
     /**
      * This method takes the action for Capture operation only.

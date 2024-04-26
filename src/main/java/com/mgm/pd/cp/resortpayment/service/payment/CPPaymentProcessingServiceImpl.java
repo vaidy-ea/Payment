@@ -35,37 +35,6 @@ public class CPPaymentProcessingServiceImpl implements CPPaymentProcessingServic
     private PaymentProcessingServiceHelper serviceHelper;
 
     /**
-     * This method is responsible to send the Incremental Authorization request
-     * to Intelligent Router(IR),
-     * saving Details to Payment DB, returning response or Error back to upstream systems.
-     *
-     * @param request: sent to IR
-     * @param headers: Request Headers
-     * @return response from IR
-     */
-    @Override
-    public ResponseEntity<GenericResponse> processIncrementalAuthorizationRequest(CPPaymentIncrementalAuthRequest request, HttpHeaders headers) throws JsonProcessingException {
-        //can be used for businessValidations of Incremental Authorization Request
-        serviceHelper.validateIncrementalAuthorizationRequest(request);
-        //adding headers in request before sending to IR
-        request = serviceHelper.mapHeadersInRequest(request, headers);
-        //finding initial Payment as pre-requisite for processing of Incremental Authorization
-        Optional<Payment> optionalInitialPayment = serviceHelper.getInitialAuthPayment(request);
-        IncrementalAuthorizationRouterResponse irResponse = null;
-        Payment payment;
-        try{
-            //sending request to IR
-            irResponse = routerHelper.sendIncrementalAuthorizationRequestToRouter(request, optionalInitialPayment.orElse(null), headers);
-        }
-        finally {
-            //saving combined response of (Request and response from IR) to Payment DB
-            payment = savePaymentService.saveIncrementalAuthorizationPayment(request, irResponse, optionalInitialPayment.orElse(null));
-        }
-        //converting and returning response for upstream system
-        return serviceHelper.response(payment, request);
-    }
-
-    /**
      * This method is responsible to send the Authorization request
      * to Intelligent Router(IR),
      * saving Details to Payment DB, returning response or Error back to upstream systems.
@@ -95,6 +64,35 @@ public class CPPaymentProcessingServiceImpl implements CPPaymentProcessingServic
     }
 
     /**
+     * This method is responsible to send the Incremental Authorization request
+     * to Intelligent Router(IR),
+     * saving Details to Payment DB, returning response or Error back to upstream systems.
+     *
+     * @param request: sent to IR
+     * @param headers: Request Headers
+     * @return response from IR
+     */
+    @Override
+    public ResponseEntity<GenericResponse> processIncrementalAuthorizationRequest(CPPaymentIncrementalAuthRequest request, HttpHeaders headers) throws JsonProcessingException {
+        //can be used for businessValidations and finding initial Payment as pre-requisite for processing of Incremental Authorization Request
+        Optional<Payment> optionalInitialPayment = serviceHelper.validateIncrementalAuthorizationRequestAndReturnInitialPayment(request, headers);
+        //adding headers in request before sending to IR
+        request = serviceHelper.mapHeadersInRequest(request, headers);
+        IncrementalAuthorizationRouterResponse irResponse = null;
+        Payment payment;
+        try{
+            //sending request to IR
+            irResponse = routerHelper.sendIncrementalAuthorizationRequestToRouter(request, optionalInitialPayment.orElse(null), headers);
+        }
+        finally {
+            //saving combined response of (Request and response from IR) to Payment DB
+            payment = savePaymentService.saveIncrementalAuthorizationPayment(request, irResponse, optionalInitialPayment.orElse(null));
+        }
+        //converting and returning response for upstream system
+        return serviceHelper.response(payment, request);
+    }
+
+    /**
      * This method is responsible to send the Capture request
      * to Intelligent Router(IR),
      * saving Details to Payment DB, returning response or Error back to upstream systems.
@@ -105,12 +103,10 @@ public class CPPaymentProcessingServiceImpl implements CPPaymentProcessingServic
      */
     @Override
     public ResponseEntity<GenericResponse> processCaptureRequest(CPPaymentCaptureRequest request, HttpHeaders headers) throws JsonProcessingException {
-        //can be used for businessValidations of Capture Request
-        serviceHelper.validateCaptureRequest(request);
+        //used for businessValidations and finding initial Payment as pre-requisite for processing of Capture Request
+        Optional<Payment> optionalInitialPayment = serviceHelper.validateCaptureRequestAndReturnInitialPayment(request, headers);
         //adding headers in request before sending to IR
         request = serviceHelper.mapHeadersInRequest(request, headers);
-        //finding initial Payment as pre-requisite for processing of Capture
-        Optional<Payment> optionalInitialPayment = serviceHelper.getInitialAuthPayment(request);
         CaptureRouterResponse crResponse = null;
         Payment payment;
         try{
@@ -136,10 +132,10 @@ public class CPPaymentProcessingServiceImpl implements CPPaymentProcessingServic
      */
     @Override
     public ResponseEntity<GenericResponse> processCardVoidRequest(CPPaymentCardVoidRequest request, HttpHeaders headers) throws JsonProcessingException {
+        //used for businessValidations and finding initial Payment as pre-requisite for processing of Card Void Request
+        Optional<Payment> optionalInitialPayment = serviceHelper.validateCardVoidRequestAndReturnInitialPayment(request, headers);
         //adding headers in request before sending to IR
         request = serviceHelper.mapHeadersInRequest(request, headers);
-        //finding initial Payment as pre-requisite for processing of Card Void Request
-        Optional<Payment> optionalInitialPayment = serviceHelper.getInitialAuthPayment(request);
         CardVoidRouterResponse cvrResponse = null;
         Payment payment;
         try{
@@ -165,6 +161,8 @@ public class CPPaymentProcessingServiceImpl implements CPPaymentProcessingServic
      */
     @Override
     public ResponseEntity<GenericResponse> processRefundRequest(CPPaymentRefundRequest request, HttpHeaders headers) throws JsonProcessingException {
+        //used for businessValidations of Refund Request
+        serviceHelper.validateRefundRequest(request);
         //adding headers in request before sending to IR
         request = serviceHelper.mapHeadersInRequest(request, headers);
         RefundRouterResponse rrResponse = null;

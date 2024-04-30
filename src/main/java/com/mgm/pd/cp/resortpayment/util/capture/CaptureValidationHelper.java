@@ -7,6 +7,7 @@ import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.exception.InvalidTransactionAttemptException;
 import com.mgm.pd.cp.resortpayment.exception.InvalidTransactionTypeException;
 import com.mgm.pd.cp.resortpayment.exception.MissingRequiredFieldException;
+import com.mgm.pd.cp.resortpayment.util.common.DateHelper;
 import lombok.experimental.UtilityClass;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -14,6 +15,9 @@ import org.apache.logging.log4j.Logger;
 import org.flywaydb.core.internal.util.Pair;
 import org.springframework.http.HttpHeaders;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -52,7 +56,7 @@ public class CaptureValidationHelper {
         }
     }
 
-    private static void throwExceptionIfVoidOrRefundAlreadyDone(Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment, List<Payment> payments) {
+    private void throwExceptionIfVoidOrRefundAlreadyDone(Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment, List<Payment> payments) {
         long count = payments.stream().filter(p -> (Objects.isNull(p.getAuthSubType()) && TransactionType.VOID.equals(p.getTransactionType()))
                 || TransactionType.REFUND.equals(p.getTransactionType())).count();
         if (count > 0) {
@@ -63,7 +67,7 @@ public class CaptureValidationHelper {
         }
     }
 
-    private static void throwExceptionIfDifferentMGMTokenUsed(CPPaymentCaptureRequest request, Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment, List<Payment> payments) {
+    private void throwExceptionIfDifferentMGMTokenUsed(CPPaymentCaptureRequest request, Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment, List<Payment> payments) {
         String tokenValue = request.getTransactionDetails().getCard().getTokenValue();
         String parentMGMToken = payments.stream().filter(p -> Objects.isNull(p.getReferenceId()) && TransactionType.AUTHORIZE.equals(p.getTransactionType())).map(Payment::getMgmToken).collect(Collectors.joining());
         if (!parentMGMToken.equals(tokenValue)) {
@@ -73,17 +77,35 @@ public class CaptureValidationHelper {
         }
     }
 
-    public static void logWarningIfDifferentClientIdUsed(HttpHeaders headers, Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment) {
+    public void logWarningForInvalidRequest(HttpHeaders headers, Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment, CPPaymentCaptureRequest request) {
         Optional<List<Payment>> optionalPaymentList = optionalInitialAuthPayment.getLeft();
         if(optionalPaymentList.isPresent()) {
             List<Payment> payments = optionalPaymentList.get();
             if (!payments.isEmpty()) {
-                String parentClientId = payments.stream().filter(p -> Objects.isNull(p.getReferenceId()) && TransactionType.AUTHORIZE.equals(p.getTransactionType())).map(Payment::getClientId).collect(Collectors.joining());
-                String requestClientId = headers.toSingleValueMap().get(MGM_CLIENT_ID);
-                if (!parentClientId.equals(requestClientId)) {
-                    logger.log(Level.WARN, "Client Id used is different for Initial Auth and Capture for the given transactionAuthChainId: {}", optionalInitialAuthPayment.getRight());
-                }
+                logWarningIfDifferentBusinessDateUsed(request.getTransactionDateTime(), optionalInitialAuthPayment, payments);
+                logWarningIfDifferentClientIdUsed(headers, optionalInitialAuthPayment, payments);
             }
         }
+    }
+
+    private void logWarningIfDifferentBusinessDateUsed(String transactionDateTime, Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment, List<Payment> payments) {
+        LocalDate currentTransactionDate = ZonedDateTime.parse(transactionDateTime).toLocalDate();
+        LocalDateTime parentTransactionDateTime = payments.get(payments.size() - 1).getCreatedTimeStamp();
+        LocalDate parentTransactionDate = parentTransactionDateTime.toLocalDate();
+        if (currentTransactionDate.isBefore(parentTransactionDate) || currentTransactionDate.isAfter(parentTransactionDate)) {
+            logger.log(Level.WARN, "transactionDateTime used for Parent Transaction: {} is different from transactionDateTime used for Capture: {} for the given transactionAuthChainId: {}", parentTransactionDateTime, transactionDateTime, optionalInitialAuthPayment.getRight());
+        }
+    }
+
+    private void logWarningIfDifferentClientIdUsed(HttpHeaders headers, Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment, List<Payment> payments) {
+        String parentClientId = payments.stream().filter(p -> Objects.isNull(p.getReferenceId()) && TransactionType.AUTHORIZE.equals(p.getTransactionType())).map(Payment::getClientId).collect(Collectors.joining());
+        String requestClientId = headers.toSingleValueMap().get(MGM_CLIENT_ID);
+        if (!parentClientId.equals(requestClientId)) {
+            logger.log(Level.WARN, "Client Id used is different for Initial Auth and Capture for the given transactionAuthChainId: {}", optionalInitialAuthPayment.getRight());
+        }
+    }
+
+    public void logWarningForInvalidRequestData(CPPaymentCaptureRequest request) {
+        DateHelper.logWarningForInvalidTransactionDate(request.getTransactionDateTime());
     }
 }

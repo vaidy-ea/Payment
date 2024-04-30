@@ -2,7 +2,9 @@ package com.mgm.pd.cp.resortpayment.util.refund;
 
 import com.mgm.pd.cp.payment.common.constant.TransactionType;
 import com.mgm.pd.cp.payment.common.model.Payment;
+import com.mgm.pd.cp.resortpayment.dto.refund.CPPaymentRefundRequest;
 import com.mgm.pd.cp.resortpayment.exception.InvalidTransactionAttemptException;
+import com.mgm.pd.cp.resortpayment.util.common.DateHelper;
 import lombok.experimental.UtilityClass;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -27,10 +29,14 @@ public class RefundValidationHelper {
         }
     }
 
-    private static void throwExceptionIfTransactionAuthChainIdIsAlreadyUsed(Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment, List<Payment> payments) {
+    private void throwExceptionIfTransactionAuthChainIdIsAlreadyUsed(Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment, List<Payment> payments) {
         String transactionAuthChainId = optionalInitialAuthPayment.getRight();
         List<TransactionType> transactionTypes = payments.stream().map(Payment::getTransactionType).distinct().collect(Collectors.toList());
         logger.log(Level.ERROR, "Invalid Refund Attempt, Given transactionAuthChainId: {} is already used for Transaction Type/s: {}", transactionAuthChainId, transactionTypes);
         throw new InvalidTransactionAttemptException("Invalid Refund Attempt, Given transactionAuthChainId: " + transactionAuthChainId + " is already used for Transaction Type/s: " + transactionTypes);
+    }
+
+    public void logWarningForInvalidRequestData(CPPaymentRefundRequest request) {
+        DateHelper.logWarningForInvalidTransactionDate(request.getTransactionDateTime());
     }
 }

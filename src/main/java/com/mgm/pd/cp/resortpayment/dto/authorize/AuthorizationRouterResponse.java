@@ -42,4 +42,5 @@ public class AuthorizationRouterResponse {
     private String returnCode;
     private String approvalCode;
     private String message;
+    private String avsResult;
 }

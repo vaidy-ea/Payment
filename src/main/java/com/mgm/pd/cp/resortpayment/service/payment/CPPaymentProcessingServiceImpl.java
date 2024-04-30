@@ -20,6 +20,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
 import java.util.Optional;
 
 /**
@@ -44,7 +45,7 @@ public class CPPaymentProcessingServiceImpl implements CPPaymentProcessingServic
      * @return response from IR
      */
     @Override
-    public ResponseEntity<GenericResponse> processAuthorizeRequest(CPPaymentAuthorizationRequest request, HttpHeaders headers) throws JsonProcessingException {
+    public ResponseEntity<GenericResponse> processAuthorizeRequest(CPPaymentAuthorizationRequest request, HttpHeaders headers) throws JsonProcessingException, ParseException {
         //Used for business Validations of Authorize Request
         serviceHelper.validateAuthorizeRequest(request);
         //adding headers in request before sending to IR

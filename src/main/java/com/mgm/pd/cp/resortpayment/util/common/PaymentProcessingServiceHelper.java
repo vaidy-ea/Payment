@@ -3,7 +3,6 @@ package com.mgm.pd.cp.resortpayment.util.common;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import com.mgm.pd.cp.payment.common.audit.service.AuditEventProducer;
 import com.mgm.pd.cp.payment.common.constant.AuthType;
 import com.mgm.pd.cp.payment.common.constant.CardType;
 import com.mgm.pd.cp.payment.common.constant.OrderType;
@@ -43,6 +42,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import javax.validation.Valid;
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
@@ -246,7 +246,8 @@ public class PaymentProcessingServiceHelper {
                     .gatewayTransactionStatusReason(response.getMessage())
                     .gatewayResponseCode(returnCode)
                     .createdTimeStamp(convertToTimestamp(response.getDateTime()))
-                    .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
+                    .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE)
+                    .avsResponseCode(response.getAvsResult());
         }
     }
 
@@ -263,7 +264,8 @@ public class PaymentProcessingServiceHelper {
                     .gatewayTransactionStatusReason(response.getMessage())
                     .gatewayResponseCode(returnCode)
                     .createdTimeStamp(convertToTimestamp(response.getDateTime()))
-                    .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
+                    .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE)
+                    .avsResponseCode(response.getAvsResult());
         }
     }
 
@@ -280,7 +282,8 @@ public class PaymentProcessingServiceHelper {
                     .gatewayResponseCode(returnCode)
                     .gatewayTransactionStatusReason(response.getMessage())
                     .createdTimeStamp(convertToTimestamp(response.getDateTime()))
-                    .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
+                    .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE)
+                    .avsResponseCode(response.getAvsResult());
         }
     }
 
@@ -297,7 +300,8 @@ public class PaymentProcessingServiceHelper {
                     .gatewayResponseCode(returnCode)
                     .gatewayTransactionStatusReason(response.getMessage())
                     .createdTimeStamp(convertToTimestamp(response.getDateTime()))
-                    .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
+                    .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE)
+                    .avsResponseCode(response.getAvsResult());
         }
     }
 
@@ -314,43 +318,50 @@ public class PaymentProcessingServiceHelper {
                     .gatewayTransactionStatusReason(response.getMessage())
                     .createdTimeStamp(convertToTimestamp(response.getDateTime()))
                     .gatewayChainId(Objects.nonNull(vendorTranID) ? vendorTranID.replaceFirst(LEADING_ZEROES, "") : null)
-                    .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE);
+                    .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE)
+                    .avsResponseCode(response.getAvsResult());
         }
     }
 
-    public void validateAuthorizeRequest(CPPaymentAuthorizationRequest request) {
+    public void validateAuthorizeRequest(CPPaymentAuthorizationRequest request) throws ParseException {
+        AuthorizeValidationHelper.logWarningForInvalidRequestData(request);
         AuthorizeValidationHelper.throwExceptionIfTransactionTypeIsInvalid(request);
+        AuthorizeValidationHelper.throwExceptionIfCardIsExpired(request);
         Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment = getAllPayments(request);
         AuthorizeValidationHelper.throwExceptionForInvalidAttempts(optionalInitialAuthPayment);
-
     }
 
     public Optional<Payment> validateIncrementalAuthorizationRequestAndReturnInitialPayment(CPPaymentIncrementalAuthRequest request, HttpHeaders headers) {
+        IncrementalAuthorizationValidationHelper.logWarningForInvalidRequestData(request);
         IncrementalAuthorizationValidationHelper.throwExceptionIfRequiredFieldMissing(request);
         IncrementalAuthorizationValidationHelper.throwExceptionIfTransactionTypeIsInvalid(request);
         Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment = getAllPayments(request);
-        IncrementalAuthorizationValidationHelper.logWarningIfDifferentClientIdUsed(headers, optionalInitialAuthPayment);
+        IncrementalAuthorizationValidationHelper.logWarningForInvalidRequest(headers, optionalInitialAuthPayment, request);
         IncrementalAuthorizationValidationHelper.throwExceptionForInvalidAttempts(request, optionalInitialAuthPayment);
         return getLastRecordFromPaymentsList(optionalInitialAuthPayment);
     }
 
     public Optional<Payment> validateCaptureRequestAndReturnInitialPayment(CPPaymentCaptureRequest request, HttpHeaders headers) {
+        CaptureValidationHelper.logWarningForInvalidRequestData(request);
         CaptureValidationHelper.throwExceptionIfRequiredFieldMissing(request);
         CaptureValidationHelper.throwExceptionIfTransactionTypeIsInvalid(request);
         Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment = getAllPayments(request);
-        CaptureValidationHelper.logWarningIfDifferentClientIdUsed(headers, optionalInitialAuthPayment);
+        CaptureValidationHelper.logWarningForInvalidRequest(headers, optionalInitialAuthPayment, request);
         CaptureValidationHelper.throwExceptionForInvalidAttempts(request, optionalInitialAuthPayment);
         return getLastRecordFromPaymentsList(optionalInitialAuthPayment);
     }
 
     public Optional<Payment> validateCardVoidRequestAndReturnInitialPayment(CPPaymentCardVoidRequest request, HttpHeaders headers) {
+        CardVoidValidationHelper.logWarningForInvalidRequestData(request);
         CardVoidValidationHelper.throwExceptionIfRequiredFieldMissing(request);
         Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment = getAllPayments(request);
+        CardVoidValidationHelper.logWarningForInvalidRequest(optionalInitialAuthPayment, request);
         CardVoidValidationHelper.throwExceptionForInvalidAttempts(optionalInitialAuthPayment);
         return getLastRecordFromPaymentsList(optionalInitialAuthPayment);
     }
 
     public void validateRefundRequest(CPPaymentRefundRequest request) {
+        RefundValidationHelper.logWarningForInvalidRequestData(request);
         Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment = getAllPayments(request);
         RefundValidationHelper.throwExceptionForInvalidAttempts(optionalInitialAuthPayment);
     }

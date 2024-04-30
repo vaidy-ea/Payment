@@ -55,4 +55,5 @@ public class CardVoidRouterResponse {
     private Double totalAuthAmount;
     private String approvalCode;
     private String message;
+    private String avsResult;
 }

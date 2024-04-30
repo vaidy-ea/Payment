@@ -11,6 +11,8 @@ import com.mgm.pd.cp.resortpayment.dto.refund.CPPaymentRefundRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 
+import java.text.ParseException;
+
 /**
  *  This interface provides methods/contract for Card Payment Operations
  *  This class has only one Implementation Class(CpPaymentProcessingServiceImpl.java)
@@ -21,7 +23,7 @@ public interface CPPaymentProcessingService {
      * This method takes the action for Authorization operation only.
      * It shouldn't be called without passing the Authorization Request.
      */
-    ResponseEntity<GenericResponse> processAuthorizeRequest(CPPaymentAuthorizationRequest request, HttpHeaders headers) throws JsonProcessingException;
+    ResponseEntity<GenericResponse> processAuthorizeRequest(CPPaymentAuthorizationRequest request, HttpHeaders headers) throws JsonProcessingException, ParseException;
 
     /**
      * This method takes the action for IncrementalAuthorization operation only.

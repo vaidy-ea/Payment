@@ -55,4 +55,5 @@ public class RefundRouterResponse {
     private String returnCode;
     private String approvalCode;
     private String message;
+    private String avsResult;
 }

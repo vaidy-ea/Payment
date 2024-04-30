@@ -6,12 +6,16 @@ import com.mgm.pd.cp.payment.common.model.Payment;
 import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
 import com.mgm.pd.cp.resortpayment.exception.InvalidTransactionAttemptException;
 import com.mgm.pd.cp.resortpayment.exception.InvalidTransactionTypeException;
+import com.mgm.pd.cp.resortpayment.util.common.DateHelper;
 import lombok.experimental.UtilityClass;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.flywaydb.core.internal.util.Pair;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,6 +35,14 @@ public class AuthorizeValidationHelper {
         }
     }
 
+    public void throwExceptionIfCardIsExpired(CPPaymentAuthorizationRequest request) throws ParseException {
+        String cardExpiryDate = request.getTransactionDetails().getCard().getExpiryDate();
+        if (Objects.nonNull(cardExpiryDate) && (new Date().after(new SimpleDateFormat("MMyy").parse(cardExpiryDate)))) {
+            logger.log(Level.ERROR, "Invalid Initial Auth Attempt, Card has already expired with expiry date: {}", cardExpiryDate);
+            throw new InvalidTransactionAttemptException("Invalid Initial Auth Attempt, Card has already expired with expiry date: " + cardExpiryDate);
+        }
+    }
+
     public void throwExceptionForInvalidAttempts(Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment) {
         Optional<List<Payment>> optionalPaymentList = optionalInitialAuthPayment.getLeft();
         if(optionalPaymentList.isPresent()) {
@@ -41,10 +53,14 @@ public class AuthorizeValidationHelper {
         }
     }
 
-    private static void throwExceptionIfTransactionAuthChainIdIsAlreadyUsed(Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment, List<Payment> payments) {
+    private void throwExceptionIfTransactionAuthChainIdIsAlreadyUsed(Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment, List<Payment> payments) {
         String transactionAuthChainId = optionalInitialAuthPayment.getRight();
         List<TransactionType> transactionTypes = payments.stream().map(Payment::getTransactionType).distinct().collect(Collectors.toList());
         logger.log(Level.ERROR, "Invalid Initial Auth Attempt, Given transactionAuthChainId: {} is already used for Transaction Type/s: {}", transactionAuthChainId, transactionTypes);
         throw new InvalidTransactionAttemptException("Invalid Initial Auth Attempt, Given transactionAuthChainId: " + transactionAuthChainId + " is already used for Transaction Type/s: " + transactionTypes);
+    }
+
+    public void logWarningForInvalidRequestData(CPPaymentAuthorizationRequest request) {
+        DateHelper.logWarningForInvalidTransactionDate(request.getTransactionDateTime());
     }
 }

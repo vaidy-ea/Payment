@@ -55,4 +55,5 @@ public class CaptureRouterResponse {
     private Double totalAuthAmount;
     private String approvalCode;
     private String message;
+    private String avsResult;
 }

@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.text.ParseException;
 import java.util.Map;
 
 import static com.mgm.pd.cp.payment.common.audit.constant.AuditConstant.*;
@@ -44,7 +45,7 @@ public class CPPaymentProcessingController {
      * @return response for Opera
      */
     @PostMapping("/authorize")
-    public ResponseEntity<GenericResponse> authorize(@RequestHeader HttpHeaders headers, @Valid @RequestBody CPPaymentAuthorizationRequest cpPaymentAuthorizationRequest) throws JsonProcessingException {
+    public ResponseEntity<GenericResponse> authorize(@RequestHeader HttpHeaders headers, @Valid @RequestBody CPPaymentAuthorizationRequest cpPaymentAuthorizationRequest) throws JsonProcessingException, ParseException {
         logger.log(Level.DEBUG, "Authorize Request is: {}", cpPaymentAuthorizationRequest);
         return processPayload(cpPaymentAuthorizationRequest, headers);
     }
@@ -103,7 +104,7 @@ public class CPPaymentProcessingController {
      * This method takes the valid request for Authorization
      * and pass it to cpPaymentProcessingService to process.
      */
-    private ResponseEntity<GenericResponse> processPayload(CPPaymentAuthorizationRequest cpPaymentAuthorizationRequest, HttpHeaders headers) throws JsonProcessingException {
+    private ResponseEntity<GenericResponse> processPayload(CPPaymentAuthorizationRequest cpPaymentAuthorizationRequest, HttpHeaders headers) throws JsonProcessingException, ParseException {
         sendAuditData(INITIAL_AUTH, INITIAL_AUTH, cpPaymentAuthorizationRequest, INITIAL_AUTH, headers.toSingleValueMap(), null);
         ResponseEntity<GenericResponse> responseEntity = cpPaymentProcessingService.processAuthorizeRequest(cpPaymentAuthorizationRequest, headers);
         sendAuditData(INITIAL_AUTH, INITIAL_AUTH, cpPaymentAuthorizationRequest, INITIAL_AUTH, headers.toSingleValueMap(), responseEntity.getBody());

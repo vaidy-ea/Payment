@@ -74,7 +74,7 @@ public class CPPaymentProcessingServiceImpl implements CPPaymentProcessingServic
      * @return response from IR
      */
     @Override
-    public ResponseEntity<GenericResponse> processIncrementalAuthorizationRequest(CPPaymentIncrementalAuthRequest request, HttpHeaders headers) throws JsonProcessingException {
+    public ResponseEntity<GenericResponse> processIncrementalAuthorizationRequest(CPPaymentIncrementalAuthRequest request, HttpHeaders headers) throws JsonProcessingException, ParseException {
         //can be used for businessValidations and finding initial Payment as pre-requisite for processing of Incremental Authorization Request
         Optional<Payment> optionalInitialPayment = serviceHelper.validateIncrementalAuthorizationRequestAndReturnInitialPayment(request, headers);
         //adding headers in request before sending to IR
@@ -103,7 +103,7 @@ public class CPPaymentProcessingServiceImpl implements CPPaymentProcessingServic
      * @return response from IR
      */
     @Override
-    public ResponseEntity<GenericResponse> processCaptureRequest(CPPaymentCaptureRequest request, HttpHeaders headers) throws JsonProcessingException {
+    public ResponseEntity<GenericResponse> processCaptureRequest(CPPaymentCaptureRequest request, HttpHeaders headers) throws JsonProcessingException, ParseException {
         //used for businessValidations and finding initial Payment as pre-requisite for processing of Capture Request
         Optional<Payment> optionalInitialPayment = serviceHelper.validateCaptureRequestAndReturnInitialPayment(request, headers);
         //adding headers in request before sending to IR

@@ -325,26 +325,20 @@ public class PaymentProcessingServiceHelper {
 
     public void validateAuthorizeRequest(CPPaymentAuthorizationRequest request) throws ParseException {
         AuthorizeValidationHelper.logWarningForInvalidRequestData(request);
-        AuthorizeValidationHelper.throwExceptionIfTransactionTypeIsInvalid(request);
-        AuthorizeValidationHelper.throwExceptionIfCardIsExpired(request);
         Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment = getAllPayments(request);
-        AuthorizeValidationHelper.throwExceptionForInvalidAttempts(optionalInitialAuthPayment);
+        AuthorizeValidationHelper.throwExceptionForInvalidAttempts(request, optionalInitialAuthPayment);
     }
 
-    public Optional<Payment> validateIncrementalAuthorizationRequestAndReturnInitialPayment(CPPaymentIncrementalAuthRequest request, HttpHeaders headers) {
+    public Optional<Payment> validateIncrementalAuthorizationRequestAndReturnInitialPayment(CPPaymentIncrementalAuthRequest request, HttpHeaders headers) throws ParseException {
         IncrementalAuthorizationValidationHelper.logWarningForInvalidRequestData(request);
-        IncrementalAuthorizationValidationHelper.throwExceptionIfRequiredFieldMissing(request);
-        IncrementalAuthorizationValidationHelper.throwExceptionIfTransactionTypeIsInvalid(request);
         Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment = getAllPayments(request);
         IncrementalAuthorizationValidationHelper.logWarningForInvalidRequest(headers, optionalInitialAuthPayment, request);
         IncrementalAuthorizationValidationHelper.throwExceptionForInvalidAttempts(request, optionalInitialAuthPayment);
         return getLastRecordFromPaymentsList(optionalInitialAuthPayment);
     }
 
-    public Optional<Payment> validateCaptureRequestAndReturnInitialPayment(CPPaymentCaptureRequest request, HttpHeaders headers) {
+    public Optional<Payment> validateCaptureRequestAndReturnInitialPayment(CPPaymentCaptureRequest request, HttpHeaders headers) throws ParseException {
         CaptureValidationHelper.logWarningForInvalidRequestData(request);
-        CaptureValidationHelper.throwExceptionIfRequiredFieldMissing(request);
-        CaptureValidationHelper.throwExceptionIfTransactionTypeIsInvalid(request);
         Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment = getAllPayments(request);
         CaptureValidationHelper.logWarningForInvalidRequest(headers, optionalInitialAuthPayment, request);
         CaptureValidationHelper.throwExceptionForInvalidAttempts(request, optionalInitialAuthPayment);

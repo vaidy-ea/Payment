@@ -114,9 +114,22 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
     @ExceptionHandler(FeignException.class)
     public ResponseEntity<ErrorResponse> handleIntelligentRouterExceptions(FeignException ex, WebRequest request) throws JsonProcessingException {
         logger.log(Level.ERROR, EXCEPTION_PREFIX, ex);
-        ErrorResponse irEx = new ObjectMapper().readValue(ex.contentUTF8(), ErrorResponse.class);
-        irEx.setInstance(request.getDescription(false));
-        return new ResponseEntity<>(irEx, Objects.requireNonNull(HttpStatus.resolve(ex.status())));
+        String contentUTF8 = ex.contentUTF8();
+        String uri = request.getDescription(false);
+        if (uri.contains("actuator")) {
+            ErrorResponse er = new ErrorResponse();
+            er.setType(String.valueOf(ex.status()));
+            er.setStatus(ex.status());
+            er.setDetail(ex.getLocalizedMessage());
+            er.setErrorCode(MGMErrorCode.getMgmErrorCode(MGMErrorCode.getServiceCodeByMethodURI(uri), ex.status(), false));
+            er.setInstance(uri);
+            er.setMessages(Collections.singletonList(ex.contentUTF8()));
+            return new ResponseEntity<>(er, Objects.requireNonNull(HttpStatus.resolve(ex.status())));
+        } else {
+            ErrorResponse irEx = new ObjectMapper().readValue(contentUTF8, ErrorResponse.class);
+            irEx.setInstance(uri);
+            return new ResponseEntity<>(irEx, Objects.requireNonNull(HttpStatus.resolve(ex.status())));
+        }
     }
 
     //Used to catch exception in case headers are not present in request

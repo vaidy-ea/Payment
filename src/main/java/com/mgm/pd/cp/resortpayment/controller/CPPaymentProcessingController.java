@@ -58,7 +58,7 @@ public class CPPaymentProcessingController {
      * @return response for Opera
      */
     @PostMapping("/authorize/incremental")
-    public ResponseEntity<GenericResponse> incrementalAuth(@RequestHeader HttpHeaders headers, @Valid @RequestBody CPPaymentIncrementalAuthRequest request) throws JsonProcessingException {
+    public ResponseEntity<GenericResponse> incrementalAuth(@RequestHeader HttpHeaders headers, @Valid @RequestBody CPPaymentIncrementalAuthRequest request) throws JsonProcessingException, ParseException {
         logger.log(Level.DEBUG, "IncrementalAuth Request is: {}", request);
         return processPayload(request, headers);
     }
@@ -71,7 +71,7 @@ public class CPPaymentProcessingController {
      * @return response for Opera
      */
     @PostMapping("/capture")
-    public ResponseEntity<GenericResponse> capture(@RequestHeader HttpHeaders headers, @Valid @RequestBody CPPaymentCaptureRequest cpPaymentCaptureRequest) throws JsonProcessingException {
+    public ResponseEntity<GenericResponse> capture(@RequestHeader HttpHeaders headers, @Valid @RequestBody CPPaymentCaptureRequest cpPaymentCaptureRequest) throws JsonProcessingException, ParseException {
         logger.log(Level.DEBUG, "Capture Request is: {}", cpPaymentCaptureRequest);
         return processPayload(cpPaymentCaptureRequest, headers);
     }
@@ -115,7 +115,7 @@ public class CPPaymentProcessingController {
      * This method takes the valid request for Incremental Authorization
      * and pass it to cpPaymentProcessingService to process.
      */
-    private ResponseEntity<GenericResponse> processPayload(CPPaymentIncrementalAuthRequest request, HttpHeaders headers) throws JsonProcessingException {
+    private ResponseEntity<GenericResponse> processPayload(CPPaymentIncrementalAuthRequest request, HttpHeaders headers) throws JsonProcessingException, ParseException {
         sendAuditData(INCREMENTAL_AUTH, INCREMENTAL_AUTH, request, INCREMENTAL_AUTH, headers.toSingleValueMap(), null);
         ResponseEntity<GenericResponse> responseEntity = cpPaymentProcessingService.processIncrementalAuthorizationRequest(request, headers);
         sendAuditData(INCREMENTAL_AUTH, INCREMENTAL_AUTH, request, INCREMENTAL_AUTH, headers.toSingleValueMap(), responseEntity.getBody());
@@ -126,7 +126,7 @@ public class CPPaymentProcessingController {
      * This method takes the valid request for Capture
      * and pass it to cpPaymentProcessingService to process.
      */
-    private ResponseEntity<GenericResponse> processPayload(CPPaymentCaptureRequest cpPaymentCaptureRequest, HttpHeaders headers) throws JsonProcessingException {
+    private ResponseEntity<GenericResponse> processPayload(CPPaymentCaptureRequest cpPaymentCaptureRequest, HttpHeaders headers) throws JsonProcessingException, ParseException {
         sendAuditData(CAPTURE, CAPTURE, cpPaymentCaptureRequest, CAPTURE, headers.toSingleValueMap(), null);
         ResponseEntity<GenericResponse> responseEntity = cpPaymentProcessingService.processCaptureRequest(cpPaymentCaptureRequest, headers);
         sendAuditData(CAPTURE, CAPTURE, cpPaymentCaptureRequest, CAPTURE, headers.toSingleValueMap(), responseEntity.getBody());

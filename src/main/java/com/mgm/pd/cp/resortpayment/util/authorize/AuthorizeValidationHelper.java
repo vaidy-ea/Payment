@@ -37,13 +37,19 @@ public class AuthorizeValidationHelper {
 
     public void throwExceptionIfCardIsExpired(CPPaymentAuthorizationRequest request) throws ParseException {
         String cardExpiryDate = request.getTransactionDetails().getCard().getExpiryDate();
-        if (Objects.nonNull(cardExpiryDate) && (new Date().after(new SimpleDateFormat("MMyy").parse(cardExpiryDate)))) {
-            logger.log(Level.ERROR, "Invalid Initial Auth Attempt, Card has already expired with expiry date: {}", cardExpiryDate);
-            throw new InvalidTransactionAttemptException("Invalid Initial Auth Attempt, Card has already expired with expiry date: " + cardExpiryDate);
+        if (Objects.nonNull(cardExpiryDate)) {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMyy");
+            simpleDateFormat.setLenient(false);
+            if (simpleDateFormat.parse(cardExpiryDate).before(simpleDateFormat.parse(new SimpleDateFormat("MMyy").format(new Date())))) {
+                logger.log(Level.ERROR, "Invalid Initial Auth Attempt, Card has already expired with expiry date: {}", cardExpiryDate);
+                throw new InvalidTransactionAttemptException("Invalid Initial Auth Attempt, Card has already expired with expiry date: " + cardExpiryDate);
+            }
         }
     }
 
-    public void throwExceptionForInvalidAttempts(Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment) {
+    public void throwExceptionForInvalidAttempts(CPPaymentAuthorizationRequest request, Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment) throws ParseException {
+        throwExceptionIfTransactionTypeIsInvalid(request);
+        throwExceptionIfCardIsExpired(request);
         Optional<List<Payment>> optionalPaymentList = optionalInitialAuthPayment.getLeft();
         if(optionalPaymentList.isPresent()) {
             List<Payment> payments = optionalPaymentList.get();

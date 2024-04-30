@@ -15,9 +15,12 @@ import org.apache.logging.log4j.Logger;
 import org.flywaydb.core.internal.util.Pair;
 import org.springframework.http.HttpHeaders;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -44,13 +47,28 @@ public class IncrementalAuthorizationValidationHelper {
         }
     }
 
-    public void throwExceptionForInvalidAttempts(CPPaymentIncrementalAuthRequest request, Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment) {
+    public void throwExceptionForInvalidAttempts(CPPaymentIncrementalAuthRequest request, Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment) throws ParseException {
+        throwExceptionIfRequiredFieldMissing(request);
+        throwExceptionIfTransactionTypeIsInvalid(request);
+        throwExceptionIfCardIsExpired(request);
         Optional<List<Payment>> optionalPaymentList = optionalInitialAuthPayment.getLeft();
         if(optionalPaymentList.isPresent()) {
             List<Payment> payments = optionalPaymentList.get();
             if (!payments.isEmpty()) {
                 throwExceptionIfCaptureOrRefundOrVoidAlreadyDone(optionalInitialAuthPayment, payments);
                 throwExceptionIfDifferentMGMTokenUsed(request, optionalInitialAuthPayment, payments);
+            }
+        }
+    }
+
+    private void throwExceptionIfCardIsExpired(CPPaymentIncrementalAuthRequest request) throws ParseException {
+        String cardExpiryDate = request.getTransactionDetails().getCard().getExpiryDate();
+        if (Objects.nonNull(cardExpiryDate)) {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMyy");
+            simpleDateFormat.setLenient(false);
+            if (simpleDateFormat.parse(cardExpiryDate).before(simpleDateFormat.parse(new SimpleDateFormat("MMyy").format(new Date())))) {
+                logger.log(Level.ERROR, "Invalid Incremental Auth Attempt, Card has already expired with expiry date: {}", cardExpiryDate);
+                throw new InvalidTransactionAttemptException("Invalid Incremental Auth Attempt, Card has already expired with expiry date: " + cardExpiryDate);
             }
         }
     }

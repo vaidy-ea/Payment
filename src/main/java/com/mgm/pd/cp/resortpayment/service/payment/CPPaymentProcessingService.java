@@ -29,13 +29,13 @@ public interface CPPaymentProcessingService {
      * This method takes the action for IncrementalAuthorization operation only.
      * It shouldn't be called without passing the IncrementalAuthorization Request.
      */
-    ResponseEntity<GenericResponse> processIncrementalAuthorizationRequest(CPPaymentIncrementalAuthRequest request, HttpHeaders headers) throws JsonProcessingException;
+    ResponseEntity<GenericResponse> processIncrementalAuthorizationRequest(CPPaymentIncrementalAuthRequest request, HttpHeaders headers) throws JsonProcessingException, ParseException;
 
     /**
      * This method takes the action for Capture operation only.
      * It shouldn't be called without passing the Capture Request.
      */
-    ResponseEntity<GenericResponse> processCaptureRequest(CPPaymentCaptureRequest request, HttpHeaders headers) throws JsonProcessingException;
+    ResponseEntity<GenericResponse> processCaptureRequest(CPPaymentCaptureRequest request, HttpHeaders headers) throws JsonProcessingException, ParseException;
 
     /**
      * This method takes the action for Card Void operation only.

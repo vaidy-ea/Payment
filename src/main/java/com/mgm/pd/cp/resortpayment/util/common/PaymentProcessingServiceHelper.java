@@ -330,7 +330,6 @@ public class PaymentProcessingServiceHelper {
     }
 
     public Optional<Payment> validateIncrementalAuthorizationRequestAndReturnInitialPayment(CPPaymentIncrementalAuthRequest request, HttpHeaders headers) throws ParseException {
-        IncrementalAuthorizationValidationHelper.logWarningForInvalidRequestData(request);
         Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment = getAllPayments(request);
         IncrementalAuthorizationValidationHelper.logWarningForInvalidRequest(headers, optionalInitialAuthPayment, request);
         IncrementalAuthorizationValidationHelper.throwExceptionForInvalidAttempts(request, optionalInitialAuthPayment);

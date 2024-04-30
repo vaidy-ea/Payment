@@ -33,8 +33,13 @@ public class IncrementalAuthorizationValidationHelper {
     private static final Logger logger = LogManager.getLogger(IncrementalAuthorizationValidationHelper.class);
     private static final List<AuthType> APPROVED_INCREMENTAL_AUTHORIZATION_TRANSACTION_TYPES = List.of(AuthType.SUPP);
     public void throwExceptionIfRequiredFieldMissing(CPPaymentIncrementalAuthRequest request) {
-        if(request.getTransactionAuthChainId() == null || request.getTransactionAuthChainId().isEmpty()) {
+        String transactionAuthChainId = request.getTransactionAuthChainId();
+        if(transactionAuthChainId == null || transactionAuthChainId.isEmpty()) {
             throw new MissingRequiredFieldException("transactionAuthChainId can't be empty or NULL");
+        }
+        Double cumulativeAmount = request.getTransactionDetails().getTransactionAmount().getCumulativeAmount();
+        if(cumulativeAmount == null || cumulativeAmount.isNaN()) {
+            throw new MissingRequiredFieldException("cumulativeAmount can't be empty or NULL");
         }
     }
 
@@ -51,6 +56,7 @@ public class IncrementalAuthorizationValidationHelper {
         throwExceptionIfRequiredFieldMissing(request);
         throwExceptionIfTransactionTypeIsInvalid(request);
         throwExceptionIfCardIsExpired(request);
+        throwExceptionIfCumulativeAmountIsLessThanRequestedAmount(request);
         Optional<List<Payment>> optionalPaymentList = optionalInitialAuthPayment.getLeft();
         if(optionalPaymentList.isPresent()) {
             List<Payment> payments = optionalPaymentList.get();
@@ -58,6 +64,14 @@ public class IncrementalAuthorizationValidationHelper {
                 throwExceptionIfCaptureOrRefundOrVoidAlreadyDone(optionalInitialAuthPayment, payments);
                 throwExceptionIfDifferentMGMTokenUsed(request, optionalInitialAuthPayment, payments);
             }
+        }
+    }
+
+    private static void throwExceptionIfCumulativeAmountIsLessThanRequestedAmount(CPPaymentIncrementalAuthRequest request) {
+        Double requestedAmount = request.getTransactionDetails().getTransactionAmount().getRequestedAmount();
+        Double cumulativeAmount = request.getTransactionDetails().getTransactionAmount().getCumulativeAmount();
+        if (cumulativeAmount < requestedAmount) {
+            throw new InvalidTransactionAttemptException("Cumulative Amount should be greater than or equals to requestedAmount");
         }
     }
 
@@ -96,6 +110,7 @@ public class IncrementalAuthorizationValidationHelper {
     }
 
     public void logWarningForInvalidRequest(HttpHeaders headers, Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment, CPPaymentIncrementalAuthRequest request) {
+        DateHelper.logWarningForInvalidTransactionDate(request.getTransactionDateTime());
         Optional<List<Payment>> optionalPaymentList = optionalInitialAuthPayment.getLeft();
         if(optionalPaymentList.isPresent()) {
             List<Payment> payments = optionalPaymentList.get();
@@ -121,9 +136,5 @@ public class IncrementalAuthorizationValidationHelper {
         if (!parentClientId.equals(requestClientId)) {
             logger.log(Level.WARN, "Client Id used is different for Initial Auth and Incremental Auth for the given transactionAuthChainId: {}", optionalInitialAuthPayment.getRight());
         }
-    }
-
-    public void logWarningForInvalidRequestData(CPPaymentIncrementalAuthRequest request) {
-        DateHelper.logWarningForInvalidTransactionDate(request.getTransactionDateTime());
     }
 }

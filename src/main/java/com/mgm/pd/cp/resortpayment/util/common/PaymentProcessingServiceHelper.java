@@ -3,6 +3,7 @@ package com.mgm.pd.cp.resortpayment.util.common;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.mgm.pd.cp.payment.common.audit.service.AuditEventProducer;
 import com.mgm.pd.cp.payment.common.constant.AuthType;
 import com.mgm.pd.cp.payment.common.constant.CardType;
 import com.mgm.pd.cp.payment.common.constant.OrderType;
@@ -216,7 +217,7 @@ public class PaymentProcessingServiceHelper {
     }
 
     //Used to convert cardType received from Request to valid enum value for Intelligent Router and Payment DB
-    public String getEnumValueOfCardType(String cardType) throws InvalidFormatException {
+    public static String getEnumValueOfCardType(String cardType) throws InvalidFormatException {
         String enumByString = null;
         if (Objects.nonNull(cardType)){
             enumByString = CardType.getEnumByString(replaceSpecialCharacters(cardType));

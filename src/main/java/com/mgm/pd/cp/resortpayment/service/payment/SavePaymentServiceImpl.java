@@ -54,7 +54,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         SaleItem saleItem = Objects.nonNull(transactionDetails.getSaleItem()) ? transactionDetails.getSaleItem() : new SaleItem();
         String saleType = saleItem.getSaleType();
         String cardType = Objects.nonNull(card.getCardType()) ? card.getCardType() : null;
-        String enumByString = helper.getEnumValueOfCardType(cardType);
+        String enumByString = PaymentProcessingServiceHelper.getEnumValueOfCardType(cardType);
         newPayment
                 .paymentId(randomId)
                 .referenceId(request.getReferenceId())
@@ -111,7 +111,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         SaleItem saleItem = Objects.nonNull(transactionDetails.getSaleItem()) ? transactionDetails.getSaleItem() : new SaleItem();
         String saleType = saleItem.getSaleType();
         String cardType = Objects.nonNull(card.getCardType()) ? card.getCardType() : null;
-        String enumByString = helper.getEnumValueOfCardType(cardType);
+        String enumByString = PaymentProcessingServiceHelper.getEnumValueOfCardType(cardType);
         newPayment
                 .paymentId(randomId)
                 .referenceId(null)
@@ -169,7 +169,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         SaleItem saleItem = Objects.nonNull(transactionDetails.getSaleItem()) ? transactionDetails.getSaleItem() : new SaleItem();
         String saleType = saleItem.getSaleType();
         String cardType = Objects.nonNull(card.getCardType()) ? card.getCardType() : null;
-        String enumByString = helper.getEnumValueOfCardType(cardType);
+        String enumByString = PaymentProcessingServiceHelper.getEnumValueOfCardType(cardType);
         newPayment
                 .paymentId(string)
                 .referenceId(request.getReferenceId())
@@ -224,7 +224,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         SaleItem saleItem = Objects.nonNull(transactionDetails.getSaleItem()) ? transactionDetails.getSaleItem() : new SaleItem();
         String saleType = saleItem.getSaleType();
         String cardType = Objects.nonNull(card.getCardType()) ? card.getCardType() : null;
-        String enumByString = helper.getEnumValueOfCardType(cardType);
+        String enumByString = PaymentProcessingServiceHelper.getEnumValueOfCardType(cardType);
         newPayment
                 .paymentId(string)
                 .referenceId(request.getReferenceId())
@@ -272,7 +272,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         Gateway gatewayId = Gateway.SHFT;
         SaleItem saleItem = Objects.nonNull(transactionDetails.getSaleItem()) ? transactionDetails.getSaleItem() : new SaleItem();
         String saleType = saleItem.getSaleType();
-        String enumByString = helper.getEnumValueOfCardType(cardType);
+        String enumByString = PaymentProcessingServiceHelper.getEnumValueOfCardType(cardType);
         newPayment
                 .paymentId(string)
                 .referenceId(request.getReferenceId())

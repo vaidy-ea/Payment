@@ -13,5 +13,5 @@ import java.util.Optional;
 public interface PaymentRepository extends JpaRepository<Payment, String> {
     Optional<List<Payment>> findByAuthChainIdAndAuthSubType(String authChainId, @Valid AuthType transactionType);
 
-    Optional<List<Payment>> findByAuthChainId(String authChainId);
+    Optional<List<Payment>> findByAuthChainIdOrderByUpdatedTimestamp(String authChainId);
 }

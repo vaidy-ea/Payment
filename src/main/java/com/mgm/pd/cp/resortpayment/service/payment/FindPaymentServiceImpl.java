@@ -31,6 +31,6 @@ public class FindPaymentServiceImpl implements FindPaymentService {
     @Retry(name = "authChainId")
     public Optional<List<Payment>> getPaymentDetails(String authChainId) {
         logger.log(Level.DEBUG, "Attempting to find Initial Auth from Payment DB using authChainId: {}", authChainId);
-        return paymentRepository.findByAuthChainId(authChainId);
+        return paymentRepository.findByAuthChainIdOrderByUpdatedTimestamp(authChainId);
     }
 }

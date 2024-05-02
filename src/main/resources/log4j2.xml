@@ -1,10 +1,11 @@
 <Configuration status="warn" name="MyApp" packages="">
+    <Properties>
+        <Property name="SERVICE_NAME">CPPaymentProcess</Property>
+    </Properties>
     <Appenders>
         <RollingFile name="RollingFile" fileName="cpPaymentProcessingLogs/cpPaymentProcessing.log"
                      filePattern="cpPaymentProcessingLogs/$${date:yyyy-MM-dd}/cpPaymentProcessing-%i.log">
-            <PatternLayout>
-                <Pattern>%logger{36} %d{yyyy-MM-dd HH:mm:ss.SSS} %M|[%t] %-5level ClientID:[%X{ClientID}] x-mgm-correlation-id:[%X{x-mgm-correlation-id}] x-mgm-transaction-id:[%X{x-mgm-transaction-id}] x-mgm-journey-id:[%X{x-mgm-journey-id}] transactionAuthChainId:[%X{transactionAuthChainId}] saleReferenceIdentifier:[%X{saleReferenceIdentifier}]   - %msg%n</Pattern>
-            </PatternLayout>
+            <PatternLayout pattern="${SERVICE_NAME}|%logger{36}|%X{Requesturl}|%d{yyyy-MM-dd HH:mm:ss.SSS}|%M|[%t]|%-5level|ClientID:[%X{ClientID}]|x-mgm-correlation-id:[%X{x-mgm-correlation-id}]|x-mgm-transaction-id:[%X{x-mgm-transaction-id}]|x-mgm-journey-id:[%X{x-mgm-journey-id}]|transactionAuthChainId:[%X{transactionAuthChainId}]|saleReferenceIdentifier:[%X{saleReferenceIdentifier}]|  - %msg%n"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="500 KB"/>
             </Policies>

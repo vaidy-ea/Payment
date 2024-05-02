@@ -42,7 +42,9 @@ steps:
 
 - task: CopyFiles@2
   inputs:
-    contents: '**/*.jar'
+    Contents: |
+      **/*.jar
+      post-deployment/**
     targetFolder: '$(build.artifactStagingDirectory)'
  
 - task: PublishBuildArtifacts@1

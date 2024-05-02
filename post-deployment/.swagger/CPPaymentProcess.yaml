@@ -1,0 +1,1458 @@
+openapi: 3.0.3
+info:  
+  title: CPPaymentProcess Service
+  description: Card Present(CP) Payment Process services validates and gets the authorization from the payment gateway.
+  contact: 
+    email: pd-cp-support@mgmresorts.com
+  license: 
+    name: Copyright © 2024 MGM Resorts International
+    url: https://www.mgmresorts.com/en/terms-of-use.html
+  version: 1.0.0
+tags:
+  - name: CPPaymentProcess
+    description: Provides payment processing services 
+servers:
+  - url: https://{environment}-cppaymentswitch.mgmresorts.com
+    variables:
+      environment:
+        default: prod # Production server
+        enum:
+          - prod # Production server
+          - dev # Development server
+          - qa # QA server
+          - staging # Staging server
+paths:
+  /v1/validatecard:
+    post: 
+      summary: Validate Card
+      parameters:
+        - in: header
+          name: x-mgm-source
+          schema:
+            type: string
+          required: true
+          description: This field represents the origin of the request
+        - in: header
+          name: x-mgm-journey-id
+          schema:
+            type: string
+          required: false
+          description: This field represents the journey id of the request. 
+        - in: header
+          name: x-mgm-correlation-id
+          schema:
+            type: string
+          required: true
+          description: This field is used to track different transactions. 
+        - in: header
+          name: x-mgm-transaction-id
+          schema:
+            type: string
+          required: true
+          description: This field is used to generate unique identifier and pass it in the request.
+        - in: header
+          name: x-mgm-channel
+          schema:
+            type: string
+            enum:
+              - POS
+              - MOBILE
+              - FRONT_DESK
+              - CALL_CENTER
+          required: true
+          description: This field represents the channel of the request.
+        - in: header
+          name: x-mgm-client-id
+          schema:
+            type: string
+            maxLength: 20
+          required: true
+          description: This field represents the client-id associated with MID .
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Access token to invoke API's      
+      operationId: validateCard
+      tags: 
+      - CPPaymentProcess
+      description: Process to validate card request from POS systems.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'        
+        "401":
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'  
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Content
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'  
+        '429':
+          description: Too Many Requests
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'        
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - mgm-roles:
+          - service
+        - service-role:
+          - write
+  /v1/authorize:
+    post: 
+      summary: Authorization
+      parameters:
+        - in: header
+          name: x-mgm-source
+          schema:
+            type: string
+          required: true
+          description: This field represents the origin of the request
+        - in: header
+          name: x-mgm-journey-id
+          schema:
+            type: string
+          required: false
+          description: This field represents the journey id of the request. 
+        - in: header
+          name: x-mgm-correlation-id
+          schema:
+            type: string
+          required: true
+          description: This field is used to track different transactions. 
+        - in: header
+          name: x-mgm-transaction-id
+          schema:
+            type: string
+          required: true
+          description: This field is used to generate unique identifier and pass it in the request.
+        - in: header
+          name: x-mgm-channel
+          schema:
+            type: string
+            enum:
+              - POS
+              - MOBILE
+              - FRONT_DESK
+              - CALL_CENTER
+          required: true
+          description: This field represents the channel of the request.
+        - in: header
+          name: x-mgm-client-id
+          schema:
+            type: string
+            maxLength: 20
+          required: true
+          description: This field represents the client-id associated with MID .
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Access token to invoke API's      
+      operationId: authorization
+      tags: 
+      - CPPaymentProcess
+      description: Process the authorization request from POS systems.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'        
+        "401":
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'  
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Content
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'  
+        '429':
+          description: Too Many Requests
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'        
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - mgm-roles:
+          - service
+        - service-role:
+          - write
+  /v1/authorize/incremental:
+    post: 
+      summary: Incremental Authorization
+      parameters:
+        - in: header
+          name: x-mgm-source
+          schema:
+            type: string
+          required: true
+          description: This field represents the origin of the request
+        - in: header
+          name: x-mgm-journey-id
+          schema:
+            type: string
+          required: false
+          description: This field represents the journey id of the request. 
+        - in: header
+          name: x-mgm-correlation-id
+          schema:
+            type: string
+          required: true
+          description: This field is used to track different transactions. 
+        - in: header
+          name: x-mgm-transaction-id
+          schema:
+            type: string
+          required: true
+          description: This field is used to generate unique identifier and pass it in the request.
+        - in: header
+          name: x-mgm-channel
+          schema:
+            type: string
+            enum:
+              - POS
+              - MOBILE
+              - FRONT_DESK
+              - CALL_CENTER
+          required: true
+          description: This field represents the channel of the request.
+        - in: header
+          name: x-mgm-client-id
+          schema:
+            type: string
+            maxLength: 20
+          required: true
+          description: This field represents the client-id associated with MID .
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Access token to invoke API's      
+      operationId: incrementalAuth
+      tags: 
+      - CPPaymentProcess
+      description: Process the incremental authorization request.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'        
+        "401":
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'  
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Content
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'  
+        '429':
+          description: Too Many Requests
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'        
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - mgm-roles:
+          - service
+        - service-role:
+          - write
+  /v1/capture:
+    post: 
+      summary: Capture
+      parameters:
+        - in: header
+          name: x-mgm-source
+          schema:
+            type: string
+          required: true
+          description: This field represents the origin of the request
+        - in: header
+          name: x-mgm-journey-id
+          schema:
+            type: string
+          required: false
+          description: This field represents the journey id of the request. 
+        - in: header
+          name: x-mgm-correlation-id
+          schema:
+            type: string
+          required: true
+          description: This field is used to track different transactions. 
+        - in: header
+          name: x-mgm-transaction-id
+          schema:
+            type: string
+          required: true
+          description: This field is used to generate unique identifier and pass it in the request.
+        - in: header
+          name: x-mgm-channel
+          schema:
+            type: string
+            enum:
+              - POS
+              - MOBILE
+              - FRONT_DESK
+              - CALL_CENTER
+          required: true
+          description: This field represents the channel of the request.
+        - in: header
+          name: x-mgm-client-id
+          schema:
+            type: string
+            maxLength: 20
+          required: true
+          description: This field represents the client-id associated with MID .
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Access token to invoke API's      
+      operationId: capture
+      tags: 
+      - CPPaymentProcess
+      description: Process the authorization request from POS systems.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SettlementRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'        
+        "401":
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'  
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Content
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'  
+        '429':
+          description: Too Many Requests
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'        
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - mgm-roles:
+          - service
+        - service-role:
+          - write
+  /v1/sale:
+    post: 
+      summary: Sale
+      parameters:
+        - in: header
+          name: x-mgm-source
+          schema:
+            type: string
+          required: true
+          description: This field represents the origin of the request
+        - in: header
+          name: x-mgm-journey-id
+          schema:
+            type: string
+          required: false
+          description: This field represents the journey id of the request. 
+        - in: header
+          name: x-mgm-correlation-id
+          schema:
+            type: string
+          required: true
+          description: This field is used to track different transactions. 
+        - in: header
+          name: x-mgm-transaction-id
+          schema:
+            type: string
+          required: true
+          description: This field is used to generate unique identifier and pass it in the request.
+        - in: header
+          name: x-mgm-channel
+          schema:
+            type: string
+            enum:
+              - POS
+              - MOBILE
+              - FRONT_DESK
+              - CALL_CENTER
+          required: true
+          description: This field represents the channel of the request.
+        - in: header
+          name: x-mgm-client-id
+          schema:
+            type: string
+            maxLength: 20
+          required: true
+          description: This field represents the client-id associated with MID .
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Access token to invoke API's      
+      operationId: sale
+      tags: 
+      - CPPaymentProcess
+      description: Process the authorization and capture.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'        
+        "401":
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'  
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Content
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'  
+        '429':
+          description: Too Many Requests
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'        
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - mgm-roles:
+          - service
+        - service-role:
+          - write
+  /v1/refund:
+    post: 
+      summary: Refund
+      parameters:
+        - in: header
+          name: x-mgm-source
+          schema:
+            type: string
+          required: true
+          description: This field represents the origin of the request
+        - in: header
+          name: x-mgm-journey-id
+          schema:
+            type: string
+          required: false
+          description: This field represents the journey id of the request. 
+        - in: header
+          name: x-mgm-correlation-id
+          schema:
+            type: string
+          required: true
+          description: This field is used to track different transactions. 
+        - in: header
+          name: x-mgm-transaction-id
+          schema:
+            type: string
+          required: true
+          description: This field is used to generate unique identifier and pass it in the request.
+        - in: header
+          name: x-mgm-channel
+          schema:
+            type: string
+            enum:
+              - POS
+              - MOBILE
+              - FRONT_DESK
+              - CALL_CENTER
+          required: true
+          description: This field represents the channel of the request.
+        - in: header
+          name: x-mgm-client-id
+          schema:
+            type: string
+            maxLength: 20
+          required: true
+          description: This field represents the client-id associated with MID .
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Access token to invoke API's      
+      operationId: refund
+      tags: 
+      - CPPaymentProcess
+      description: Process the refund request from POS systems.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SettlementRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'        
+        "401":
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'  
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Content
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'  
+        '429':
+          description: Too Many Requests
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'        
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - mgm-roles:
+          - service
+        - service-role:
+          - write
+  /v1/void:
+    post: 
+      summary: Void
+      parameters:
+        - in: header
+          name: x-mgm-source
+          schema:
+            type: string
+          required: true
+          description: This field represents the origin of the request
+        - in: header
+          name: x-mgm-journey-id
+          schema:
+            type: string
+          required: false
+          description: This field represents the journey id of the request. 
+        - in: header
+          name: x-mgm-correlation-id
+          schema:
+            type: string
+          required: true
+          description: This field is used to track different transactions. 
+        - in: header
+          name: x-mgm-transaction-id
+          schema:
+            type: string
+          required: true
+          description: This field is used to generate unique identifier and pass it in the request.
+        - in: header
+          name: x-mgm-channel
+          schema:
+            type: string
+            enum:
+              - POS
+              - MOBILE
+              - FRONT_DESK
+              - CALL_CENTER
+          required: true
+          description: This field represents the channel of the request.
+        - in: header
+          name: x-mgm-client-id
+          schema:
+            type: string
+            maxLength: 20
+          required: true
+          description: This field represents the client-id associated with MID .
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Access token to invoke API's      
+      operationId: void
+      tags: 
+      - CPPaymentProcess
+      description: Void or Cancel the authorized request from POS systems.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoidRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoidResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'        
+        "401":
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'  
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Content
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'  
+        '429':
+          description: Too Many Requests
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'        
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - mgm-roles:
+          - service
+        - service-role:
+          - write
+components:
+  schemas:
+    CardRequest:
+      type: object
+      properties:
+        transactionIdentifier:
+          type: string
+          maxLength: 40
+          description: unique identifier from source for the transaction.
+        transactionDateTime:
+          type: string
+          format: date-time
+          description: The date and time in ISO 8601 format.
+        transactionLOB:
+          type: string
+          enum:
+            - Lodging
+            - Food & Beverages
+            - Retail
+            - Parking
+            - Spa Booking
+            - Ticketing
+            - Arcade
+          maxLength: 40
+          description: The line of business associated with transaction.
+        transactionDetails:
+          $ref: '#/components/schemas/CardDetails'
+      required:
+        - transactionIdentifier
+        - transactionDateTime
+        - transactionDetails
+    CardDetails:
+      type: object
+      properties:
+        card:
+          $ref: '#/components/schemas/Card'
+        customer:
+          $ref: '#/components/schemas/Customer'
+        additionalData:
+          $ref: '#/components/schemas/AdditionalData'
+      required:
+        - card
+    TransactionRequest:
+      type: object
+      properties:
+        transactionIdentifier:
+          type: string
+          maxLength: 40
+          description: unique identifier from source for the transaction.
+        originalTransactionIdentifier:
+          type: string
+          maxLength: 40
+          description: original identifier from source for the transaction. 
+        transactionDateTime:
+          type: string
+          format: date-time
+          description: The date and time in ISO 8601 format.
+        transactionLOB:
+          type: string
+          enum:
+            - Lodging
+            - Food & Beverages
+            - Retail
+            - Parking
+            - Spa Booking
+            - Ticketing
+            - Arcade
+          maxLength: 40
+          description: The line of business associated with transaction.
+        transactionType:
+          description: Type of transaction such as INIT, DEPOSIT, CHECKOUT   
+          type: string
+          maxLength: 40
+        transactionAuthChainId:
+          description: An Identifier that identifies the chain of associated transactions. Mandatory for Incremental Authorization, Capture and Void. Optional for Refund.
+          type: string
+          maxLength: 10 
+        transactionDetails:
+          $ref: '#/components/schemas/TransactionDetails'
+      required:
+        - transactionIdentifier
+        - transactionDateTime
+        - transactionDetails
+    TransactionDetails:
+      type: object
+      properties:
+        isCardPresent:
+          type: boolean
+          default: true
+          description: Indicates whether the transaction is a card present transaction or not.
+        approvalCode:
+          type: string
+          maxLength: 10
+          description: Approval Code received for the origin transaction.
+        transactionAmount:
+          $ref: '#/components/schemas/TransactionAmount'
+        card:
+          $ref: '#/components/schemas/Card'
+        customer:
+          $ref: '#/components/schemas/Customer'
+        currencyConversion:
+          $ref: '#/components/schemas/CurrencyConversion'
+        saleItem:
+          $ref: '#/components/schemas/SaleItem'
+        additionalData:
+          $ref: '#/components/schemas/AdditionalData'
+      required:
+        - transactionAmount
+        - card
+    CardResponse:
+      type: object
+      properties:
+        approvalCode:
+          type: string
+          maxLength: 35
+          description: The authorization code provided by the consumer’s issuing bank. It is provided in a response if an online authorization or sale request is approved.
+        responseCode:
+          type: string
+          maxLength: 35
+          description: Code indicating the Gateway host response code.
+        responseReason:
+          type: string
+          maxLength: 100
+          description: Returns a description from the host.
+        transactionDateTime:
+          type: string
+          format: date-time
+          description: The transaction date time in ISO 8601 format.
+        customer:
+          $ref: '#/components/schemas/Customer'
+        card:
+          $ref: '#/components/schemas/Card'
+    TransactionResponse:
+      type: object
+      properties:
+        approvalCode:
+          type: string
+          example: '163118'
+          maxLength: 10
+          description: The authorization code provided by the consumer’s issuing bank. It is provided in a response if an online authorization or sale request is approved.
+        responseCode:
+          type: string
+          enum:
+          - Approved
+          - Declined
+          maxLength: 35
+          description: Code indicating the Gateway response code.
+        responseReason:
+          type: string
+          maxLength: 100
+          description: Returns a description from the host. Incase of declined, reason for the declined will be populated.
+        transactionDateTime:
+          type: string
+          format: date-time
+          description: The date and time in ISO 8601 format.
+        transactionAuthChainId:
+          description: An Identifier that identifies the chain of associated transactions.
+          type: string
+          maxLength: 40
+        transactionAmount:
+          $ref: '#/components/schemas/ResponseAmount'
+        card:
+          $ref: '#/components/schemas/Card'
+        printDetails:  
+          $ref: '#/components/schemas/PrintDetails'
+    SettlementRequest:
+      type: object
+      properties:
+        transactionIdentifier:
+          type: string
+          maxLength: 40
+          description: unique identifier from source for the transaction.
+        originalTransactionIdentifier:
+          type: string
+          maxLength: 40
+          description: original identifier from source for the transaction. 
+        transactionDateTime:
+          type: string
+          format: date-time
+          description: The date and time in ISO 8601 format.
+        transactionLOB:
+          type: string
+          enum:
+            - Lodging
+            - Food & Beverages
+            - Retail
+            - Parking
+            - Spa Booking
+            - Ticketing
+            - Arcade
+          maxLength: 40
+          description: The line of business associated with transaction.
+        transactionType:
+          description: Type of transaction such as DEPOSIT, CHECKOUT, AR. This is used for authorization and capture.   
+          type: string
+          maxLength: 40
+        transactionAuthChainId:
+          description: An Identifier that identifies the chain of associated transactions. Used in captures and Linked Refund scenarios.
+          type: string
+          maxLength: 40
+        transactionDetails:
+          $ref: '#/components/schemas/TransactionDetails'
+      required:
+        - transactionIdentifier
+        - transactionDateTime
+        - transactionDetails
+    VoidRequest:
+      type: object
+      properties:
+        transactionIdentifier:
+          type: string
+          maxLength: 40
+          description: unique identifier from source for the transaction.
+        originalTransactionIdentifier:
+          type: string
+          maxLength: 40
+          description: original identifier from source for the transaction. 
+        transactionDateTime:
+          type: string
+          format: date-time
+          description: The date and time in ISO 8601 format.
+        transactionLOB:
+          type: string
+          enum:
+            - Lodging
+            - Food & Beverages
+            - Retail
+            - Parking
+            - Spa Booking
+            - Ticketing
+            - Arcade
+          maxLength: 40
+          description: The line of business associated with transaction.
+        transactionType:
+          description: Type of transaction. 
+          type: string
+          maxLength: 40
+        transactionAuthChainId:
+          description: An Identifier that identifies the chain of associated transactions. e.g. vendorTranId
+          type: string
+          maxLength: 40 
+        transactionDetails:
+          $ref: '#/components/schemas/VoidDetails'
+      required:
+        - transactionIdentifier
+        - transactionDateTime
+        - transactionAuthChainId
+    VoidDetails:
+      type: object
+      properties:
+        approvalCode:
+          type: string
+          maxLength: 10
+          description: Approval Code received for the original transaction to be voided.
+        card:
+          $ref: '#/components/schemas/Card'
+        saleItem:
+          $ref: '#/components/schemas/SaleItem'
+        additionalData:
+          $ref: '#/components/schemas/AdditionalData'
+      required:
+        - card
+    VoidResponse:
+      type: object
+      properties:
+        approvalCode:
+          type: string
+          maxLength: 35
+          description: The authorization code provided by the consumer’s issuing bank. It is provided in a response if an online authorization or sale request is approved.
+        responseCode:
+          type: string
+          maxLength: 35
+          description: Code indicating the Gateway host response code.
+        responseReason:
+          type: string
+          maxLength: 100
+          description: Returns a description from the host.
+        transactionDateTime:
+          type: string
+          format: date-time
+          description: The date and time in ISO 8601 format.
+        transactionAuthChainId:
+          description: An Identifier that identifies the chain of associated transactions.
+          type: string
+          maxLength: 40
+    PrintDetails:
+      type: array
+      items:
+        type: object
+        properties:
+          printKey:
+            type: string
+            description: The identifier that can be used to programmatically determine where to print a specific value.
+            example: TransactionResponse
+            maxLength: 100
+          printName:
+            type: string
+            description: The label that relates to the printValue field.
+            example: Response
+            maxLength: 100
+          printValue:
+            type: string
+            description: The value corresponding to the printName or printKey
+            example: APPROVED
+            maxLength: 400
+    Address:
+      type: object
+      properties:
+        addressLine:
+          type: string
+          maxLength: 70
+          description: Cardholder address line as per their billing statement. 
+        streetName:
+          type: string
+          maxLength: 70
+          description: Cardholder street name as per their billing statement. 
+        buildingNumber:
+          type: string
+          maxLength: 16
+          description:  Cardholder building number as per their billing statement.
+        postCode:
+          type: string
+          maxLength: 16
+          description:  Cardholder post code as per their billing statement.
+        townName:
+          type: string
+          maxLength: 35
+          description:  Cardholder city name as per their billing statement.
+        countrySubDivision:
+          type: string
+          maxLength: 35
+          description:  Cardholder country subdivision as per their billing statement.
+        country:
+          type: string
+          maxLength: 35
+          description:  Cardholder country name as per their billing statement.
+    AdditionalData:
+      type: array
+      description: This field is used to extend the payload consisting of name/value pair.
+      items:
+        type: object
+        properties:
+          name:
+            type: string
+            maxLength: 50
+          value:
+            type: string
+            maxLength: 100
+    DetailedAmount:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: double
+          description: The amount of the transaction.
+        cashBack:
+          type: number
+          format: double
+          description: The amount of the cash back has added to the transaction.
+        gratuity:
+          type: number
+          format: double
+          description: The gratuity amount added to the transaction.
+        fees:
+          type: number
+          format: double
+          description: The fees amount added to the transaction.
+        rebate:
+          type: number
+          format: double
+          description: The rebate amount added to the transaction.
+        tax:
+          type: number
+          format: double 
+          description: The tax amount added to the transaction.
+        surcharge:
+          type: number
+          format: double  
+          description: The surcharge amount added to the transaction.      
+    Card:
+      type: object
+      properties:
+        cardEntryMode:
+          type: string
+          maxLength: 20
+          description: Terminal card mode whether swiped or tap or manual.
+        cardType:
+          type: string
+          maxLength: 20
+          description: Terminal card type.
+          enum:
+            -  Visa
+            -  Mastercard
+            -  American Express
+            -  Discover
+            -  JCB 
+        maskedCardNumber:
+          type: string
+          maxLength: 20
+          description:  Terminal card number in masked format. e.g. 372726XXXXX3009
+        startDate:
+          type: string
+          maxLength: 70
+          description:  Terminal card start date.
+        expiryDate:
+          type: string
+          maxLength: 16
+          description: Terminal card expiration date.
+        cardIssuerName:
+          type: string
+          maxLength: 16
+          description:  Terminal card issuer name.
+        cardIssuerIdentification:
+          type: string
+          maxLength: 35
+          description:  Terminal card issuer identification.
+        sequenceNumber:
+          type: string
+          maxLength: 35
+          description:  Terminal card sequence number.
+        track1:
+          type: string
+          maxLength: 35
+          description: This field consists of track1 data.
+        track2:
+          type: string
+          maxLength: 35
+          description: This field consists of track2 data.
+        track3:
+          type: string
+          maxLength: 35
+          description: This field consists of track3 data.
+        isTokenized:
+          type: boolean
+          description: Indicates whether the card is tokenized or not.
+          default: true
+        tokenType:
+          type: string
+          description: Indicates whether the token is an MGM token or Shift4 token.
+          default: MGM
+        tokenValue:
+          type: string
+          maxLength: 20
+          description: Tokenized format of the card value.  
+      required:
+        - tokenValue
+    CurrencyConversion:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: double
+          description: "Amount in converted currency"
+        conversionIdentifier:
+          type: string
+          maxLength: 20
+          description: "Authorization number for exchange rate/currency"
+        conversionFlag:
+          type: string
+          maxLength: 1
+          description: "Flag to set if currency conversion is enabled. Available options are ‘Y’ for Yes and ‘N’ for No."
+        binCurrencyCode:
+          type: string
+          maxLength: 3
+          description: "Currency associated with the transaction. For example: ‘USD’"
+        binCurrencyRate:
+          type: string
+          maxLength: 14
+          description: "Currency Conversion exchange rate that is being offered."
+    Customer:
+      type: object
+      properties:
+        fullName:
+          type: string
+          maxLength: 70
+          description: Cardholders full name.
+        firstName:
+          type: string
+          maxLength: 70
+          description: Cardholders first name.
+        lastName:
+          type: string
+          maxLength: 70
+          description: Cardholders last name.
+        billingAddress:
+          $ref: '#/components/schemas/Address'
+    SaleItem:
+      type: object
+      properties:
+        saleType:
+          type: string
+          maxLength: 70
+          description: Type of sale. e.g. Room, Show etc.
+        saleDate:
+          type: string
+          format: date-time
+          description: The sale date and time in ISO 8601 format.
+        saleClerkId:
+          type: string
+          maxLength: 70
+          description: An identifier of the operator who sent the sales transaction.
+        saleReferenceIdentifier:
+          type: string
+          maxLength: 70
+          description: The reference identifier of the sale. e.g. Reservation Id, Order Id
+        saleDetails:
+          anyOf:
+            - $ref: '#/components/schemas/Hotel'
+            - $ref: '#/components/schemas/Ticket'
+    Hotel:
+      type: object
+      properties:
+        propertyChainIdentifier:
+          type: string
+          maxLength: 50
+          description: Property chain identifier.
+        propertyIdentifier:
+          type: string
+          maxLength: 50
+          description: Property identifier.
+        roomNumber:
+          type: string
+          maxLength: 30
+          description: Room number being reserved by the guest
+        roomRate:
+          type: number
+          format: double
+          description: The rate of the room being reserved by the guest.
+          maxLength: 10
+        originDate: 
+          type: string
+          format: date-time
+          description: The origin date and time in ISO 8601 format.
+        departureDate: 
+          type: string
+          format: date-time
+          description: The departure date and time in ISO 8601 format.
+        checkInDate:
+          type: string
+          format: date-time
+          description: The check-in date and time in ISO 8601 format.
+        checkOutDate:
+          type: string
+          format: date-time
+          description: The check-out date and time in ISO 8601 format.
+        estimatedDuration:
+          type: integer
+          format: int32
+          description: The estimated duration of the reservation in days.
+    Ticket:
+      type: object
+      properties:
+        eventIdentifier:
+          type: string
+          maxLength: 50
+          description: The event identifier is to unique identify the event.
+        ticketNumber:
+          type: string
+          maxLength: 30
+          description: The ticket number purchased of the event.
+        ticketRate:
+          type: number
+          format: double
+          description: The rate of the ticket being reserved by the guest.
+          maxLength: 10
+        eventDate: 
+          type: string
+          format: date-time
+          description: The event date and time in ISO 8601 format.
+    TransactionAmount:
+      type: object
+      properties:
+        balanceAmount:
+          type: number
+          format: double
+          description: The balance amount remained in the transaction.
+        requestedAmount:
+          type: number
+          format: double
+          description: The requested amount of the transaction.
+        authorizedAmount:
+          type: number
+          format: double
+          description: The amount authorized by the gateway.
+        cumulativeAmount:
+          type: number
+          format: double
+          description: The total amount of the transaction. Needed for the incremental authorization.
+        currencyIndicator:
+          type: string
+          maxLength: 3
+          description:  The currency indicator of the amount. e.g USD.
+        detailedAmount:
+          $ref: '#/components/schemas/DetailedAmount'
+      required:
+        - requestedAmount
+        - currencyIndicator
+    ResponseAmount:
+      type: object
+      properties:
+        balanceAmount:
+          type: number
+          format: double
+          description: The balance amount remained in the transaction.
+        requestedAmount:
+          type: number
+          format: double
+          description: The requested amount of the transaction.
+        authorizedAmount:
+          type: number
+          format: double
+          description: The amount authorized by the gateway.
+        cumulativeAmount:
+          type: number
+          format: double
+          description: The total amount of the transaction.
+        currencyIndicator:
+          type: string
+          maxLength: 3
+          description:  The currency indicator of the amount. e.g USD.
+        detailedAmount:
+          $ref: '#/components/schemas/DetailedAmount'
+    ErrorResponse:
+      type: object
+      description: Standard Error Object for the Rest APIs by IETF. RFC 9457
+      properties:
+        type:
+          description: containing a URI reference [URI] that identifies the problem type.
+          type: string
+          maxLength: 200
+        status:
+          description: indicating the HTTP status code.
+          type: integer
+          format: int32
+          minimum: 100
+          maximum: 599
+        title:
+          description: containing a short, human-readable summary of the problem type.
+          type: string
+          maxLength: 200
+        detail:
+          description:  containing a human-readable explanation specific to this occurrence of the problem.
+          type: string
+          maxLength: 400
+        instance:
+          description: containing a URI reference that identifies the specific occurrence of the problem.
+          type: string
+          format: URI
+          maxLength: 200
+        errorCode:
+          description: error code in the MGM format
+          type: string
+          maxLength: 100
+        messages:
+          type: array
+          items:
+            type: string 
+  securitySchemes:
+    Bearer Authentication:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  -  Bearer Authentication: []

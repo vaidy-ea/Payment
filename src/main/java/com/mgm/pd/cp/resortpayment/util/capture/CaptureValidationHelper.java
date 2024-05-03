@@ -50,7 +50,7 @@ public class CaptureValidationHelper {
         if(optionalPaymentList.isPresent()) {
             List<Payment> payments = optionalPaymentList.get();
             if (!payments.isEmpty()) {
-                throwExceptionIfVoidOrRefundAlreadyDone(optionalInitialAuthPayment, payments);
+                throwExceptionIfCaptureOrVoidOrRefundAlreadyDone(optionalInitialAuthPayment, payments);
                 throwExceptionIfDifferentMGMTokenUsed(request, optionalInitialAuthPayment, payments);
             }
         }
@@ -74,9 +74,10 @@ public class CaptureValidationHelper {
         }
     }
 
-    private void throwExceptionIfVoidOrRefundAlreadyDone(Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment, List<Payment> payments) {
+    private void throwExceptionIfCaptureOrVoidOrRefundAlreadyDone(Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment, List<Payment> payments) {
         long count = payments.stream().filter(p -> (Objects.isNull(p.getAuthSubType()) && TransactionType.VOID.equals(p.getTransactionType()))
-                || TransactionType.REFUND.equals(p.getTransactionType())).count();
+                || TransactionType.REFUND.equals(p.getTransactionType())
+                || TransactionType.CAPTURE.equals(p.getTransactionType())).count();
         if (count > 0) {
             String transactionAuthChainId = optionalInitialAuthPayment.getRight();
             List<TransactionType> transactionTypes = payments.stream().map(Payment::getTransactionType).distinct().collect(Collectors.toList());

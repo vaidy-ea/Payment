@@ -259,7 +259,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
     }
 
     @Override
-    public Payment saveRefundPayment(CPPaymentRefundRequest request, RefundRouterResponse response) throws InvalidFormatException {
+    public Payment saveRefundPayment(CPPaymentRefundRequest request, RefundRouterResponse response, Payment initialPayment) throws InvalidFormatException {
         Payment.PaymentBuilder newPayment = Payment.builder();
         TransactionDetails transactionDetails = request.getTransactionDetails();
         TransactionAmount transactionAmount = transactionDetails.getTransactionAmount();
@@ -275,7 +275,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
         String enumByString = PaymentProcessingServiceHelper.getEnumValueOfCardType(cardType);
         newPayment
                 .paymentId(string)
-                .referenceId(request.getReferenceId())
+                .referenceId(Objects.nonNull(initialPayment) ? initialPayment.getPaymentId() : null)
                 .groupId(null)
                 //.gatewayRelationNumber(headers.getCorrelationId())
                 .clientReferenceNumber(saleItem.getSaleReferenceIdentifier())

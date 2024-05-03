@@ -134,7 +134,7 @@ public class CPPaymentProcessingServiceImpl implements CPPaymentProcessingServic
     @Override
     public ResponseEntity<GenericResponse> processCardVoidRequest(CPPaymentCardVoidRequest request, HttpHeaders headers) throws JsonProcessingException {
         //used for businessValidations and finding initial Payment as pre-requisite for processing of Card Void Request
-        Optional<Payment> optionalInitialPayment = serviceHelper.validateCardVoidRequestAndReturnInitialPayment(request, headers);
+        Optional<Payment> optionalInitialPayment = serviceHelper.validateCardVoidRequestAndReturnInitialPayment(request);
         //adding headers in request before sending to IR
         request = serviceHelper.mapHeadersInRequest(request, headers);
         CardVoidRouterResponse cvrResponse = null;
@@ -163,7 +163,7 @@ public class CPPaymentProcessingServiceImpl implements CPPaymentProcessingServic
     @Override
     public ResponseEntity<GenericResponse> processRefundRequest(CPPaymentRefundRequest request, HttpHeaders headers) throws JsonProcessingException {
         //used for businessValidations of Refund Request
-        serviceHelper.validateRefundRequest(request);
+        Optional<Payment> optionalInitialPayment = serviceHelper.validateRefundRequest(request);
         //adding headers in request before sending to IR
         request = serviceHelper.mapHeadersInRequest(request, headers);
         RefundRouterResponse rrResponse = null;
@@ -174,7 +174,7 @@ public class CPPaymentProcessingServiceImpl implements CPPaymentProcessingServic
         }
         finally {
             //saving combined response of (Request and response from IR) to Payment DB
-            payment = savePaymentService.saveRefundPayment(request, rrResponse);
+            payment = savePaymentService.saveRefundPayment(request, rrResponse, optionalInitialPayment.orElse(null));
         }
         //converting and returning response for upstream system
         return serviceHelper.response(payment, request);

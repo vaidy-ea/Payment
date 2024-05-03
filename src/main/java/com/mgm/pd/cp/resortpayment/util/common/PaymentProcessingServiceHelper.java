@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.mgm.pd.cp.payment.common.constant.AuthType;
 import com.mgm.pd.cp.payment.common.constant.CardType;
 import com.mgm.pd.cp.payment.common.constant.OrderType;
+import com.mgm.pd.cp.payment.common.constant.TransactionType;
 import com.mgm.pd.cp.payment.common.dto.CPRequestHeaders;
 import com.mgm.pd.cp.payment.common.dto.GenericResponse;
 import com.mgm.pd.cp.payment.common.dto.opera.OperaResponse;
@@ -344,7 +345,7 @@ public class PaymentProcessingServiceHelper {
         return getLastRecordFromPaymentsList(optionalInitialAuthPayment);
     }
 
-    public Optional<Payment> validateCardVoidRequestAndReturnInitialPayment(CPPaymentCardVoidRequest request, HttpHeaders headers) {
+    public Optional<Payment> validateCardVoidRequestAndReturnInitialPayment(CPPaymentCardVoidRequest request) {
         CardVoidValidationHelper.logWarningForInvalidRequestData(request);
         CardVoidValidationHelper.throwExceptionIfRequiredFieldMissing(request);
         Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment = getAllPayments(request);
@@ -353,9 +354,34 @@ public class PaymentProcessingServiceHelper {
         return getLastRecordFromPaymentsList(optionalInitialAuthPayment);
     }
 
-    public void validateRefundRequest(CPPaymentRefundRequest request) {
+    public Optional<Payment> validateRefundRequest(CPPaymentRefundRequest request) {
         RefundValidationHelper.logWarningForInvalidRequestData(request);
         Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment = getAllPayments(request);
-        RefundValidationHelper.throwExceptionForInvalidAttempts(optionalInitialAuthPayment);
+        Pair<Optional<Payment>, String> initialPaymentAndApprovalCode = getInitialPaymentByApprovalCode(getPaymentDetailsByApprovalCode(request.getTransactionDetails().getApprovalCode()));
+        RefundValidationHelper.throwExceptionForInvalidAttempts(optionalInitialAuthPayment, initialPaymentAndApprovalCode);
+        return initialPaymentAndApprovalCode.getLeft();
+    }
+
+    private static Pair<Optional<Payment>, String> getInitialPaymentByApprovalCode(Pair<Optional<List<Payment>>, String> initialAuthPaymentByApprovalCode) {
+        String approvalCode = initialAuthPaymentByApprovalCode.getRight();
+        if (Objects.nonNull(approvalCode)) {
+            Optional<List<Payment>> optionalPaymentList = initialAuthPaymentByApprovalCode.getLeft();
+            if (optionalPaymentList.isPresent()) {
+                List<Payment> payments = optionalPaymentList.get();
+                if (!payments.isEmpty()) {
+                    Optional<Payment> firstInitialPayment = payments.stream().filter(p -> TransactionType.AUTHORIZE.equals(p.getTransactionType()) && !AuthType.SUPP.equals(p.getAuthSubType())).findFirst();
+                    logger.log(Level.DEBUG, "PaymentId of initialAuth associated with Refund is: {}", firstInitialPayment.get().getPaymentId());
+                    return Pair.of(firstInitialPayment, approvalCode);
+                }
+            }
+        }
+        return Pair.of(Optional.empty(), approvalCode);
+    }
+
+    private Pair<Optional<List<Payment>>, String> getPaymentDetailsByApprovalCode(String approvalCode) {
+        if (Objects.nonNull(approvalCode)) {
+            return Pair.of(findPaymentService.getPaymentDetailsByApprovalCode(approvalCode), approvalCode);
+        }
+        return Pair.of(Optional.empty(), null);
     }
 }

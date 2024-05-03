@@ -31,6 +31,18 @@ public class FindPaymentServiceImpl implements FindPaymentService {
     @Retry(name = "authChainId")
     public Optional<List<Payment>> getPaymentDetails(String authChainId) {
         logger.log(Level.DEBUG, "Attempting to find Initial Auth from Payment DB using authChainId: {}", authChainId);
-        return paymentRepository.findByAuthChainIdOrderByUpdatedTimestamp(authChainId);
+        return paymentRepository.findByAuthChainIdOrderByUpdatedTimestampDesc(authChainId);
+    }
+
+    @Override
+    @Retry(name = "paymentAuthIdAndReferenceId")
+    public Optional<List<Payment>> getPaymentDetailsByApprovalCode(String paymentAuthId) {
+        logger.log(Level.DEBUG, "Attempting to find Initial Auth Payments from Payment DB using paymentAuthId: {}", paymentAuthId);
+        /*
+         * this will return payments which belongs to Transaction_Type:
+         * 1. Authorize - Initial Auth/Incremental Auth
+         * 2. Refund as for both cases ReferenceId can be null
+         */
+        return paymentRepository.findByPaymentAuthIdAndReferenceIdIsNullOrderByUpdatedTimestampDesc(paymentAuthId);
     }
 }

@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.flywaydb.core.internal.util.Pair;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -19,12 +20,24 @@ import java.util.stream.Collectors;
 public class RefundValidationHelper {
     private static final Logger logger = LogManager.getLogger(RefundValidationHelper.class);
 
-    public void throwExceptionForInvalidAttempts(Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment) {
+    public void throwExceptionForInvalidAttempts(Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment, Pair<Optional<Payment>, String> initialPaymentAndApprovalCode) {
+        throwExceptionIfApprovalCodeIsNotFound(initialPaymentAndApprovalCode);
         Optional<List<Payment>> optionalPaymentList = optionalInitialAuthPayment.getLeft();
         if(optionalPaymentList.isPresent()) {
             List<Payment> payments = optionalPaymentList.get();
             if (!payments.isEmpty()) {
                 throwExceptionIfTransactionAuthChainIdIsAlreadyUsed(optionalInitialAuthPayment, payments);
+            }
+        }
+    }
+
+    private void throwExceptionIfApprovalCodeIsNotFound(Pair<Optional<Payment>, String> initialPaymentAndApprovalCode) {
+        String approvalCode = initialPaymentAndApprovalCode.getRight();
+        if (Objects.nonNull(approvalCode)) {
+            Optional<Payment> optionalInitialPayment = initialPaymentAndApprovalCode.getLeft();
+            if (optionalInitialPayment.isEmpty()) {
+                logger.log(Level.ERROR, "Invalid Refund Attempt, No Payment is associated with given approvalCode: {}", approvalCode);
+                throw new InvalidTransactionAttemptException("Invalid Refund Attempt, No Payment is associated with given approvalCode: " + approvalCode);
             }
         }
     }

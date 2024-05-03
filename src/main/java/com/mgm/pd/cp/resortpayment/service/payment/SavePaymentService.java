@@ -27,5 +27,5 @@ public interface SavePaymentService {
     @Transactional
     Payment saveCardVoidAuthPayment(CPPaymentCardVoidRequest voidRequest, CardVoidRouterResponse vrResponse, Payment initialPayment) throws InvalidFormatException;
     @Transactional
-    Payment saveRefundPayment(CPPaymentRefundRequest request, RefundRouterResponse rrResponse) throws InvalidFormatException;
+    Payment saveRefundPayment(CPPaymentRefundRequest request, RefundRouterResponse rrResponse, Payment initialPayment) throws InvalidFormatException;
 }

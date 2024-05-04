@@ -4,12 +4,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.mgm.pd.cp.payment.common.audit.service.AuditEventProducer;
 import com.mgm.pd.cp.payment.common.dto.ErrorResponse;
 import com.mgm.pd.cp.payment.common.exception.CommonException;
 import com.mgm.pd.cp.payment.common.exception.MissingHeaderException;
 import com.mgm.pd.cp.payment.common.util.MGMErrorCode;
+import com.mgm.pd.cp.resortpayment.config.HeaderConfigProperties;
 import feign.FeignException;
 import feign.RetryableException;
+import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,17 +27,23 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.time.format.DateTimeParseException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.*;
 
 @RestControllerAdvice
+@AllArgsConstructor
 public class CPPaymentProcessingExceptionHandler extends CommonException {
     private static final Logger logger = LogManager.getLogger(CPPaymentProcessingExceptionHandler.class);
+
+    private static final String CP_PPS = "CP-PaymentProcessingService";
+    private static final String SHIFT4_API_LOG = "shift4-api-log";
+
+    private AuditEventProducer auditEventProducer;
+    private HeaderConfigProperties headerConfigProperties;
+    private ObjectMapper mapper;
 
     //Used to handle exception from SpringBoot in case of missing attributes
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -115,6 +124,7 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
     public ResponseEntity<ErrorResponse> handleIntelligentRouterExceptions(FeignException ex, WebRequest request) throws JsonProcessingException {
         logger.log(Level.ERROR, EXCEPTION_PREFIX, ex);
         String contentUTF8 = ex.contentUTF8();
+        auditEventProducer.sendAuditData(CP_PPS, SHIFT4_API_LOG, null,"", getHeaders(request),null, CP_PPS, mapper.readValue(contentUTF8, ErrorResponse.class));
         String uri = request.getDescription(false);
         if (uri.contains("actuator")) {
             ErrorResponse er = new ErrorResponse();
@@ -215,5 +225,12 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
             errorDetails = invalidBooleanInJson.getOriginalMessage() + " for attribute -> " + errorFields;
         }
         return errorDetails;
+    }
+
+    private Map<String, String> getHeaders(WebRequest request) {
+        Iterable<String> iterable = request::getHeaderNames;
+        return StreamSupport.stream(iterable.spliterator(), false)
+                .filter(h -> headerConfigProperties.getRequiredHeaders().contains(h))
+                .collect(Collectors.toMap(h -> h, request::getHeader));
     }
 }

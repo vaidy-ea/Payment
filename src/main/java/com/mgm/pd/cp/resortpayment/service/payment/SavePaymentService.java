@@ -19,9 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public interface SavePaymentService {
     @Transactional
-    Payment saveIncrementalAuthorizationPayment(CPPaymentIncrementalAuthRequest incrementalRequest, IncrementalAuthorizationRouterResponse irResponse, Payment initialPayment) throws InvalidFormatException;
-    @Transactional
     Payment saveAuthorizationPayment(CPPaymentAuthorizationRequest authRequest, AuthorizationRouterResponse irResponse) throws InvalidFormatException;
+    @Transactional
+    Payment saveIncrementalAuthorizationPayment(CPPaymentIncrementalAuthRequest incrementalRequest, IncrementalAuthorizationRouterResponse irResponse, Payment initialPayment) throws InvalidFormatException;
     @Transactional
     Payment saveCaptureAuthPayment(CPPaymentCaptureRequest captureRequest, CaptureRouterResponse crResponse, Payment initialPayment) throws InvalidFormatException;
     @Transactional

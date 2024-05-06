@@ -16,4 +16,6 @@ public interface PaymentRepository extends JpaRepository<Payment, String> {
     Optional<List<Payment>> findByAuthChainIdOrderByUpdatedTimestampDesc(String authChainId);
 
     Optional<List<Payment>> findByPaymentAuthIdAndReferenceIdIsNullOrderByUpdatedTimestampDesc(String paymentAuthId);
+
+    Optional<List<Payment>> findByMgmTransactionId(String transactionId);
 }

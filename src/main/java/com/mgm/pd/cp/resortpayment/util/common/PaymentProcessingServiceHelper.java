@@ -46,15 +46,11 @@ import javax.validation.Valid;
 import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.FAILURE_MESSAGE;
-import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.SUCCESS_MESSAGE;
+import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.*;
 import static com.mgm.pd.cp.payment.common.constant.ReturnCode.Approved;
 import static com.mgm.pd.cp.payment.common.util.CommonService.throwExceptionIfRequiredHeadersAreMissing;
 
@@ -345,9 +341,10 @@ public class PaymentProcessingServiceHelper {
         return getLastRecordFromPaymentsList(optionalInitialAuthPayment);
     }
 
-    public Optional<Payment> validateCardVoidRequestAndReturnInitialPayment(CPPaymentCardVoidRequest request) {
+    public Optional<Payment> validateCardVoidRequestAndReturnInitialPayment(CPPaymentCardVoidRequest request, HttpHeaders headers) {
         CardVoidValidationHelper.logWarningForInvalidRequestData(request);
         CardVoidValidationHelper.throwExceptionIfRequiredFieldMissing(request);
+        CardVoidValidationHelper.throwExceptionIfDuplicateTransactionIdUsed(getPaymentDetailsByTransactionId(headers));
         Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment = getAllPayments(request);
         CardVoidValidationHelper.logWarningForInvalidRequest(optionalInitialAuthPayment, request);
         CardVoidValidationHelper.throwExceptionForInvalidAttempts(optionalInitialAuthPayment);
@@ -383,5 +380,10 @@ public class PaymentProcessingServiceHelper {
             return Pair.of(findPaymentService.getPaymentDetailsByApprovalCode(approvalCode), approvalCode);
         }
         return Pair.of(Optional.empty(), null);
+    }
+
+    private Optional<List<Payment>> getPaymentDetailsByTransactionId(HttpHeaders headers) {
+        Map<String, String> singleValueMap = headers.toSingleValueMap();
+        return findPaymentService.getPaymentDetailsByTransactionId(singleValueMap.get(MGM_TRANSACTION_ID));
     }
 }

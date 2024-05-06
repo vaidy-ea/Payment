@@ -20,18 +20,17 @@ import org.springframework.http.HttpHeaders;
  *  It is responsible to define the request and response type for each of the operation.
  */
 public interface RouterHelper {
+    /**
+     * This method takes the action for Authorization operation only.
+     * It shouldn't be called without passing the Authorization Request.
+     */
+    AuthorizationRouterResponse sendAuthorizeRequestToRouter(CPPaymentAuthorizationRequest authorizationRequest, HttpHeaders headers) throws JsonProcessingException ;
 
     /**
      * This method takes the action for IncrementalAuthorization operation only.
      * It shouldn't be called without passing the IncrementalAuthorization Request.
      */
     IncrementalAuthorizationRouterResponse sendIncrementalAuthorizationRequestToRouter(CPPaymentIncrementalAuthRequest incrementalRequest, Payment initialPayment, HttpHeaders headers) throws JsonProcessingException;
-
-    /**
-     * This method takes the action for Authorization operation only.
-     * It shouldn't be called without passing the Authorization Request.
-     */
-    AuthorizationRouterResponse sendAuthorizeRequestToRouter(CPPaymentAuthorizationRequest authorizationRequest, HttpHeaders headers) throws JsonProcessingException ;
 
     /**
      * This method takes the action for Capture operation only.

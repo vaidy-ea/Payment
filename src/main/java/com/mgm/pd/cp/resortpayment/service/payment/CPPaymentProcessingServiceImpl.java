@@ -134,7 +134,7 @@ public class CPPaymentProcessingServiceImpl implements CPPaymentProcessingServic
     @Override
     public ResponseEntity<GenericResponse> processCardVoidRequest(CPPaymentCardVoidRequest request, HttpHeaders headers) throws JsonProcessingException {
         //used for businessValidations and finding initial Payment as pre-requisite for processing of Card Void Request
-        Optional<Payment> optionalInitialPayment = serviceHelper.validateCardVoidRequestAndReturnInitialPayment(request);
+        Optional<Payment> optionalInitialPayment = serviceHelper.validateCardVoidRequestAndReturnInitialPayment(request, headers);
         //adding headers in request before sending to IR
         request = serviceHelper.mapHeadersInRequest(request, headers);
         CardVoidRouterResponse cvrResponse = null;

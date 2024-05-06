@@ -38,4 +38,11 @@ public interface FindPaymentService {
      */
     @Transactional
     Optional<List<Payment>> getPaymentDetailsByApprovalCode(String approvalCode);
+
+    /**
+     * @param transactionId: parameter to match in db records
+     * @return Optional<Payment>: List of Payments on the basis of transactionId if present
+     */
+    @Transactional
+    Optional<List<Payment>> getPaymentDetailsByTransactionId(String transactionId);
 }

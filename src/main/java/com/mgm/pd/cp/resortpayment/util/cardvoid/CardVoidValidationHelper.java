@@ -1,9 +1,9 @@
 package com.mgm.pd.cp.resortpayment.util.cardvoid;
 
 import com.mgm.pd.cp.payment.common.constant.TransactionType;
+import com.mgm.pd.cp.payment.common.exception.InvalidTransactionAttemptException;
 import com.mgm.pd.cp.payment.common.model.Payment;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
-import com.mgm.pd.cp.resortpayment.exception.InvalidTransactionAttemptException;
 import com.mgm.pd.cp.resortpayment.exception.MissingRequiredFieldException;
 import com.mgm.pd.cp.resortpayment.util.common.DateHelper;
 import lombok.experimental.UtilityClass;
@@ -69,6 +69,22 @@ public class CardVoidValidationHelper {
         LocalDate parentTransactionDate = parentTransactionDateTime.toLocalDate();
         if (currentTransactionDate.isBefore(parentTransactionDate) || currentTransactionDate.isAfter(parentTransactionDate)) {
             logger.log(Level.WARN, "transactionDateTime used for Parent Transaction: {} is different from transactionDateTime used for Void: {} for the given transactionAuthChainId: {}", parentTransactionDateTime, transactionDateTime, optionalInitialAuthPayment.getRight());
+        }
+    }
+
+    public void throwExceptionIfDuplicateTransactionIdUsed(Optional<List<Payment>> paymentsByTransactionId) {
+        if(paymentsByTransactionId.isPresent()){
+            List<Payment> paymentsList = paymentsByTransactionId.get();
+            if(!paymentsList.isEmpty()) {
+                Optional<Payment> voidTransaction = paymentsList.stream().filter(p -> TransactionType.VOID.equals(p.getTransactionType())).findFirst();
+                if (voidTransaction.isPresent()) {
+                    Payment payment = voidTransaction.get();
+                    String mgmTransactionId = payment.getMgmTransactionId();
+                    String authChainId = payment.getAuthChainId();
+                    logger.log(Level.ERROR, "Invalid Card Void Attempt, Given transactionId in Headers: {} is already used for transactionAuthChainId: {}", mgmTransactionId, authChainId);
+                    throw new InvalidTransactionAttemptException("Invalid Card Void Attempt, Given transactionId in Headers: " + mgmTransactionId + " is already used for transactionAuthChainId: " + authChainId);
+                }
+            }
         }
     }
 }

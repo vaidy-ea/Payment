@@ -45,4 +45,11 @@ public class FindPaymentServiceImpl implements FindPaymentService {
          */
         return paymentRepository.findByPaymentAuthIdAndReferenceIdIsNullOrderByUpdatedTimestampDesc(paymentAuthId);
     }
+
+    @Override
+    @Retry(name = "mgmTransactionId")
+    public Optional<List<Payment>> getPaymentDetailsByTransactionId(String transactionId) {
+        logger.log(Level.DEBUG, "Attempting to find Payment using transactionId: {} ", transactionId);
+        return paymentRepository.findByMgmTransactionId(transactionId);
+    }
 }

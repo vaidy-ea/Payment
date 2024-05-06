@@ -69,4 +69,20 @@ public class AuthorizeValidationHelper {
     public void logWarningForInvalidRequestData(CPPaymentAuthorizationRequest request) {
         DateHelper.logWarningForInvalidTransactionDate(request.getTransactionDateTime());
     }
+
+    public void throwExceptionIfDuplicateTransactionIdUsed(Optional<List<Payment>> paymentsByTransactionId) {
+        if(paymentsByTransactionId.isPresent()){
+            List<Payment> paymentsList = paymentsByTransactionId.get();
+            if(!paymentsList.isEmpty()) {
+                Optional<Payment> initialAuthTransactions = paymentsList.stream().filter(p -> Objects.isNull(p.getReferenceId()) && TransactionType.AUTHORIZE.equals(p.getTransactionType())).findFirst();
+                if (initialAuthTransactions.isPresent()) {
+                    Payment payment = initialAuthTransactions.get();
+                    String mgmTransactionId = payment.getMgmTransactionId();
+                    String authChainId = payment.getAuthChainId();
+                    logger.log(Level.ERROR, "Invalid Initial Auth Attempt, Given transactionId in Headers: {} is already used for transactionAuthChainId: {}", mgmTransactionId, authChainId);
+                    throw new InvalidTransactionAttemptException("Invalid Initial Auth Attempt, Given transactionId in Headers: " + mgmTransactionId + " is already used for transactionAuthChainId: " + authChainId);
+                }
+            }
+        }
+    }
 }

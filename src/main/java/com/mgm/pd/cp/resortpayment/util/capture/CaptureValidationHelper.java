@@ -127,4 +127,20 @@ public class CaptureValidationHelper {
     public void logWarningForInvalidRequestData(CPPaymentCaptureRequest request) {
         DateHelper.logWarningForInvalidTransactionDate(request.getTransactionDateTime());
     }
+
+    public void throwExceptionIfDuplicateTransactionIdUsed(Optional<List<Payment>> paymentsByTransactionId) {
+        if(paymentsByTransactionId.isPresent()){
+            List<Payment> paymentsList = paymentsByTransactionId.get();
+            if(!paymentsList.isEmpty()) {
+                Optional<Payment> captureTransactions = paymentsList.stream().filter(p -> TransactionType.CAPTURE.equals(p.getTransactionType())).findFirst();
+                if (captureTransactions.isPresent()) {
+                    Payment payment = captureTransactions.get();
+                    String mgmTransactionId = payment.getMgmTransactionId();
+                    String authChainId = payment.getAuthChainId();
+                    logger.log(Level.ERROR, "Invalid Capture Attempt, Given transactionId in Headers: {} is already used for transactionAuthChainId: {}", mgmTransactionId, authChainId);
+                    throw new InvalidTransactionAttemptException("Invalid Capture Attempt, Given transactionId in Headers: " + mgmTransactionId + " is already used for transactionAuthChainId: " + authChainId);
+                }
+            }
+        }
+    }
 }

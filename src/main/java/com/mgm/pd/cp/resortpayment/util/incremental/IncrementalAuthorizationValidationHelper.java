@@ -137,4 +137,21 @@ public class IncrementalAuthorizationValidationHelper {
             logger.log(Level.WARN, "Client Id used is different for Initial Auth and Incremental Auth for the given transactionAuthChainId: {}", optionalInitialAuthPayment.getRight());
         }
     }
+
+    public void throwExceptionIfDuplicateTransactionIdUsed(Optional<List<Payment>> paymentsByTransactionId) {
+        if(paymentsByTransactionId.isPresent()){
+            List<Payment> paymentsList = paymentsByTransactionId.get();
+            if(!paymentsList.isEmpty()) {
+                Optional<Payment> incrementalAuthTransactions = paymentsList.stream().filter(p -> Objects.nonNull(p.getReferenceId()) && AuthType.SUPP.equals(p.getAuthSubType())
+                        && TransactionType.AUTHORIZE.equals(p.getTransactionType())).findFirst();
+                if (incrementalAuthTransactions.isPresent()) {
+                    Payment payment = incrementalAuthTransactions.get();
+                    String mgmTransactionId = payment.getMgmTransactionId();
+                    String authChainId = payment.getAuthChainId();
+                    logger.log(Level.ERROR, "Invalid Incremental Authorization Attempt, Given transactionId in Headers: {} is already used for transactionAuthChainId: {}", mgmTransactionId, authChainId);
+                    throw new InvalidTransactionAttemptException("Invalid Incremental Authorization Attempt, Given transactionId in Headers: " + mgmTransactionId + " is already used for transactionAuthChainId: " + authChainId);
+                }
+            }
+        }
+    }
 }

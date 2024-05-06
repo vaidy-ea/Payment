@@ -47,7 +47,7 @@ public class CPPaymentProcessingServiceImpl implements CPPaymentProcessingServic
     @Override
     public ResponseEntity<GenericResponse> processAuthorizeRequest(CPPaymentAuthorizationRequest request, HttpHeaders headers) throws JsonProcessingException, ParseException {
         //Used for business Validations of Authorize Request
-        serviceHelper.validateAuthorizeRequest(request);
+        serviceHelper.validateAuthorizeRequest(request, headers);
         //adding headers in request before sending to IR
         request = serviceHelper.mapHeadersInRequest(request, headers);
         AuthorizationRouterResponse authRouterResponse = null;
@@ -163,7 +163,7 @@ public class CPPaymentProcessingServiceImpl implements CPPaymentProcessingServic
     @Override
     public ResponseEntity<GenericResponse> processRefundRequest(CPPaymentRefundRequest request, HttpHeaders headers) throws JsonProcessingException {
         //used for businessValidations of Refund Request
-        Optional<Payment> optionalInitialPayment = serviceHelper.validateRefundRequest(request);
+        Optional<Payment> optionalInitialPayment = serviceHelper.validateRefundRequest(request, headers);
         //adding headers in request before sending to IR
         request = serviceHelper.mapHeadersInRequest(request, headers);
         RefundRouterResponse rrResponse = null;

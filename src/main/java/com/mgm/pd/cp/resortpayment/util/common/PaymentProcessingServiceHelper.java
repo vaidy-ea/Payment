@@ -320,13 +320,15 @@ public class PaymentProcessingServiceHelper {
         }
     }
 
-    public void validateAuthorizeRequest(CPPaymentAuthorizationRequest request) throws ParseException {
+    public void validateAuthorizeRequest(CPPaymentAuthorizationRequest request, HttpHeaders headers) throws ParseException {
+        AuthorizeValidationHelper.throwExceptionIfDuplicateTransactionIdUsed(getPaymentDetailsByTransactionId(headers));
         AuthorizeValidationHelper.logWarningForInvalidRequestData(request);
         Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment = getAllPayments(request);
         AuthorizeValidationHelper.throwExceptionForInvalidAttempts(request, optionalInitialAuthPayment);
     }
 
     public Optional<Payment> validateIncrementalAuthorizationRequestAndReturnInitialPayment(CPPaymentIncrementalAuthRequest request, HttpHeaders headers) throws ParseException {
+        IncrementalAuthorizationValidationHelper.throwExceptionIfDuplicateTransactionIdUsed(getPaymentDetailsByTransactionId(headers));
         Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment = getAllPayments(request);
         IncrementalAuthorizationValidationHelper.logWarningForInvalidRequest(headers, optionalInitialAuthPayment, request);
         IncrementalAuthorizationValidationHelper.throwExceptionForInvalidAttempts(request, optionalInitialAuthPayment);
@@ -335,6 +337,7 @@ public class PaymentProcessingServiceHelper {
 
     public Optional<Payment> validateCaptureRequestAndReturnInitialPayment(CPPaymentCaptureRequest request, HttpHeaders headers) throws ParseException {
         CaptureValidationHelper.logWarningForInvalidRequestData(request);
+        CaptureValidationHelper.throwExceptionIfDuplicateTransactionIdUsed(getPaymentDetailsByTransactionId(headers));
         Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment = getAllPayments(request);
         CaptureValidationHelper.logWarningForInvalidRequest(headers, optionalInitialAuthPayment, request);
         CaptureValidationHelper.throwExceptionForInvalidAttempts(request, optionalInitialAuthPayment);
@@ -351,8 +354,9 @@ public class PaymentProcessingServiceHelper {
         return getLastRecordFromPaymentsList(optionalInitialAuthPayment);
     }
 
-    public Optional<Payment> validateRefundRequest(CPPaymentRefundRequest request) {
+    public Optional<Payment> validateRefundRequest(CPPaymentRefundRequest request, HttpHeaders headers) {
         RefundValidationHelper.logWarningForInvalidRequestData(request);
+        RefundValidationHelper.throwExceptionIfDuplicateTransactionIdUsed(getPaymentDetailsByTransactionId(headers));
         Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment = getAllPayments(request);
         Pair<Optional<Payment>, String> initialPaymentAndApprovalCode = getInitialPaymentByApprovalCode(getPaymentDetailsByApprovalCode(request.getTransactionDetails().getApprovalCode()));
         RefundValidationHelper.throwExceptionForInvalidAttempts(optionalInitialAuthPayment, initialPaymentAndApprovalCode);

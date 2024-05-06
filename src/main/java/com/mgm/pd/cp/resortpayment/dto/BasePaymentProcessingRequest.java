@@ -14,7 +14,10 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+
+import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.ALPHA_NUMERIC_AND_SPACE;
 
 @Data
 @Builder
@@ -23,6 +26,7 @@ import javax.validation.constraints.Size;
 public class BasePaymentProcessingRequest {
     @NotBlank(message = "transactionIdentifier can't be empty or NULL")
     @Size(max = 40, message = "transactionIdentifier exceed the permissible length")
+    @Pattern(regexp = ALPHA_NUMERIC_AND_SPACE, message = "transactionIdentifier is allowed to have only alpha numeric or space")
     private String transactionIdentifier;
 
     @Size(max = 40, message = "originalTransactionIdentifier exceed the permissible length")

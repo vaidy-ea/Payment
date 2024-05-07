@@ -26,7 +26,7 @@ public class CurrencyConversion implements Serializable {
     @Valid @Enumerated(EnumType.STRING)
     private BooleanValue conversionFlag;
 
-    @ValidCurrencyCode(message = "Invalid binCurrencyCode")
+    @ValidCurrencyCode(message = "Invalid binCurrencyCode", optional = true)
     @Size(max = 3, message = "binCurrencyCode exceeds the permissible length of 3")
     private String binCurrencyCode;
 

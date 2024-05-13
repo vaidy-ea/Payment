@@ -68,4 +68,16 @@ public class RefundValidationHelper {
             }
         }
     }
+
+    public void throwExceptionIfCardPresentIsTrue(CPPaymentRefundRequest request) {
+        Boolean isCardPresent = request.getTransactionDetails().getIsCardPresent();
+        if (Objects.nonNull(isCardPresent) && isCardPresent) {
+            logger.log(Level.ERROR, "Invalid Refund Auth Attempt, isCardPresent field should be false");
+            throw new InvalidTransactionAttemptException("Invalid Refund Auth Attempt, isCardPresent field should be false");
+        }
+    }
+
+    public void throwExceptionForInvalidRequest(CPPaymentRefundRequest request) {
+        throwExceptionIfCardPresentIsTrue(request);
+    }
 }

@@ -13,7 +13,9 @@ public class DateHelper {
     public void logWarningForInvalidTransactionDate(String transactionDateTime) {
         LocalDate transactionDate = ZonedDateTime.parse(transactionDateTime).toLocalDate();
         LocalDate currentDate = LocalDate.now();
-        if (transactionDate.isAfter(currentDate) || transactionDate.isBefore(currentDate)) {
+        boolean after = transactionDate.isAfter(currentDate);
+        boolean before = transactionDate.isBefore(currentDate);
+        if (after || before) {
             logger.log(Level.WARN, "transactionDateTime in request is either Future or Past Date: {}", transactionDate);
         }
     }

@@ -23,21 +23,21 @@ public class FindPaymentServiceImpl implements FindPaymentService {
     @Override
     @Retry(name = "authChainIdAndAuthSubType")
     public Optional<List<Payment>> getPaymentDetails(String authChainId, @Valid AuthType authSubType) {
-        logger.log(Level.DEBUG, "Attempting to find Initial Auth from Payment DB using authChainId: {} and authSubType: {}", authChainId, authSubType);
+        logger.log(Level.INFO, "Attempting to find Initial Auth from Payment DB using authChainId: {} and authSubType: {}", authChainId, authSubType);
         return paymentRepository.findByAuthChainIdAndAuthSubType(authChainId, authSubType);
     }
 
     @Override
     @Retry(name = "authChainId")
     public Optional<List<Payment>> getPaymentDetails(String authChainId) {
-        logger.log(Level.DEBUG, "Attempting to find Initial Auth from Payment DB using authChainId: {}", authChainId);
+        logger.log(Level.INFO, "Attempting to find Initial Auth from Payment DB using authChainId: {}", authChainId);
         return paymentRepository.findByAuthChainIdOrderByUpdatedTimestampDesc(authChainId);
     }
 
     @Override
     @Retry(name = "paymentAuthIdAndReferenceId")
     public Optional<List<Payment>> getPaymentDetailsByApprovalCode(String paymentAuthId) {
-        logger.log(Level.DEBUG, "Attempting to find Initial Auth Payments from Payment DB using paymentAuthId: {}", paymentAuthId);
+        logger.log(Level.INFO, "Attempting to find Initial Auth Payments from Payment DB using paymentAuthId: {}", paymentAuthId);
         /*
          * this will return payments which belongs to Transaction_Type:
          * 1. Authorize - Initial Auth/Incremental Auth
@@ -49,7 +49,7 @@ public class FindPaymentServiceImpl implements FindPaymentService {
     @Override
     @Retry(name = "mgmTransactionId")
     public Optional<List<Payment>> getPaymentDetailsByTransactionId(String transactionId) {
-        logger.log(Level.DEBUG, "Attempting to find Payment using transactionId: {} ", transactionId);
+        logger.log(Level.INFO, "Attempting to find Payment using transactionId: {} ", transactionId);
         return paymentRepository.findByMgmTransactionId(transactionId);
     }
 }

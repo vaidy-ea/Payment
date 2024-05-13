@@ -6,7 +6,7 @@
   "transactionLOB": "Parking",
   "transactionType": "DEPOSIT",
   "transactionDetails": {
-    "isCardPresent": true,
+    "isCardPresent": false,
     "transactionAmount": {
       "balanceAmount": 500,
       "requestedAmount": 100,

@@ -42,10 +42,7 @@ public class CaptureValidationHelper {
         }
     }
 
-    public void throwExceptionForInvalidAttempts(CPPaymentCaptureRequest request, Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment) throws ParseException {
-        throwExceptionIfRequiredFieldMissing(request);
-        throwExceptionIfTransactionTypeIsInvalid(request);
-        throwExceptionIfCardIsExpired(request);
+    public void throwExceptionForInvalidAttempts(CPPaymentCaptureRequest request, Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment) {
         Optional<List<Payment>> optionalPaymentList = optionalInitialAuthPayment.getLeft();
         if(optionalPaymentList.isPresent()) {
             List<Payment> payments = optionalPaymentList.get();
@@ -142,5 +139,20 @@ public class CaptureValidationHelper {
                 }
             }
         }
+    }
+
+    public void throwExceptionIfCardPresentIsTrue(CPPaymentCaptureRequest request) {
+        Boolean isCardPresent = request.getTransactionDetails().getIsCardPresent();
+        if (Objects.nonNull(isCardPresent) && isCardPresent) {
+            logger.log(Level.ERROR, "Invalid Capture Auth Attempt, isCardPresent field should be false");
+            throw new InvalidTransactionAttemptException("Invalid Capture Auth Attempt, isCardPresent field should be false");
+        }
+    }
+
+    public void throwExceptionForInvalidRequest(CPPaymentCaptureRequest request) throws ParseException {
+        throwExceptionIfRequiredFieldMissing(request);
+        throwExceptionIfTransactionTypeIsInvalid(request);
+        throwExceptionIfCardIsExpired(request);
+        throwExceptionIfCardPresentIsTrue(request);
     }
 }

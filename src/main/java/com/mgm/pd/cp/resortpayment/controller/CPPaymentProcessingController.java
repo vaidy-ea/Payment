@@ -46,7 +46,7 @@ public class CPPaymentProcessingController {
      */
     @PostMapping("/authorize")
     public ResponseEntity<GenericResponse> authorize(@RequestHeader HttpHeaders headers, @Valid @RequestBody CPPaymentAuthorizationRequest cpPaymentAuthorizationRequest) throws JsonProcessingException, ParseException {
-        logger.log(Level.DEBUG, "Authorize Request is: {}", cpPaymentAuthorizationRequest);
+        logger.log(Level.INFO, "Authorize Request is: {}", cpPaymentAuthorizationRequest);
         return processPayload(cpPaymentAuthorizationRequest, headers);
     }
 
@@ -59,7 +59,7 @@ public class CPPaymentProcessingController {
      */
     @PostMapping("/authorize/incremental")
     public ResponseEntity<GenericResponse> incrementalAuth(@RequestHeader HttpHeaders headers, @Valid @RequestBody CPPaymentIncrementalAuthRequest request) throws JsonProcessingException, ParseException {
-        logger.log(Level.DEBUG, "IncrementalAuth Request is: {}", request);
+        logger.log(Level.INFO, "IncrementalAuth Request is: {}", request);
         return processPayload(request, headers);
     }
 
@@ -72,7 +72,7 @@ public class CPPaymentProcessingController {
      */
     @PostMapping("/capture")
     public ResponseEntity<GenericResponse> capture(@RequestHeader HttpHeaders headers, @Valid @RequestBody CPPaymentCaptureRequest cpPaymentCaptureRequest) throws JsonProcessingException, ParseException {
-        logger.log(Level.DEBUG, "Capture Request is: {}", cpPaymentCaptureRequest);
+        logger.log(Level.INFO, "Capture Request is: {}", cpPaymentCaptureRequest);
         return processPayload(cpPaymentCaptureRequest, headers);
     }
 
@@ -84,7 +84,7 @@ public class CPPaymentProcessingController {
      */
     @PostMapping("/void")
     public ResponseEntity<GenericResponse> cardVoid(@RequestHeader HttpHeaders headers, @Valid @RequestBody CPPaymentCardVoidRequest cpPaymentCardVoidRequest) throws JsonProcessingException {
-        logger.log(Level.DEBUG, "CardVoid Request is: {}", cpPaymentCardVoidRequest);
+        logger.log(Level.INFO, "CardVoid Request is: {}", cpPaymentCardVoidRequest);
         return processPayload(cpPaymentCardVoidRequest, headers);
     }
 
@@ -96,7 +96,7 @@ public class CPPaymentProcessingController {
      */
     @PostMapping("/refund")
     public ResponseEntity<GenericResponse> refund(@RequestHeader HttpHeaders headers, @Valid @RequestBody CPPaymentRefundRequest cpPaymentRefundRequest) throws JsonProcessingException {
-        logger.log(Level.DEBUG, "Refund Request is: {}", cpPaymentRefundRequest);
+        logger.log(Level.INFO, "Refund Request is: {}", cpPaymentRefundRequest);
         return processPayload(cpPaymentRefundRequest, headers);
     }
 

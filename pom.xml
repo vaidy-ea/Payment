@@ -21,7 +21,7 @@
 		<dependency>
 			<groupId>com.mgm.pd.cp.common</groupId>
 			<artifactId>common-lib</artifactId>
-			<version>1.42</version>
+			<version>1.44</version>
 		</dependency>
 		<dependency>
 			<groupId>org.flywaydb</groupId>
@@ -132,9 +132,9 @@
 				<configuration>
 					<excludes>
 						<exclude>**/dto/**</exclude>
-						<exclude>**/constants/*</exclude>
-						<exclude>**/exception/*</exclude>
 						<exclude>com/mgm/pd/cp/resortpayment/CPPaymentProcessing.class</exclude>
+						<!--<exclude>**/constants/*</exclude>
+						<exclude>**/exception/*</exclude>-->
 					</excludes>
 				</configuration>
 				<executions>

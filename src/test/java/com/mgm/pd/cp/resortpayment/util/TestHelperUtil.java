@@ -121,7 +121,7 @@ public class TestHelperUtil {
 		return incrementalAuthRequest;
 	}
 
-	private static CPRequestHeaders buildCustomHeaders() {
+	public static CPRequestHeaders buildCustomHeaders() {
 		return CPRequestHeaders.builder().channel(MGMChannel.POS).source("testSource").transactionId("testTransaction")
 				.journeyId("testJourney").correlationId("testCorrelation").clientId("testClient").authorization("testAuth").build();
 	}

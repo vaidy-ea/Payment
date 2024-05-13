@@ -48,15 +48,11 @@ public class IncrementalAuthorizationValidationHelper {
         if(Objects.nonNull(transactionType) && !APPROVED_INCREMENTAL_AUTHORIZATION_TRANSACTION_TYPES.contains(transactionType)) {
             logger.log(Level.WARN, "Invalid Transaction Type received in Incremental Auth request is: {}", transactionType);
             logger.log(Level.ERROR, "Invalid Transaction Type received in Incremental Auth request is: {}", transactionType);
-            throw new InvalidTransactionTypeException("Invalid field transactionType, Possible values is/are: "+ APPROVED_INCREMENTAL_AUTHORIZATION_TRANSACTION_TYPES);
+            throw new InvalidTransactionTypeException("Invalid field transactionType, Possible values is/are: " + APPROVED_INCREMENTAL_AUTHORIZATION_TRANSACTION_TYPES);
         }
     }
 
-    public void throwExceptionForInvalidAttempts(CPPaymentIncrementalAuthRequest request, Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment) throws ParseException {
-        throwExceptionIfRequiredFieldMissing(request);
-        throwExceptionIfTransactionTypeIsInvalid(request);
-        throwExceptionIfCardIsExpired(request);
-        throwExceptionIfCumulativeAmountIsLessThanRequestedAmount(request);
+    public void throwExceptionForInvalidAttempts(CPPaymentIncrementalAuthRequest request, Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment) {
         Optional<List<Payment>> optionalPaymentList = optionalInitialAuthPayment.getLeft();
         if(optionalPaymentList.isPresent()) {
             List<Payment> payments = optionalPaymentList.get();
@@ -153,5 +149,21 @@ public class IncrementalAuthorizationValidationHelper {
                 }
             }
         }
+    }
+
+    public void throwExceptionIfCardPresentIsTrue(CPPaymentIncrementalAuthRequest request) {
+        Boolean isCardPresent = request.getTransactionDetails().getIsCardPresent();
+        if (Objects.nonNull(isCardPresent) && isCardPresent) {
+            logger.log(Level.ERROR, "Invalid Incremental Auth Attempt, isCardPresent field should be false");
+            throw new InvalidTransactionAttemptException("Invalid Incremental Auth Attempt, isCardPresent field should be false");
+        }
+    }
+
+    public void throwExceptionForInvalidRequest(CPPaymentIncrementalAuthRequest request) throws ParseException {
+        throwExceptionIfRequiredFieldMissing(request);
+        throwExceptionIfTransactionTypeIsInvalid(request);
+        throwExceptionIfCardIsExpired(request);
+        throwExceptionIfCumulativeAmountIsLessThanRequestedAmount(request);
+        throwExceptionIfCardPresentIsTrue(request);
     }
 }

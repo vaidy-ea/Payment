@@ -1,6 +1,7 @@
 package com.mgm.pd.cp.resortpayment.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.mgm.pd.cp.payment.common.constant.AuthType;
 import com.mgm.pd.cp.payment.common.constant.TransactionLOB;
 import com.mgm.pd.cp.payment.common.dto.CPRequestHeaders;
 import com.mgm.pd.cp.payment.common.validation.deserializer.TransactionLOBDeserializer;
@@ -39,6 +40,9 @@ public class BasePaymentProcessingRequest {
     @Valid @Enumerated(EnumType.STRING)
     @JsonDeserialize(using = TransactionLOBDeserializer.class)
     private TransactionLOB transactionLOB;
+
+    @Valid @Enumerated(EnumType.STRING)
+    private AuthType transactionType;
 
     private String referenceId;
 

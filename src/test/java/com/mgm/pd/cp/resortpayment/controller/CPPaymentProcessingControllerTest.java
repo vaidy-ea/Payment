@@ -3,12 +3,18 @@ package com.mgm.pd.cp.resortpayment.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import com.mgm.pd.cp.payment.common.constant.AuthType;
+import com.mgm.pd.cp.payment.common.constant.TransactionType;
+import com.mgm.pd.cp.payment.common.exception.InvalidTransactionAttemptException;
+import com.mgm.pd.cp.payment.common.exception.MissingHeaderException;
+import com.mgm.pd.cp.payment.common.model.Payment;
 import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
 import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalAuthRequest;
 import com.mgm.pd.cp.resortpayment.dto.refund.CPPaymentRefundRequest;
 import com.mgm.pd.cp.resortpayment.dto.router.RouterRequest;
+import com.mgm.pd.cp.resortpayment.exception.InvalidTransactionTypeException;
+import com.mgm.pd.cp.resortpayment.exception.MissingRequiredFieldException;
 import com.mgm.pd.cp.resortpayment.repository.PaymentRepository;
 import com.mgm.pd.cp.resortpayment.service.payment.CPPaymentProcessingService;
 import com.mgm.pd.cp.resortpayment.service.payment.FindPaymentService;
@@ -35,8 +41,10 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.INVALID_REQUEST_PARAMETERS;
 
@@ -69,6 +77,67 @@ public class CPPaymentProcessingControllerTest {
     @AfterEach
     public void deletePaymentRecords() {
         paymentRepository.deleteAll();
+    }
+
+    @Test
+    void when_throw_MissingHeader_exception() throws Exception {
+        //given
+        CPPaymentIncrementalAuthRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
+        //when
+        HttpHeaders headers = TestHelperUtil.getHeaders();
+        headers.remove("authorization");
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(INCREMENTAL_AUTH_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(headers);
+        MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().is4xxClientError()).andReturn();
+        //then
+        Assertions.assertInstanceOf(MissingHeaderException.class, mvcResult.getResolvedException());
+    }
+
+    @Test
+    void when_throw_InvalidTransactionTypeException() throws Exception {
+        //given
+        CPPaymentIncrementalAuthRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
+        mockRequest.setTransactionType(AuthType.INIT);
+        //when
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(INCREMENTAL_AUTH_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(TestHelperUtil.getHeaders());
+        MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().is4xxClientError()).andReturn();
+        //then
+        Assertions.assertInstanceOf(InvalidTransactionTypeException.class, mvcResult.getResolvedException());
+    }
+
+    @Test
+    void when_throw_MissingRequiredFieldException() throws Exception {
+        //given
+        CPPaymentIncrementalAuthRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
+        mockRequest.setTransactionAuthChainId(null);
+        //when
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(INCREMENTAL_AUTH_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(TestHelperUtil.getHeaders());
+        MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().is4xxClientError()).andReturn();
+        //then
+        Assertions.assertInstanceOf(MissingRequiredFieldException.class, mvcResult.getResolvedException());
+    }
+
+    @Test
+    void when_throw_MethodArgumentNotValidException() throws Exception {
+        //given
+        CPPaymentIncrementalAuthRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
+        mockRequest.setTransactionAuthChainId("12345678910");
+        //when
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(INCREMENTAL_AUTH_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(TestHelperUtil.getHeaders());
+        MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().is4xxClientError()).andReturn();
+        //then
+        Assertions.assertInstanceOf(MethodArgumentNotValidException.class, mvcResult.getResolvedException());
     }
 
     @Test
@@ -504,5 +573,22 @@ public class CPPaymentProcessingControllerTest {
         Assertions.assertEquals(INVALID_REQUEST_PARAMETERS, JsonPath.read(responseJson, "$.title"));
         List<String> errorList = JsonPath.read(responseJson, "$.messages");
         Assertions.assertEquals(2, errorList.size());
+    }
+
+    @Test
+    void when_provided_card_void_payment_payload_but_voi_already_done_then_should_throw_exception() throws Exception {
+        //given
+        CPPaymentCardVoidRequest mockRequest = TestHelperUtil.getVoidPaymentRequest();
+        Optional<List<Payment>> initialPayment = TestHelperUtil.getInitialPayment();
+        initialPayment.get().stream().findFirst().get().setTransactionType(TransactionType.VOID);
+        Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyString())).thenReturn(initialPayment);
+        //when
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(VOID_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(TestHelperUtil.getHeaders());
+        MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().is4xxClientError()).andReturn();
+        //then
+        Assertions.assertInstanceOf(InvalidTransactionAttemptException.class, mvcResult.getResolvedException());
     }
 }

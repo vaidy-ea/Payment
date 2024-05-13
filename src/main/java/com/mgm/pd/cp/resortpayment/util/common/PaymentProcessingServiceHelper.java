@@ -90,7 +90,7 @@ public class PaymentProcessingServiceHelper {
                 }
             }
         }
-        return null;
+        return new LinkedHashMap<>();
     }
 
     /**
@@ -321,13 +321,15 @@ public class PaymentProcessingServiceHelper {
     }
 
     public void validateAuthorizeRequest(CPPaymentAuthorizationRequest request, HttpHeaders headers) throws ParseException {
-        AuthorizeValidationHelper.throwExceptionIfDuplicateTransactionIdUsed(getPaymentDetailsByTransactionId(headers));
         AuthorizeValidationHelper.logWarningForInvalidRequestData(request);
+        AuthorizeValidationHelper.throwExceptionForInvalidRequest(request);
+        AuthorizeValidationHelper.throwExceptionIfDuplicateTransactionIdUsed(getPaymentDetailsByTransactionId(headers));
         Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment = getAllPayments(request);
-        AuthorizeValidationHelper.throwExceptionForInvalidAttempts(request, optionalInitialAuthPayment);
+        AuthorizeValidationHelper.throwExceptionForInvalidAttempts(optionalInitialAuthPayment);
     }
 
     public Optional<Payment> validateIncrementalAuthorizationRequestAndReturnInitialPayment(CPPaymentIncrementalAuthRequest request, HttpHeaders headers) throws ParseException {
+        IncrementalAuthorizationValidationHelper.throwExceptionForInvalidRequest(request);
         IncrementalAuthorizationValidationHelper.throwExceptionIfDuplicateTransactionIdUsed(getPaymentDetailsByTransactionId(headers));
         Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment = getAllPayments(request);
         IncrementalAuthorizationValidationHelper.logWarningForInvalidRequest(headers, optionalInitialAuthPayment, request);
@@ -337,6 +339,7 @@ public class PaymentProcessingServiceHelper {
 
     public Optional<Payment> validateCaptureRequestAndReturnInitialPayment(CPPaymentCaptureRequest request, HttpHeaders headers) throws ParseException {
         CaptureValidationHelper.logWarningForInvalidRequestData(request);
+        CaptureValidationHelper.throwExceptionForInvalidRequest(request);
         CaptureValidationHelper.throwExceptionIfDuplicateTransactionIdUsed(getPaymentDetailsByTransactionId(headers));
         Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment = getAllPayments(request);
         CaptureValidationHelper.logWarningForInvalidRequest(headers, optionalInitialAuthPayment, request);
@@ -346,7 +349,7 @@ public class PaymentProcessingServiceHelper {
 
     public Optional<Payment> validateCardVoidRequestAndReturnInitialPayment(CPPaymentCardVoidRequest request, HttpHeaders headers) {
         CardVoidValidationHelper.logWarningForInvalidRequestData(request);
-        CardVoidValidationHelper.throwExceptionIfRequiredFieldMissing(request);
+        CardVoidValidationHelper.throwExceptionForInvalidRequest(request);
         CardVoidValidationHelper.throwExceptionIfDuplicateTransactionIdUsed(getPaymentDetailsByTransactionId(headers));
         Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment = getAllPayments(request);
         CardVoidValidationHelper.logWarningForInvalidRequest(optionalInitialAuthPayment, request);
@@ -356,6 +359,7 @@ public class PaymentProcessingServiceHelper {
 
     public Optional<Payment> validateRefundRequest(CPPaymentRefundRequest request, HttpHeaders headers) {
         RefundValidationHelper.logWarningForInvalidRequestData(request);
+        RefundValidationHelper.throwExceptionForInvalidRequest(request);
         RefundValidationHelper.throwExceptionIfDuplicateTransactionIdUsed(getPaymentDetailsByTransactionId(headers));
         Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment = getAllPayments(request);
         Pair<Optional<Payment>, String> initialPaymentAndApprovalCode = getInitialPaymentByApprovalCode(getPaymentDetailsByApprovalCode(request.getTransactionDetails().getApprovalCode()));
@@ -371,7 +375,7 @@ public class PaymentProcessingServiceHelper {
                 List<Payment> payments = optionalPaymentList.get();
                 if (!payments.isEmpty()) {
                     Optional<Payment> firstInitialPayment = payments.stream().filter(p -> TransactionType.AUTHORIZE.equals(p.getTransactionType()) && !AuthType.SUPP.equals(p.getAuthSubType())).findFirst();
-                    logger.log(Level.DEBUG, "PaymentId of initialAuth associated with Refund is: {}", firstInitialPayment.get().getPaymentId());
+                    logger.log(Level.INFO, "PaymentId of initialAuth associated with Refund is: {}", firstInitialPayment.get().getPaymentId());
                     return Pair.of(firstInitialPayment, approvalCode);
                 }
             }

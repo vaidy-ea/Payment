@@ -31,7 +31,7 @@ public class AuthorizeValidationHelper {
         if(Objects.nonNull(transactionType) && !APPROVED_AUTHORIZATION_TRANSACTION_TYPES.contains(transactionType)) {
             logger.log(Level.WARN, "Invalid Transaction Type received in Initial Auth request is: {}", transactionType);
             logger.log(Level.ERROR, "Invalid Transaction Type received in Initial Auth request is: {}", transactionType);
-            throw new InvalidTransactionTypeException("Invalid field transactionType, Possible values is/are: "+ APPROVED_AUTHORIZATION_TRANSACTION_TYPES);
+            throw new InvalidTransactionTypeException("Invalid field transactionType, Possible values is/are: " + APPROVED_AUTHORIZATION_TRANSACTION_TYPES);
         }
     }
 
@@ -47,9 +47,7 @@ public class AuthorizeValidationHelper {
         }
     }
 
-    public void throwExceptionForInvalidAttempts(CPPaymentAuthorizationRequest request, Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment) throws ParseException {
-        throwExceptionIfTransactionTypeIsInvalid(request);
-        throwExceptionIfCardIsExpired(request);
+    public void throwExceptionForInvalidAttempts(Pair<Optional<List<Payment>>, String> optionalInitialAuthPayment) {
         Optional<List<Payment>> optionalPaymentList = optionalInitialAuthPayment.getLeft();
         if(optionalPaymentList.isPresent()) {
             List<Payment> payments = optionalPaymentList.get();
@@ -84,5 +82,19 @@ public class AuthorizeValidationHelper {
                 }
             }
         }
+    }
+
+    public void throwExceptionIfCardPresentIsTrue(CPPaymentAuthorizationRequest request) {
+        Boolean isCardPresent = request.getTransactionDetails().getIsCardPresent();
+        if (Objects.nonNull(isCardPresent) && isCardPresent) {
+            logger.log(Level.ERROR, "Invalid Initial Auth Attempt, isCardPresent field should be false");
+            throw new InvalidTransactionAttemptException("Invalid Initial Auth Attempt, isCardPresent field should be false");
+        }
+    }
+
+    public void throwExceptionForInvalidRequest(CPPaymentAuthorizationRequest request) throws ParseException {
+        throwExceptionIfCardPresentIsTrue(request);
+        throwExceptionIfTransactionTypeIsInvalid(request);
+        throwExceptionIfCardIsExpired(request);
     }
 }

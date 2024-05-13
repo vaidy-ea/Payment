@@ -247,6 +247,7 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .mgmJourneyId(headers.getJourneyId())
                 .mgmTransactionId(headers.getTransactionId())
                 .cardEntryMode(card.getCardEntryMode())
+                .authSubType(request.getTransactionType())
                 .tenderType(String.valueOf(TenderType.CREDIT))
                 .issuerType(Objects.nonNull(enumByString) ? IssuerType.valueOf(enumByString) : null)
                 .updatedTimestamp(LocalDateTime.now());

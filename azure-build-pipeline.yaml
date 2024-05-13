@@ -2,7 +2,6 @@ trigger:
   branches:
     include:
       - develop
-      - feature/pps_v1.0
  
 pool:
   vmImage: ubuntu-latest

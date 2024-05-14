@@ -67,7 +67,6 @@
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
-			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -132,9 +131,6 @@
 				<configuration>
 					<excludes>
 						<exclude>**/dto/**</exclude>
-						<exclude>com/mgm/pd/cp/resortpayment/CPPaymentProcessing.class</exclude>
-						<!--<exclude>**/constants/*</exclude>
-						<exclude>**/exception/*</exclude>-->
 					</excludes>
 				</configuration>
 				<executions>

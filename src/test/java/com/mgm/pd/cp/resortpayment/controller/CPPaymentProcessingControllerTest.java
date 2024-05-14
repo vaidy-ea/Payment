@@ -1,5 +1,6 @@
 package com.mgm.pd.cp.resortpayment.controller;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import com.mgm.pd.cp.payment.common.constant.AuthType;
@@ -36,13 +37,17 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,6 +75,8 @@ public class CPPaymentProcessingControllerTest {
     private FindPaymentService findPaymentService;
     @Autowired
     PaymentRepository paymentRepository;
+    @MockBean
+    WebRequest webRequest;
     @BeforeEach
     public void deletePaymentRecord() {
         paymentRepository.deleteAll();
@@ -590,5 +597,68 @@ public class CPPaymentProcessingControllerTest {
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().is4xxClientError()).andReturn();
         //then
         Assertions.assertInstanceOf(InvalidTransactionAttemptException.class, mvcResult.getResolvedException());
+    }
+
+    @Test
+    void should_throwHttpMessageNotReadableException() throws Exception {
+        //given
+        CPPaymentCardVoidRequest mockRequest = TestHelperUtil.getVoidPaymentRequest();
+        HttpMessageNotReadableException mockEx = Mockito.mock(HttpMessageNotReadableException.class);
+        Mockito.when(mockEx.getCause()).thenReturn(new JsonMappingException("NotValid"));
+        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenThrow(mockEx);
+        //when
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(VOID_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(TestHelperUtil.getHeaders());
+        MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().is4xxClientError()).andReturn();
+        //then
+        Assertions.assertInstanceOf(HttpMessageNotReadableException.class, mvcResult.getResolvedException());
+    }
+
+    @Test
+    void should_throwIllegalArgumentException() throws Exception {
+        //given
+        CPPaymentCardVoidRequest mockRequest = TestHelperUtil.getVoidPaymentRequest();
+        IllegalArgumentException mockEx = Mockito.mock(IllegalArgumentException.class);
+        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenThrow(mockEx);
+        //when
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(VOID_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(TestHelperUtil.getHeaders());
+        MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().is4xxClientError()).andReturn();
+        //then
+        Assertions.assertInstanceOf(IllegalArgumentException.class, mvcResult.getResolvedException());
+    }
+
+    @Test
+    void should_throwDateTimeParseException() throws Exception {
+        //given
+        CPPaymentCardVoidRequest mockRequest = TestHelperUtil.getVoidPaymentRequest();
+        DateTimeParseException mockEx = Mockito.mock(DateTimeParseException.class);
+        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenThrow(mockEx);
+        //when
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(VOID_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(TestHelperUtil.getHeaders());
+        MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().is4xxClientError()).andReturn();
+        //then
+        Assertions.assertInstanceOf(DateTimeParseException.class, mvcResult.getResolvedException());
+    }
+
+    @Test
+    void should_throwNoHandlerFoundException() throws Exception {
+        //given
+        CPPaymentIncrementalAuthRequest mockRequest = TestHelperUtil.getIncrementalAuthRequest();
+        //when
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post("/vvoid")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(mockRequest))
+                .headers(TestHelperUtil.getHeaders());
+        MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
+        //then
+        Assertions.assertInstanceOf(NoHandlerFoundException.class, mvcResult.getResolvedException());
     }
 }

@@ -48,8 +48,9 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex, WebRequest request) {
         logger.log(Level.ERROR, EXCEPTION_PREFIX, ex);
-        List<String> errors = ex.getBindingResult().getFieldErrors()
-                .stream().map(FieldError::getDefaultMessage).collect(Collectors.toList());
+        Object req = ex.getBindingResult().getTarget();
+        auditEventProducer.sendAuditData(CP_PPS, INVALID_REQUEST_PARAMETERS, req,"", getRequiredHeaders(request),null, CP_PPS, null);
+        List<String> errors = ex.getBindingResult().getFieldErrors().stream().map(FieldError::getDefaultMessage).collect(Collectors.toList());
         String uri = request.getDescription(false);
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .type(HttpStatus.BAD_REQUEST.toString())
@@ -59,7 +60,7 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
                 .instance(uri)
                 .errorCode(MGMErrorCode.getMgmErrorCode(MGMErrorCode.getServiceCodeByMethodURI(uri), HttpStatus.BAD_REQUEST.value(), false))
                 .messages(errors).build();
-        auditEventProducer.sendAuditData(CP_PPS, INVALID_REQUEST_PARAMETERS, null,"", getRequiredHeaders(request),null, CP_PPS, errorResponse);
+        auditEventProducer.sendAuditData(CP_PPS, INVALID_REQUEST_PARAMETERS, req,"", getRequiredHeaders(request),null, CP_PPS, errorResponse);
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 

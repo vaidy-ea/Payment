@@ -77,7 +77,6 @@ public class CaptureToRouterConverter implements Converter<CPPaymentCaptureReque
         }
         return RouterRequest.builder()
                 .operation(CAPTURE_OPERATION)
-                //.gatewayId(String.valueOf(initialPayment.getGatewayId()))
                 .requestJson(requestJsonAsString).build();
     }
 }

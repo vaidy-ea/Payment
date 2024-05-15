@@ -57,7 +57,6 @@ public class RouterHelperImpl implements RouterHelper {
      * @param headers: Request Headers
      */
     @Override
-    //@Retry(name = "incrementalAuthorizationMessage")
     public IncrementalAuthorizationRouterResponse sendIncrementalAuthorizationRequestToRouter(CPPaymentIncrementalAuthRequest request,
                                                                                               Payment initialPayment, HttpHeaders headers) throws JsonProcessingException {
         request.setReferenceId(Objects.nonNull(initialPayment) ? initialPayment.getPaymentId() : null);
@@ -80,7 +79,6 @@ public class RouterHelperImpl implements RouterHelper {
      * @param headers : Request Headers
      */
     @Override
-    //@Retry(name = "authorizeMessage")
     public AuthorizationRouterResponse sendAuthorizeRequestToRouter(CPPaymentAuthorizationRequest request, HttpHeaders headers) throws JsonProcessingException {
         //converting request to IR compatible
         RouterRequest routerRequest = authorizeToRouterConverter.convert(request);
@@ -102,7 +100,6 @@ public class RouterHelperImpl implements RouterHelper {
      * @param headers: Request Headers
      */
     @Override
-    //@Retry(name = "captureMessage")
     public CaptureRouterResponse sendCaptureRequestToRouter(CPPaymentCaptureRequest request, Payment initialPayment, HttpHeaders headers) throws JsonProcessingException {
         request.setReferenceId(Objects.nonNull(initialPayment) ? initialPayment.getPaymentId() : null);
         //converting request to IR compatible
@@ -125,7 +122,6 @@ public class RouterHelperImpl implements RouterHelper {
      * @param headers: Request Headers
      */
     @Override
-    //@Retry(name = "cardVoidMessage")
     public CardVoidRouterResponse sendCardVoidRequestToRouter(CPPaymentCardVoidRequest request, Payment initialPayment, HttpHeaders headers) throws JsonProcessingException {
         request.setReferenceId(Objects.nonNull(initialPayment) ? initialPayment.getPaymentId() : null);
         //converting request to IR compatible
@@ -147,7 +143,6 @@ public class RouterHelperImpl implements RouterHelper {
      * @param headers : Request Headers
      */
     @Override
-    //@Retry(name = "refundMessage")
     public RefundRouterResponse sendRefundRequestToRouter(CPPaymentRefundRequest request, HttpHeaders headers) throws JsonProcessingException {
         //converting request to IR compatible
         RouterRequest routerRequest = refundToRouterConverter.convert(request);

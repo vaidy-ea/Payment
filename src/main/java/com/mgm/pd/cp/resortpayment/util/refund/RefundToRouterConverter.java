@@ -29,7 +29,7 @@ import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.*;
 @Component
 @AllArgsConstructor
 public class RefundToRouterConverter implements Converter<CPPaymentRefundRequest, RouterRequest> {
-    ObjectMapper mapper;
+    private ObjectMapper mapper;
     private PaymentProcessingServiceHelper helper;
 
     @Override

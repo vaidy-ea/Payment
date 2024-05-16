@@ -10,6 +10,7 @@ import com.mgm.pd.cp.resortpayment.dto.refund.CPPaymentRefundRequest;
 import com.mgm.pd.cp.resortpayment.service.payment.FindPaymentService;
 import com.mgm.pd.cp.resortpayment.service.router.RouterClient;
 import com.mgm.pd.cp.resortpayment.util.TestHelperUtil;
+import feign.RetryableException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -60,6 +61,7 @@ public class IntelligentRouterConnectivityTest {
         //then
         Assertions.assertEquals(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE, JsonPath.read(responseJson, "$.title"));
         Assertions.assertEquals(Integer.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()), JsonPath.read(responseJson, "$.status"));
+        Assertions.assertInstanceOf(RetryableException.class, mvcResult.getResolvedException());
     }
 
     @Test

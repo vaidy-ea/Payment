@@ -55,7 +55,6 @@ import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.INVALID
 
 @AutoConfigureMockMvc
 @SpringBootTest
-@Slf4j
 public class CPPaymentProcessingControllerTest {
     public static final String INCREMENTAL_AUTH_PATH = "/services/paymentprocess/v1/authorize/incremental";
     public static final String AUTHORIZE_PATH = "/services/paymentprocess/v1/authorize";

@@ -1,6 +1,6 @@
 package com.mgm.pd.cp.resortpayment.dto.capture;
 
-import com.mgm.pd.cp.resortpayment.dto.CPPaymentProcessingRequest;
+import com.mgm.pd.cp.payment.common.dto.CPPaymentProcessingRequest;
 
 import java.io.Serializable;
 

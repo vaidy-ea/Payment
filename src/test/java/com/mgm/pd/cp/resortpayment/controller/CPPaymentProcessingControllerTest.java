@@ -22,7 +22,6 @@ import com.mgm.pd.cp.resortpayment.service.payment.FindPaymentService;
 import com.mgm.pd.cp.resortpayment.service.router.RouterClient;
 import com.mgm.pd.cp.resortpayment.util.TestHelperUtil;
 import feign.FeignException;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

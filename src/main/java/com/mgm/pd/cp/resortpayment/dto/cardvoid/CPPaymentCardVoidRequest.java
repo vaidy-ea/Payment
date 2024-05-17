@@ -1,7 +1,7 @@
 package com.mgm.pd.cp.resortpayment.dto.cardvoid;
 
-import com.mgm.pd.cp.resortpayment.dto.BasePaymentProcessingRequest;
-import com.mgm.pd.cp.resortpayment.dto.common.BaseTransactionDetails;
+import com.mgm.pd.cp.payment.common.dto.BasePaymentProcessingRequest;
+import com.mgm.pd.cp.payment.common.dto.common.BaseTransactionDetails;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

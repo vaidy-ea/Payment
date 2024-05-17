@@ -40,6 +40,7 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
 
     private static final String CP_PPS = "CP-PaymentProcessing-Service-Exception";
     private static final String SHIFT4_API_LOG = "shift4-api-log";
+    public static final String ACTUATOR = "actuator";
 
     private AuditEventProducer auditEventProducer;
     private HeaderConfigProperties headerConfigProperties;
@@ -137,21 +138,10 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
         logger.log(Level.ERROR, EXCEPTION_PREFIX, ex);
         String contentUTF8 = ex.contentUTF8();
         String uri = request.getDescription(false);
-        if (uri.contains("actuator")) {
-            ErrorResponse er = new ErrorResponse();
-            er.setType(String.valueOf(ex.status()));
-            er.setStatus(ex.status());
-            er.setDetail(ex.getLocalizedMessage());
-            er.setErrorCode(MGMErrorCode.getMgmErrorCode(MGMErrorCode.getServiceCodeByMethodURI(uri), ex.status(), false));
-            er.setInstance(uri);
-            er.setMessages(Collections.singletonList(ex.contentUTF8()));
-            auditEventProducer.sendAuditData(CP_PPS, SHIFT4_API_LOG, null,"", getRequiredHeaders(request),null, CP_PPS, er);
-            return new ResponseEntity<>(er, Objects.requireNonNull(HttpStatus.resolve(ex.status())));
+        if (!uri.contains(ACTUATOR)) {
+            return getErrorResponseEntity(ex, request, contentUTF8, uri);
         } else {
-            ErrorResponse irEx = new ObjectMapper().readValue(contentUTF8, ErrorResponse.class);
-            irEx.setInstance(uri);
-            auditEventProducer.sendAuditData(CP_PPS, SHIFT4_API_LOG, null,"", getRequiredHeaders(request),null, CP_PPS, irEx);
-            return new ResponseEntity<>(irEx, Objects.requireNonNull(HttpStatus.resolve(ex.status())));
+            return getErrorResponseEntity(ex, request, uri);
         }
     }
 
@@ -237,6 +227,25 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
             errorDetails = invalidBooleanInJson.getOriginalMessage() + " for attribute -> " + errorFields;
         }
         return errorDetails;
+    }
+
+    private ResponseEntity<ErrorResponse> getErrorResponseEntity(FeignException ex, WebRequest request, String contentUTF8, String uri) throws JsonProcessingException {
+        ErrorResponse irEx = new ObjectMapper().readValue(contentUTF8, ErrorResponse.class);
+        irEx.setInstance(uri);
+        auditEventProducer.sendAuditData(CP_PPS, SHIFT4_API_LOG, null,"", getRequiredHeaders(request),null, CP_PPS, irEx);
+        return new ResponseEntity<>(irEx, Objects.requireNonNull(HttpStatus.resolve(ex.status())));
+    }
+
+    private ResponseEntity<ErrorResponse> getErrorResponseEntity(FeignException ex, WebRequest request, String uri) {
+        ErrorResponse er = new ErrorResponse();
+        er.setType(String.valueOf(ex.status()));
+        er.setStatus(ex.status());
+        er.setDetail(ex.getLocalizedMessage());
+        er.setErrorCode(MGMErrorCode.getMgmErrorCode(MGMErrorCode.getServiceCodeByMethodURI(uri), ex.status(), false));
+        er.setInstance(uri);
+        er.setMessages(Collections.singletonList(ex.contentUTF8()));
+        auditEventProducer.sendAuditData(CP_PPS, SHIFT4_API_LOG, null,"", getRequiredHeaders(request),null, CP_PPS, er);
+        return new ResponseEntity<>(er, Objects.requireNonNull(HttpStatus.resolve(ex.status())));
     }
 
     private Map<String, String> getRequiredHeaders(WebRequest request) {

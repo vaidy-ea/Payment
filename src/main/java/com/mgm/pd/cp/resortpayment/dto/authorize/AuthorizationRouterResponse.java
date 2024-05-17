@@ -43,4 +43,7 @@ public class AuthorizationRouterResponse {
     private String approvalCode;
     private String message;
     private String avsResult;
+    private String gatewayID;
+    private String responseReason;
+    private String reasonDescription;
 }

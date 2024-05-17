@@ -48,4 +48,7 @@ public class BasePaymentProcessingRequest {
 
     @Valid
     private CPRequestHeaders headers;
+
+    //to capture the responseReason from IR
+    private String responseReason;
 }

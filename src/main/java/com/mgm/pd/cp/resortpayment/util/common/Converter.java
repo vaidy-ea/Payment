@@ -26,12 +26,12 @@ public class Converter {
             CPPaymentCardVoidRequest request  = (CPPaymentCardVoidRequest) genericRequest;
             String transactionDateTime = request.getTransactionDateTime();
             BaseTransactionDetails transactionDetails = Objects.nonNull(request.getTransactionDetails()) ? request.getTransactionDetails() : new BaseTransactionDetails();
-            return getOperaResponse(payment, setCardDetails(payment, transactionDetails), transactionDateTime);
+            return getOperaResponse(payment, setCardDetails(payment, transactionDetails), transactionDateTime, request.getResponseReason());
         } else {
             CPPaymentProcessingRequest request = (CPPaymentProcessingRequest) genericRequest;
             String transactionDateTime = request.getTransactionDateTime();
             TransactionDetails transactionDetails = request.getTransactionDetails();
-            return getOperaResponse(payment, setCardDetails(payment, transactionDetails), transactionDateTime);
+            return getOperaResponse(payment, setCardDetails(payment, transactionDetails), transactionDateTime, request.getResponseReason());
         }
     }
 
@@ -56,11 +56,11 @@ public class Converter {
                 .build();
     }
 
-    private static OperaResponse getOperaResponse(Payment payment, Card card, String transactionDateTime) {
+    private static OperaResponse getOperaResponse(Payment payment, Card card, String transactionDateTime, String responseReason) {
         return OperaResponse.builder()
                 .approvalCode(payment.getPaymentAuthId())
                 .responseCode(payment.getGatewayResponseCode())
-                .responseReason(payment.getGatewayTransactionStatusReason())
+                .responseReason(responseReason)
                 .transactionDateTime(transactionDateTime)
                 .transactionAuthChainId(String.valueOf(payment.getAuthChainId()))
                 .transactionAmount(getTransactionAmount(payment))

@@ -19,7 +19,7 @@ public interface RouterClient {
      *
      * @return RouterResponseJson
      */
-    @GetMapping(value = "/actuator/health")
+    @GetMapping(value = "/routerservice/v1/health")
     ResponseEntity<String> getHealth();
 
   /**

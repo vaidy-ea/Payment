@@ -111,15 +111,10 @@ public class PaymentProcessingServiceHelper {
     }
 
     /**
-     * This method is responsible to find and return initial Authorization Payment for all types of requests.
-     * @param request: any type of Card Payment Request
+     * This method is responsible to find and return last initial Authorization Payment for all types of requests.
+     * @param paymentDetails: Payment Details
      * @return Payment details from Payment DB
      */
-    public <T> Optional<Payment> getInitialAuthPayment(T request) {
-        Pair<Optional<List<Payment>>, String> paymentDetails = getAllPayments(request);
-        return getLastRecordFromPaymentsList(paymentDetails);
-    }
-
     private Optional<Payment> getLastRecordFromPaymentsList(Pair<Optional<List<Payment>>, String> paymentDetails) {
         Optional<List<Payment>> optionalPaymentList = paymentDetails.getLeft();
         if (optionalPaymentList.isPresent()) {
@@ -132,6 +127,7 @@ public class PaymentProcessingServiceHelper {
         return Optional.empty();
     }
 
+    //Used to get all payments chain on the basis of transactionAuthChainId
     private <T> Pair<Optional<List<Payment>>, String> getAllPayments(T request) {
         String authChainId;
         Optional<List<Payment>> paymentDetails = Optional.empty();
@@ -232,15 +228,19 @@ public class PaymentProcessingServiceHelper {
 
     public void getAuthorizationDetailsFromRouterResponse(CPPaymentAuthorizationRequest request, AuthorizationRouterResponse response, Payment.PaymentBuilder newPayment) {
         if (Objects.nonNull(response)) {
+            //adding this in request to send back to Upstream System(e.g. Opera/UPOS) as there in no column is there in Payment DB to store this value
+            request.setResponseReason(response.getResponseReason());
             request.setTransactionDateTime(response.getDateTime());
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
             String vendorTranID = response.getVendorTranID();
             newPayment
+                    .gatewayId(Gateway.valueOf(response.getGatewayID()))
                     .authChainId(vendorTranID)
                     .gatewayChainId(Objects.nonNull(vendorTranID) ? vendorTranID.replaceFirst(LEADING_ZEROES, "") : null)
                     .authorizedAmount(response.getTotalAuthAmount())
                     .paymentAuthId(response.getApprovalCode())
-                    .gatewayTransactionStatusReason(response.getMessage())
+                    .gatewayTransactionStatusCode(response.getMessage())
+                    .gatewayTransactionStatusReason(response.getReasonDescription())
                     .gatewayResponseCode(returnCode)
                     .createdTimeStamp(convertToTimestamp(response.getDateTime()))
                     .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE)
@@ -250,6 +250,8 @@ public class PaymentProcessingServiceHelper {
 
     public void getIncrementalAuthorizationDetailsFromRouterResponse(CPPaymentIncrementalAuthRequest request, IncrementalAuthorizationRouterResponse response, Payment.PaymentBuilder newPayment) {
         if (Objects.nonNull(response)) {
+            //adding this in request to send back to Upstream System(e.g. Opera/UPOS) as there in no column is there in Payment DB to store this value
+            request.setResponseReason(response.getResponseReason());
             request.setTransactionDateTime(response.getDateTime());
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
             String vendorTranID = response.getVendorTranID();
@@ -258,7 +260,8 @@ public class PaymentProcessingServiceHelper {
                     .gatewayChainId(Objects.nonNull(vendorTranID) ? vendorTranID.replaceFirst(LEADING_ZEROES, "") : null)
                     .authorizedAmount(response.getTotalAuthAmount())
                     .paymentAuthId(response.getApprovalCode())
-                    .gatewayTransactionStatusReason(response.getMessage())
+                    .gatewayTransactionStatusCode(response.getMessage())
+                    .gatewayTransactionStatusReason(response.getReasonDescription())
                     .gatewayResponseCode(returnCode)
                     .createdTimeStamp(convertToTimestamp(response.getDateTime()))
                     .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE)
@@ -268,6 +271,8 @@ public class PaymentProcessingServiceHelper {
 
     public void getCaptureDetailsFromRouterResponse(CPPaymentCaptureRequest request, CaptureRouterResponse response, Payment.PaymentBuilder newPayment) {
         if (Objects.nonNull(response)) {
+            //adding this in request to send back to Upstream System(e.g. Opera/UPOS) as there in no column is there in Payment DB to store this value
+            request.setResponseReason(response.getResponseReason());
             request.setTransactionDateTime(response.getDateTime());
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
             String vendorTranID = response.getVendorTranID();
@@ -277,7 +282,8 @@ public class PaymentProcessingServiceHelper {
                     .authorizedAmount(response.getTotalAuthAmount())
                     .paymentAuthId(response.getApprovalCode())
                     .gatewayResponseCode(returnCode)
-                    .gatewayTransactionStatusReason(response.getMessage())
+                    .gatewayTransactionStatusCode(response.getMessage())
+                    .gatewayTransactionStatusReason(response.getReasonDescription())
                     .createdTimeStamp(convertToTimestamp(response.getDateTime()))
                     .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE)
                     .avsResponseCode(response.getAvsResult());
@@ -286,6 +292,8 @@ public class PaymentProcessingServiceHelper {
 
     public void getVoidDetailsFromRouterResponse(CPPaymentCardVoidRequest request, CardVoidRouterResponse response, Payment.PaymentBuilder newPayment) {
         if (Objects.nonNull(response)) {
+            //adding this in request to send back to Upstream System(e.g. Opera/UPOS) as there in no column is there in Payment DB to store this value
+            request.setResponseReason(response.getResponseReason());
             request.setTransactionDateTime(response.getDateTime());
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
             String vendorTranID = response.getVendorTranID();
@@ -295,7 +303,8 @@ public class PaymentProcessingServiceHelper {
                     .authorizedAmount(response.getTotalAuthAmount())
                     .paymentAuthId(response.getApprovalCode())
                     .gatewayResponseCode(returnCode)
-                    .gatewayTransactionStatusReason(response.getMessage())
+                    .gatewayTransactionStatusCode(response.getMessage())
+                    .gatewayTransactionStatusReason(response.getReasonDescription())
                     .createdTimeStamp(convertToTimestamp(response.getDateTime()))
                     .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE)
                     .avsResponseCode(response.getAvsResult());
@@ -304,15 +313,19 @@ public class PaymentProcessingServiceHelper {
 
     public void getRefundDetailsFromRouterResponse(CPPaymentRefundRequest request, RefundRouterResponse response, Payment.PaymentBuilder newPayment) {
         if (Objects.nonNull(response)) {
+            //adding this in request to send back to Upstream System(e.g. Opera/UPOS) as there in no column is there in Payment DB to store this value
+            request.setResponseReason(response.getResponseReason());
             request.setTransactionDateTime(response.getDateTime());
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
             String vendorTranID = response.getVendorTranID();
             newPayment
+                    .gatewayId(Gateway.valueOf(response.getGatewayID()))
                     .authorizedAmount(response.getTotalAuthAmount())
                     .paymentAuthId(response.getApprovalCode())
                     .gatewayResponseCode(returnCode)
                     .authChainId(vendorTranID)
-                    .gatewayTransactionStatusReason(response.getMessage())
+                    .gatewayTransactionStatusCode(response.getMessage())
+                    .gatewayTransactionStatusReason(response.getReasonDescription())
                     .createdTimeStamp(convertToTimestamp(response.getDateTime()))
                     .gatewayChainId(Objects.nonNull(vendorTranID) ? vendorTranID.replaceFirst(LEADING_ZEROES, "") : null)
                     .transactionStatus((returnCode.equals(Approved.name())) ? SUCCESS_MESSAGE : FAILURE_MESSAGE)

@@ -82,7 +82,7 @@ public class TestHelperUtil {
 				CPPaymentRefundRequest.class);
 	}
 	public static RouterResponseJson getRefundRouterResponseJson() {
-		String mockResponse= "{\"dateTime\":\"2021-04-15T09:18:23.000-07:00\",\"totalAuthAmount\":100,\"cardType\":\"VS\",\"returnCode\":\"Approved\",\"sequenceNumber\":\"1234\",\"transDate\":\"2021-04-15T00:00:00.000-07:00\",\"vendorTranId\":\"0000192029\",\"approvalCode\":\"OK846Z\"}";
+		String mockResponse= "{\"dateTime\":\"2021-04-15T09:18:23.000-07:00\",\"totalAuthAmount\":100,\"gatewayID\":\"SHFT\",\"cardType\":\"VS\",\"returnCode\":\"Approved\",\"sequenceNumber\":\"1234\",\"transDate\":\"2021-04-15T00:00:00.000-07:00\",\"vendorTranId\":\"0000192029\",\"approvalCode\":\"OK846Z\"}";
 		return RouterResponseJson.builder().responseJson(mockResponse).build();
 	}
 	public static RefundRouterResponse getRefundRouterResponse() throws JsonProcessingException {
@@ -99,7 +99,7 @@ public class TestHelperUtil {
 	}
 
 	public static RouterResponseJson getAuthorizationRouterResponseJson() {
-		String mockResponse = "{\"dateTime\":\"2021-04-15T09:18:23.000-07:00\",\"totalAuthAmount\":898.07,\"cardType\":\"VS\",\"returnCode\":\"A\",\"sequenceNumber\":\"1234\",\"transDate\":\"2019-08-24T14:15:22Z\",\"vendorTranId\":\"0000192029\",\"approvalCode\":\"OK196Z\"}";
+		String mockResponse = "{\"dateTime\":\"2021-04-15T09:18:23.000-07:00\",\"gatewayID\":\"SHFT\",\"totalAuthAmount\":898.07,\"cardType\":\"VS\",\"returnCode\":\"A\",\"sequenceNumber\":\"1234\",\"transDate\":\"2019-08-24T14:15:22Z\",\"vendorTranId\":\"0000192029\",\"approvalCode\":\"OK196Z\"}";
 		return RouterResponseJson.builder().responseJson(mockResponse).build();
 	}
 

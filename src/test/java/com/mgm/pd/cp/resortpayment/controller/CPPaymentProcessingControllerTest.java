@@ -425,7 +425,7 @@ public class CPPaymentProcessingControllerTest {
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentRefundRequest mockRequest = TestHelperUtil.getRefundPaymentRequest();
         HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
-        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getVoidRouterResponseJson());
+        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getRefundRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(REFUND_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -434,7 +434,7 @@ public class CPPaymentProcessingControllerTest {
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
-        Assertions.assertEquals("OK196Z", JsonPath.read(responseJson, "$.approvalCode"));
+        Assertions.assertEquals("OK846Z", JsonPath.read(responseJson, "$.approvalCode"));
     }
 
     @Test

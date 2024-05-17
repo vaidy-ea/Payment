@@ -56,4 +56,6 @@ public class CaptureRouterResponse {
     private String approvalCode;
     private String message;
     private String avsResult;
+    private String responseReason;
+    private String reasonDescription;
 }

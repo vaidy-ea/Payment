@@ -5,10 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import com.mgm.pd.cp.payment.common.constant.AuthType;
 import com.mgm.pd.cp.payment.common.constant.TransactionType;
+import com.mgm.pd.cp.payment.common.dto.CPPaymentAuthorizationRequest;
 import com.mgm.pd.cp.payment.common.exception.InvalidTransactionAttemptException;
 import com.mgm.pd.cp.payment.common.exception.MissingHeaderException;
 import com.mgm.pd.cp.payment.common.model.Payment;
-import com.mgm.pd.cp.resortpayment.dto.authorize.CPPaymentAuthorizationRequest;
 import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
 import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
 import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalAuthRequest;
@@ -22,7 +22,6 @@ import com.mgm.pd.cp.resortpayment.service.payment.FindPaymentService;
 import com.mgm.pd.cp.resortpayment.service.router.RouterClient;
 import com.mgm.pd.cp.resortpayment.util.TestHelperUtil;
 import feign.FeignException;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -426,7 +425,7 @@ public class CPPaymentProcessingControllerTest {
         Mockito.when(findPaymentService.getPaymentDetails(ArgumentMatchers.anyString())).thenReturn(TestHelperUtil.getInitialPayment());
         CPPaymentRefundRequest mockRequest = TestHelperUtil.getRefundPaymentRequest();
         HttpHeaders mockHeaders = TestHelperUtil.getHeaders();
-        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getVoidRouterResponseJson());
+        Mockito.when(mockRouterClient.sendRequest(ArgumentMatchers.any(HttpHeaders.class), ArgumentMatchers.any(RouterRequest.class))).thenReturn(TestHelperUtil.getRefundRouterResponseJson());
         //when
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(REFUND_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -435,7 +434,7 @@ public class CPPaymentProcessingControllerTest {
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         String responseJson = mvcResult.getResponse().getContentAsString();
         //then
-        Assertions.assertEquals("OK196Z", JsonPath.read(responseJson, "$.approvalCode"));
+        Assertions.assertEquals("OK846Z", JsonPath.read(responseJson, "$.approvalCode"));
     }
 
     @Test

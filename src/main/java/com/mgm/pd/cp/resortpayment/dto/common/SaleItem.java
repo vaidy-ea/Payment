@@ -18,7 +18,7 @@ public class SaleItem implements Serializable {
     @Size(max = 70, message = "saleType exceeds the permissible length of 70")
     private String saleType;
 
-    @PossibleDateTime(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", fallbackPatterns = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", message = "invalid saleDate, expected format is yyyy-MM-ddThh:mm:ssZ")
+    @PossibleDateTime(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", fallbackPatterns = {"yyyy-MM-dd'T'HH:mm:ss.SSSXXX", "yyyy-MM-dd'T'HH:mm:ss.SSS"}, message = "invalid saleDate, expected format is yyyy-MM-ddThh:mm:ssZ")
     private String saleDate;
 
     @Size(max = 70, message = "saleReferenceIdentifier exceeds the permissible length of 70")

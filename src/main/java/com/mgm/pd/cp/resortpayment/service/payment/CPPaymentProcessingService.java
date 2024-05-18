@@ -2,12 +2,7 @@ package com.mgm.pd.cp.resortpayment.service.payment;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.mgm.pd.cp.payment.common.dto.CPPaymentAuthorizationRequest;
-import com.mgm.pd.cp.payment.common.dto.GenericResponse;
-import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
-import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
-import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalAuthRequest;
-import com.mgm.pd.cp.resortpayment.dto.refund.CPPaymentRefundRequest;
+import com.mgm.pd.cp.payment.common.dto.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 

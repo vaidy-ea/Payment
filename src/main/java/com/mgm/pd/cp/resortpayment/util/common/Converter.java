@@ -2,6 +2,7 @@ package com.mgm.pd.cp.resortpayment.util.common;
 
 
 import com.mgm.pd.cp.payment.common.constant.TokenType;
+import com.mgm.pd.cp.payment.common.dto.CPPaymentCardVoidRequest;
 import com.mgm.pd.cp.payment.common.dto.CPPaymentProcessingRequest;
 import com.mgm.pd.cp.payment.common.dto.common.BaseTransactionDetails;
 import com.mgm.pd.cp.payment.common.dto.common.TransactionDetails;
@@ -10,7 +11,6 @@ import com.mgm.pd.cp.payment.common.dto.opera.OperaResponse;
 import com.mgm.pd.cp.payment.common.dto.opera.PrintDetails;
 import com.mgm.pd.cp.payment.common.dto.opera.TransactionAmount;
 import com.mgm.pd.cp.payment.common.model.Payment;
-import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;

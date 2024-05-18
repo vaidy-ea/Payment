@@ -1,9 +1,9 @@
 package com.mgm.pd.cp.resortpayment.util.refund;
 
 import com.mgm.pd.cp.payment.common.constant.TransactionType;
+import com.mgm.pd.cp.payment.common.dto.CPPaymentRefundRequest;
 import com.mgm.pd.cp.payment.common.exception.InvalidTransactionAttemptException;
 import com.mgm.pd.cp.payment.common.model.Payment;
-import com.mgm.pd.cp.resortpayment.dto.refund.CPPaymentRefundRequest;
 import com.mgm.pd.cp.resortpayment.util.TestHelperUtil;
 import org.flywaydb.core.internal.util.Pair;
 import org.junit.jupiter.api.Assertions;

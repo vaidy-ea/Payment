@@ -1,12 +1,8 @@
 package com.mgm.pd.cp.resortpayment.util;
 
-import com.mgm.pd.cp.payment.common.dto.CPPaymentAuthorizationRequest;
+import com.mgm.pd.cp.payment.common.dto.*;
 import com.mgm.pd.cp.payment.common.dto.common.BaseTransactionDetails;
 import com.mgm.pd.cp.payment.common.dto.common.TransactionDetails;
-import com.mgm.pd.cp.resortpayment.dto.capture.CPPaymentCaptureRequest;
-import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
-import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalAuthRequest;
-import com.mgm.pd.cp.resortpayment.dto.refund.CPPaymentRefundRequest;
 import com.mgm.pd.cp.resortpayment.dto.router.RouterRequest;
 import com.mgm.pd.cp.resortpayment.util.authorize.AuthorizeToRouterConverter;
 import com.mgm.pd.cp.resortpayment.util.capture.CaptureToRouterConverter;

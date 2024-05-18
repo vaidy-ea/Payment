@@ -1,7 +1,7 @@
 package com.mgm.pd.cp.resortpayment.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
+import com.mgm.pd.cp.payment.common.dto.CPPaymentCardVoidRequest;
 import com.mgm.pd.cp.resortpayment.service.payment.CPPaymentProcessingService;
 import com.mgm.pd.cp.resortpayment.util.TestHelperUtil;
 import org.junit.jupiter.api.Assertions;

@@ -2,9 +2,9 @@ package com.mgm.pd.cp.resortpayment.util.incremental;
 
 import com.mgm.pd.cp.payment.common.constant.AuthType;
 import com.mgm.pd.cp.payment.common.constant.TransactionType;
+import com.mgm.pd.cp.payment.common.dto.CPPaymentIncrementalAuthRequest;
 import com.mgm.pd.cp.payment.common.exception.InvalidTransactionAttemptException;
 import com.mgm.pd.cp.payment.common.model.Payment;
-import com.mgm.pd.cp.resortpayment.dto.incrementalauth.CPPaymentIncrementalAuthRequest;
 import com.mgm.pd.cp.resortpayment.exception.InvalidTransactionTypeException;
 import com.mgm.pd.cp.resortpayment.exception.MissingRequiredFieldException;
 import com.mgm.pd.cp.resortpayment.util.common.DateHelper;

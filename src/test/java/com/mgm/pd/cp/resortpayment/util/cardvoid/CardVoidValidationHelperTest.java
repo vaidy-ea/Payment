@@ -3,9 +3,9 @@ package com.mgm.pd.cp.resortpayment.util.cardvoid;
 
 import com.mgm.pd.cp.payment.common.constant.AuthType;
 import com.mgm.pd.cp.payment.common.constant.TransactionType;
+import com.mgm.pd.cp.payment.common.dto.CPPaymentCardVoidRequest;
 import com.mgm.pd.cp.payment.common.exception.InvalidTransactionAttemptException;
 import com.mgm.pd.cp.payment.common.model.Payment;
-import com.mgm.pd.cp.resortpayment.dto.cardvoid.CPPaymentCardVoidRequest;
 import com.mgm.pd.cp.resortpayment.exception.InvalidTransactionTypeException;
 import com.mgm.pd.cp.resortpayment.exception.MissingRequiredFieldException;
 import com.mgm.pd.cp.resortpayment.util.TestHelperUtil;

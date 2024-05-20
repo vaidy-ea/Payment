@@ -224,7 +224,7 @@ public class PaymentProcessingServiceHelper {
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
             String vendorTranID = response.getVendorTranID();
             newPayment
-                    .gatewayId(Gateway.valueOf(response.getGatewayID()))
+                    //.gatewayId(Gateway.valueOf(response.getGatewayID()))
                     .authChainId(vendorTranID)
                     .gatewayChainId(Objects.nonNull(vendorTranID) ? vendorTranID.replaceFirst(LEADING_ZEROES, "") : null)
                     .authorizedAmount(response.getTotalAuthAmount())
@@ -309,7 +309,7 @@ public class PaymentProcessingServiceHelper {
             String returnCode = Objects.nonNull(response.getReturnCode()) ? response.getReturnCode() : "";
             String vendorTranID = response.getVendorTranID();
             newPayment
-                    .gatewayId(Gateway.valueOf(response.getGatewayID()))
+                    //.gatewayId(Gateway.valueOf(response.getGatewayID()))
                     .authorizedAmount(response.getTotalAuthAmount())
                     .paymentAuthId(response.getApprovalCode())
                     .gatewayResponseCode(returnCode)

@@ -71,7 +71,7 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
     @ExceptionHandler(DateTimeParseException.class)
     public ResponseEntity<ErrorResponse> handleDateValidationErrors(DateTimeParseException ex, WebRequest request, ContentCachingRequestWrapper cachedRequest) {
         logger.log(Level.ERROR, EXCEPTION_PREFIX, ex);
-        auditEventProducer.sendAuditData(CP_PPS, INVALID_REQUEST_PARAMETERS, getRequestBodyFromCachedRequest(cachedRequest),"", getRequiredHeaders(request),null, CP_PPS, null);
+        auditEventProducer.sendAuditData(CP_PPS, INVALID_DATE_PARAMETERS, getRequestBodyFromCachedRequest(cachedRequest),"", getRequiredHeaders(request),null, CP_PPS, null);
         List<String> errors = Collections.singletonList("Invalid date - " + ex.getParsedString());
         String uri = request.getDescription(false);
         ErrorResponse errorResponse = ErrorResponse.builder()
@@ -87,7 +87,7 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
     @ExceptionHandler(JsonProcessingException.class)
     public ResponseEntity<ErrorResponse> handleJsonException(JsonProcessingException ex, WebRequest request, ContentCachingRequestWrapper cachedRequest) {
         logger.log(Level.ERROR, EXCEPTION_PREFIX, ex);
-        auditEventProducer.sendAuditData(CP_PPS, INVALID_REQUEST_PARAMETERS, getRequestBodyFromCachedRequest(cachedRequest),"", getRequiredHeaders(request),null, CP_PPS, null);
+        auditEventProducer.sendAuditData(CP_PPS, INVALID_JSON, getRequestBodyFromCachedRequest(cachedRequest),"", getRequiredHeaders(request),null, CP_PPS, null);
         String uri = request.getDescription(false);
         ErrorResponse errorResponse = ErrorResponse.builder().type(HttpStatus.BAD_REQUEST.toString()).status(HttpStatus.BAD_REQUEST.value())
                 .title(INVALID_JSON).detail(INVALID_JSON).instance(uri)
@@ -101,7 +101,7 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
     @ExceptionHandler(RetryableException.class)
     public ResponseEntity<ErrorResponse> handleConnectionException(RetryableException ex, WebRequest request, ContentCachingRequestWrapper cachedRequest) {
         logger.log(Level.ERROR, EXCEPTION_PREFIX, ex);
-        auditEventProducer.sendAuditData(CP_PPS, INVALID_REQUEST_PARAMETERS, getRequestBodyFromCachedRequest(cachedRequest),"", getRequiredHeaders(request),null, CP_PPS, null);
+        auditEventProducer.sendAuditData(CP_PPS, INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE, getRequestBodyFromCachedRequest(cachedRequest),"", getRequiredHeaders(request),null, CP_PPS, null);
         String uri = request.getDescription(false);
         ErrorResponse errorResponse = ErrorResponse.builder().type(HttpStatus.INTERNAL_SERVER_ERROR.toString()).status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .title(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE).detail(INTELLIGENT_ROUTER_CONNECTION_EXCEPTION_MESSAGE).instance(uri)
@@ -171,7 +171,7 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFoundError(NoHandlerFoundException ex, WebRequest request, ContentCachingRequestWrapper cachedRequest) {
         logger.log(Level.ERROR, EXCEPTION_PREFIX, ex);
-        auditEventProducer.sendAuditData(CP_PPS, INVALID_REQUEST_PARAMETERS, getRequestBodyFromCachedRequest(cachedRequest),"", getRequiredHeaders(request),null, CP_PPS, null);
+        auditEventProducer.sendAuditData(CP_PPS, RESOURCE_NOT_FOUND, getRequestBodyFromCachedRequest(cachedRequest),"", getRequiredHeaders(request),null, CP_PPS, null);
         String uri = request.getDescription(false);
         ErrorResponse errorResponse = ErrorResponse.builder().type(HttpStatus.NOT_FOUND.toString()).status(HttpStatus.NOT_FOUND.value())
                 .title(HttpStatus.NOT_FOUND.getReasonPhrase()).detail(HttpStatus.NOT_FOUND.getReasonPhrase()).instance(ex.getRequestURL())
@@ -185,7 +185,7 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<ErrorResponse> handleNullPointer(NullPointerException ex, WebRequest request, ContentCachingRequestWrapper cachedRequest) {
         logger.log(Level.ERROR, EXCEPTION_PREFIX, ex);
-        auditEventProducer.sendAuditData(CP_PPS, INVALID_REQUEST_PARAMETERS, getRequestBodyFromCachedRequest(cachedRequest),"", getRequiredHeaders(request),null, CP_PPS, null);
+        auditEventProducer.sendAuditData(CP_PPS, HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), getRequestBodyFromCachedRequest(cachedRequest),"", getRequiredHeaders(request),null, CP_PPS, null);
         String uri = request.getDescription(false);
         ErrorResponse errorResponse = ErrorResponse.builder().type(HttpStatus.INTERNAL_SERVER_ERROR.toString()).status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()).detail(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()).instance(uri)

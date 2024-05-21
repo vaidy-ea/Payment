@@ -1,0 +1,5 @@
+exec sp_rename 't_payment_txn.MGM_SESSION_ID', 'SESSION_ID', 'COLUMN'
+GO
+
+ALTER TABLE t_payment_txn ADD REQUEST_CHANNEL VARCHAR(255)
+GO

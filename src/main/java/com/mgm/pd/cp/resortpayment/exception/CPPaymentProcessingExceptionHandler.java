@@ -143,13 +143,14 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
     @ExceptionHandler(FeignException.class)
     public ResponseEntity<ErrorResponse> handleIntelligentRouterExceptions(FeignException ex, WebRequest request, ContentCachingRequestWrapper cachedRequest) throws JsonProcessingException {
         logger.log(Level.ERROR, EXCEPTION_PREFIX, ex);
-        auditEventProducer.sendAuditData(CP_PPS, INVALID_REQUEST_PARAMETERS, getRequestBodyFromCachedRequest(cachedRequest),"", getRequiredHeaders(request),null, CP_PPS, null);
+        Object requestBodyFromCachedRequest = getRequestBodyFromCachedRequest(cachedRequest);
+        auditEventProducer.sendAuditData(CP_PPS, INVALID_REQUEST_PARAMETERS, requestBodyFromCachedRequest,"", getRequiredHeaders(request),null, CP_PPS, null);
         String contentUTF8 = ex.contentUTF8();
         String uri = request.getDescription(false);
         if (!uri.contains(ACTUATOR)) {
-            return getErrorResponseEntity(ex, request, contentUTF8, uri);
+            return getErrorResponseEntity(ex, request, contentUTF8, uri, requestBodyFromCachedRequest);
         } else {
-            return getErrorResponseEntity(ex, request, uri);
+            return getErrorResponseEntity(ex, request, uri, requestBodyFromCachedRequest);
         }
     }
 
@@ -242,14 +243,14 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
         return errorDetails;
     }
 
-    private ResponseEntity<ErrorResponse> getErrorResponseEntity(FeignException ex, WebRequest request, String contentUTF8, String uri) throws JsonProcessingException {
+    private ResponseEntity<ErrorResponse> getErrorResponseEntity(FeignException ex, WebRequest request, String contentUTF8, String uri, Object cachedRequest) throws JsonProcessingException {
         ErrorResponse irEx = new ObjectMapper().readValue(contentUTF8, ErrorResponse.class);
         irEx.setInstance(uri);
-        auditEventProducer.sendAuditData(CP_PPS, SHIFT4_API_LOG, null,"", getRequiredHeaders(request),null, CP_PPS, irEx);
+        auditEventProducer.sendAuditData(CP_PPS, SHIFT4_API_LOG, cachedRequest,"", getRequiredHeaders(request),null, CP_PPS, irEx);
         return new ResponseEntity<>(irEx, Objects.requireNonNull(HttpStatus.resolve(ex.status())));
     }
 
-    private ResponseEntity<ErrorResponse> getErrorResponseEntity(FeignException ex, WebRequest request, String uri) {
+    private ResponseEntity<ErrorResponse> getErrorResponseEntity(FeignException ex, WebRequest request, String uri, Object cachedRequest) {
         ErrorResponse er = new ErrorResponse();
         er.setType(String.valueOf(ex.status()));
         er.setStatus(ex.status());
@@ -257,7 +258,7 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
         er.setErrorCode(MGMErrorCode.getMgmErrorCode(MGMErrorCode.getServiceCodeByMethodURI(uri), ex.status(), false));
         er.setInstance(uri);
         er.setMessages(Collections.singletonList(ex.contentUTF8()));
-        auditEventProducer.sendAuditData(CP_PPS, SHIFT4_API_LOG, null,"", getRequiredHeaders(request),null, CP_PPS, er);
+        auditEventProducer.sendAuditData(CP_PPS, SHIFT4_API_LOG, cachedRequest,"", getRequiredHeaders(request),null, CP_PPS, er);
         return new ResponseEntity<>(er, Objects.requireNonNull(HttpStatus.resolve(ex.status())));
     }
 
@@ -268,7 +269,7 @@ public class CPPaymentProcessingExceptionHandler extends CommonException {
                 .collect(Collectors.toMap(h -> h, request::getHeader));
     }
 
-    private Object getRequestBodyFromCachedRequest(ContentCachingRequestWrapper cachedRequest) {
+    private String getRequestBodyFromCachedRequest(ContentCachingRequestWrapper cachedRequest) {
         return new String(cachedRequest.getContentAsByteArray(), StandardCharsets.UTF_8);
     }
 }

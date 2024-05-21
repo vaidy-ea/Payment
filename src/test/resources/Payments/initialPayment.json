@@ -38,7 +38,7 @@
   "updatedTimestamp"  : "2019-08-24T14:15:22",
   "mgmCorrelationId"  : null,
   "mgmJourneyId"  : null,
-  "mgmSessionId"  : null,
+  "sessionId"  : null,
   "cardEntryMode"  : null,
   "avsResponseCode"  : null,
   "cvvResponseCode"  : null,

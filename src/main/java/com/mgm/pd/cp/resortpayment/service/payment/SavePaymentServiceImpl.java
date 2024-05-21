@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
+import static com.mgm.pd.cp.payment.common.constant.ApplicationConstants.FAILURE_MESSAGE;
 import static com.mgm.pd.cp.payment.common.constant.TransactionType.REFUND;
 
 @Service
@@ -83,7 +84,8 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .authSubType(request.getTransactionType())
                 .tenderType(String.valueOf(TenderType.CREDIT))
                 .issuerType(Objects.nonNull(enumByString) ? IssuerType.valueOf(enumByString) : null)
-                .updatedTimestamp(LocalDateTime.now());
+                .updatedTimestamp(LocalDateTime.now())
+                .transactionStatus(FAILURE_MESSAGE);
         helper.getAuthorizationDetailsFromRouterResponse(request, response, newPayment);
         Payment payment = newPayment.build();
         logger.log(Level.INFO, TRANSACTION_TYPE, payment.getTransactionType());
@@ -140,7 +142,8 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .authSubType(request.getTransactionType())
                 .tenderType(String.valueOf(TenderType.CREDIT))
                 .issuerType(Objects.nonNull(enumByString) ? IssuerType.valueOf(enumByString) : null)
-                .updatedTimestamp(LocalDateTime.now());
+                .updatedTimestamp(LocalDateTime.now())
+                .transactionStatus(FAILURE_MESSAGE);
         helper.getIncrementalAuthorizationDetailsFromRouterResponse(request, response, newPayment);
         Payment payment = newPayment.build();
         logger.log(Level.INFO, TRANSACTION_TYPE, payment.getTransactionType());
@@ -198,7 +201,8 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .authSubType(request.getTransactionType())
                 .tenderType(String.valueOf(TenderType.CREDIT))
                 .issuerType(Objects.nonNull(enumByString) ? IssuerType.valueOf(enumByString) : null)
-                .updatedTimestamp(LocalDateTime.now());
+                .updatedTimestamp(LocalDateTime.now())
+                .transactionStatus(FAILURE_MESSAGE);
         helper.getCaptureDetailsFromRouterResponse(request, response, newPayment);
         Payment payment = newPayment.build();
         logger.log(Level.INFO, TRANSACTION_TYPE, payment.getTransactionType());
@@ -242,7 +246,8 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .authSubType(request.getTransactionType())
                 .tenderType(String.valueOf(TenderType.CREDIT))
                 .issuerType(Objects.nonNull(enumByString) ? IssuerType.valueOf(enumByString) : null)
-                .updatedTimestamp(LocalDateTime.now());
+                .updatedTimestamp(LocalDateTime.now())
+                .transactionStatus(FAILURE_MESSAGE);
                 //.avsResponseCode().cvvResponseCode().dccFlag().dccControlNumber().dccAmount().dccBinRate().dccBinCurrency()
                 //.processorStatusCode().processorStatusMessage().processorAuthCode()
         helper.getVoidDetailsFromRouterResponse(request, response, newPayment);
@@ -300,7 +305,8 @@ public class SavePaymentServiceImpl implements SavePaymentService {
                 .authSubType(request.getTransactionType())
                 .tenderType(String.valueOf(TenderType.CREDIT))
                 .issuerType(Objects.nonNull(enumByString) ? IssuerType.valueOf(enumByString) : null)
-                .updatedTimestamp(LocalDateTime.now());
+                .updatedTimestamp(LocalDateTime.now())
+                .transactionStatus(FAILURE_MESSAGE);
         helper.getRefundDetailsFromRouterResponse(request, response, newPayment);
         Payment payment = newPayment.build();
         logger.log(Level.INFO, TRANSACTION_TYPE, payment.getTransactionType());

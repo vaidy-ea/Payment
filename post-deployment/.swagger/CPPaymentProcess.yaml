@@ -792,6 +792,19 @@ paths:
           - service
         - service-role:
           - write
+  /v1/health:
+    get:
+      description: Get the health of the service
+      tags: 
+      - CPPaymentProcess
+      operationId: getHealth
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
 components:
   schemas:
     CardRequest:

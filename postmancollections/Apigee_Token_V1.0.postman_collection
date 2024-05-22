@@ -1,0 +1,60 @@
+{
+	"info": {
+		"_postman_id": "e82fa8c3-cfb1-4160-be59-2a15a04eb37f",
+		"name": "Apigee_Token",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "33942941"
+	},
+	"item": [
+		{
+			"name": "OAuthToken",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"uuid": "2e5831c5-4de7-47e2-9e97-f4e14b46d65b"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_id",
+							"value": "pd_cp_service_id",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "g_aPUFD8F6pVnTwobOmBzOOpv7j_jWaRsk0CixMpcTdtPubtxYiJPvUHWwesXLkV",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://mgm-nonprod-qa4.apigee.net/identity/authorization/v1/mgmsvc/token",
+					"protocol": "https",
+					"host": [
+						"mgm-nonprod-qa4",
+						"apigee",
+						"net"
+					],
+					"path": [
+						"identity",
+						"authorization",
+						"v1",
+						"mgmsvc",
+						"token"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

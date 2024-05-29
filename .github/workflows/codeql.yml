@@ -13,9 +13,9 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main","hatyagi-EnabledCodeQL" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main","hatyagi-EnabledCodeQL" ]
   schedule:
     - cron: '36 16 * * 2'
 
